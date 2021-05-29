@@ -28,9 +28,6 @@ import java.util.*;
 @Component
 public class AliyunOSSUploader extends Uploader {
 
-//    @Resource
-//    UFOProperties ufoProperties;
-
     // partETags是PartETag的集合。PartETag由分片的ETag和分片号组成。
     public static Map<String, List<PartETag>> partETagsMap = new HashMap<String, List<PartETag>>();
     public static Map<String, UploadFileInfo> uploadPartRequestMap = new HashMap<>();
@@ -198,7 +195,8 @@ public class AliyunOSSUploader extends Uploader {
     /**
      * 取消上传
      */
-    private void cancelUpload(UploadFile uploadFile) {
+    @Override
+    public void cancelUpload(UploadFile uploadFile) {
         AbortMultipartUploadRequest abortMultipartUploadRequest =
                 new AbortMultipartUploadRequest(UFOAutoConfiguration.aliyunConfig.getOss().getBucketName(), uploadPartRequestMap.get(uploadFile.getIdentifier()).getKey(), uploadPartRequestMap.get(uploadFile.getIdentifier()).getUploadId());
         getClient(uploadFile).abortMultipartUpload(abortMultipartUploadRequest);

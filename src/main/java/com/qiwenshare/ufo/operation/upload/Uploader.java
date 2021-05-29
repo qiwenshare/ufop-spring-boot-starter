@@ -28,6 +28,7 @@ public abstract class Uploader {
 
 
     public abstract List<UploadFile> upload(HttpServletRequest request, UploadFile uploadFile);
+    public abstract void cancelUpload(UploadFile uploadFile);
 
     /**
      * 获取本地文件保存路径

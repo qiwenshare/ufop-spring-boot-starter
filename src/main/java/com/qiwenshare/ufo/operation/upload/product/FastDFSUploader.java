@@ -2,7 +2,6 @@ package com.qiwenshare.ufo.operation.upload.product;
 
 import com.github.tobato.fastdfs.domain.StorePath;
 import com.github.tobato.fastdfs.service.AppendFileStorageClient;
-import com.github.tobato.fastdfs.service.FastFileStorageClient;
 import com.qiwenshare.common.util.FileUtil;
 import com.qiwenshare.ufo.exception.UploadException;
 import com.qiwenshare.ufo.operation.upload.Uploader;
@@ -12,7 +11,6 @@ import com.qiwenshare.ufo.util.RedisUtil;
 import com.qiwenshare.ufo.util.concurrent.locks.RedisLock;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.support.StandardMultipartHttpServletRequest;
@@ -31,8 +29,6 @@ public class FastDFSUploader extends Uploader {
 
     @Resource
     AppendFileStorageClient defaultAppendFileStorageClient;
-    @Autowired
-    private FastFileStorageClient storageClient;
     @Resource
     RedisLock redisLock;
     @Resource
@@ -184,5 +180,10 @@ public class FastDFSUploader extends Uploader {
             redisLock.unlock(uploadFile.getIdentifier());
         }
 
+    }
+
+    @Override
+    public void cancelUpload(UploadFile uploadFile) {
+        // TODO
     }
 }

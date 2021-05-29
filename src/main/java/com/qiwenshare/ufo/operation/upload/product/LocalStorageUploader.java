@@ -123,4 +123,9 @@ public class LocalStorageUploader extends Uploader {
         return saveUploadFileList;
     }
 
+    @Override
+    public void cancelUpload(UploadFile uploadFile) {
+        // TODO
+    }
+
 }

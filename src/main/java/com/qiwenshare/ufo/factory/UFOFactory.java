@@ -75,14 +75,13 @@ public class UFOFactory {
         return null;
     }
 
-
     public Renamer getRenamer(int storageType) {
         if (StorageTypeEnum.LOCAL.getStorageType() == storageType) {
-//            return new LocalStorageRenamer();
+            return null;
         } else if (StorageTypeEnum.ALIYUN_OSS.getStorageType() == storageType) {
             return new AliyunOSSRenamer();
         } else if (StorageTypeEnum.FAST_DFS.getStorageType() == storageType) {
-//            return new FastDFSRenamer();
+            return null;
         }
         return null;
     }
