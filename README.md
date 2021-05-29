@@ -2,7 +2,7 @@
 
 #### 介绍
 
-UFO (Unified File Operation) 统一文件操作工具，通过引入该依赖，可以实现文件操作的统一管理
+UFO (Unified File Operation) 统一文件操作启动器，通过引入该依赖，可以实现文件操作的统一管理
 
 此项目为奇文网盘核心功能，之前有不少人咨询，如何将网盘集成到自己的项目?出于这个目的，就把这块功能剥离出来供大家方便引入，目前实现的主要功能如下：
 
@@ -18,6 +18,7 @@ UFO (Unified File Operation) 统一文件操作工具，通过引入该依赖，
 #### 安装教程
 
 #### 使用说明
+
 
 1.  引入pom依赖
 
@@ -136,13 +137,22 @@ public class RedisConfig extends CachingConfigurerSupport {
 
 当配置完基础信息之后，使用就非常简单了，伪代码如下：
 
+注入UFOFactory
 ```java
 @Resource
 UFOFactory ufoFactory;
+```
+上传文件操作，具体这个上传操作是哪种存储实现，由`ufo.storage-type`配置项决定，
+
+```java
 
 //上传操作
 Uploader uploader = ufoFactory.getUploader();
 uploader.upload(request, uploadFile);
+```
+
+下载和删除则需要用户自己传入文件存储类型
+```java
 //下载操作
 Downloader downloader = ufoFactory.getDownloader(fileBean.getStorageType());
 downloader.download(httpServletResponse, downloadFile);
