@@ -29,6 +29,36 @@ import java.util.UUID;
 @Component
 public class LocalStorageUploader extends Uploader {
 
+
+    @Override
+    public List<UploadFile> upload(HttpServletRequest httpServletRequest) {
+        List<UploadFile> saveUploadFileList = new ArrayList<UploadFile>();
+        StandardMultipartHttpServletRequest standardMultipartHttpServletRequest = (StandardMultipartHttpServletRequest) httpServletRequest;
+        boolean isMultipart = ServletFileUpload.isMultipartContent(standardMultipartHttpServletRequest);
+        if (!isMultipart) {
+            throw new UploadException("未包含文件上传域");
+        }
+        UploadFile uploadFile = new UploadFile();
+        uploadFile.setChunkNumber(1);
+        uploadFile.setChunkSize(0);
+
+        uploadFile.setTotalChunks(1);
+        uploadFile.setIdentifier(UUID.randomUUID().toString());
+
+        try {
+
+            Iterator<String> iter = standardMultipartHttpServletRequest.getFileNames();
+            while (iter.hasNext()) {
+                saveUploadFileList = doUpload(standardMultipartHttpServletRequest, iter, uploadFile);
+            }
+        } catch (IOException e) {
+            throw new UploadException("未包含文件上传域");
+        } catch (NotSameFileExpection notSameFileExpection) {
+            notSameFileExpection.printStackTrace();
+        }
+        return saveUploadFileList;
+    }
+
     @Override
     public List<UploadFile> upload(HttpServletRequest httpServletRequest, UploadFile uploadFile) {
         List<UploadFile> saveUploadFileList = new ArrayList<UploadFile>();
@@ -61,8 +91,12 @@ public class LocalStorageUploader extends Uploader {
 
         String originalName = multipartfile.getOriginalFilename();
 
+
         String fileName = getFileName(originalName);
         String fileType = FileUtil.getFileExtendName(originalName);
+        if (uploadFile.getTotalChunks() == 1) {
+            uploadFile.setTotalSize(multipartfile.getSize());
+        }
         uploadFile.setFileName(fileName);
         uploadFile.setFileType(fileType);
         uploadFile.setTimeStampName(timeStampName);
@@ -100,12 +134,12 @@ public class LocalStorageUploader extends Uploader {
         //判断是否完成文件的传输并进行校验与重命名
         boolean isComplete = checkUploadStatus(uploadFile, confFile);
         if (isComplete) {
-            FileInputStream fileInputStream = new FileInputStream(tempFile.getPath());
-            String md5 = DigestUtils.md5Hex(fileInputStream);
-            fileInputStream.close();
-            if (StringUtils.isNotBlank(md5) && !md5.equals(uploadFile.getIdentifier())) {
-                throw new NotSameFileExpection();
-            }
+//            FileInputStream fileInputStream = new FileInputStream(tempFile.getPath());
+//            String md5 = DigestUtils.md5Hex(fileInputStream);
+//            fileInputStream.close();
+//            if (StringUtils.isNotBlank(md5) && !md5.equals(uploadFile.getIdentifier())) {
+//                throw new NotSameFileExpection();
+//            }
             tempFile.renameTo(file);
             if (FileUtil.isImageFile(uploadFile.getFileType())){
                 ImageOperation.thumbnailsImage(file, minFile, 300);

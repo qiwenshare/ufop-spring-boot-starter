@@ -4,6 +4,7 @@ import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
 import com.aliyun.oss.model.CopyObjectResult;
 import com.aliyun.oss.model.ObjectMetadata;
+import com.qiwenshare.ufo.autoconfiguration.UFOAutoConfiguration;
 import com.qiwenshare.ufo.autoconfiguration.UFOProperties;
 import com.qiwenshare.ufo.operation.rename.Renamer;
 import com.qiwenshare.ufo.operation.rename.domain.RenameFile;
@@ -13,15 +14,13 @@ import javax.annotation.Resource;
 
 @Component
 public class AliyunOSSRenamer extends Renamer {
-    @Resource
-    UFOProperties ufoProperties;
 
     @Override
     public void rename(RenameFile renameFile) {
-        String endpoint = ufoProperties.getAliyun().getOss().getEndpoint();
-        String accessKeyId = ufoProperties.getAliyun().getOss().getAccessKeyId();
-        String accessKeySecret = ufoProperties.getAliyun().getOss().getAccessKeySecret();
-        String bucketName = ufoProperties.getAliyun().getOss().getBucketName();
+        String endpoint = UFOAutoConfiguration.aliyunConfig.getOss().getEndpoint();
+        String accessKeyId = UFOAutoConfiguration.aliyunConfig.getOss().getAccessKeyId();
+        String accessKeySecret = UFOAutoConfiguration.aliyunConfig.getOss().getAccessKeySecret();
+        String bucketName = UFOAutoConfiguration.aliyunConfig.getOss().getBucketName();
         OSS ossClient = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
         CopyObjectResult result = ossClient.copyObject(bucketName, renameFile.getSrcName(), bucketName, renameFile.getDestName());
 

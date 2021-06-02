@@ -1,7 +1,5 @@
 package com.qiwenshare.ufo.autoconfiguration;
 
-//import com.qiwenshare.common.util.RedisUtil;
-//import com.qiwenshare.common.util.concurrent.locks.RedisLock;
 import com.qiwenshare.ufo.config.AliyunConfig;
 import com.qiwenshare.ufo.factory.UFOFactory;
 import com.qiwenshare.ufo.operation.delete.product.FastDFSDeleter;

@@ -35,6 +35,34 @@ public class AliyunOSSUploader extends Uploader {
     public static Map<String, OSS> ossMap = new HashMap<>();
 
     @Override
+    public List<UploadFile> upload(HttpServletRequest httpServletRequest) {
+        log.info("开始上传upload");
+
+        List<UploadFile> saveUploadFileList = new ArrayList<>();
+        StandardMultipartHttpServletRequest request = (StandardMultipartHttpServletRequest) httpServletRequest;
+
+        boolean isMultipart = ServletFileUpload.isMultipartContent(request);
+        if (!isMultipart) {
+            throw new UploadException("未包含文件上传域");
+        }
+        UploadFile uploadFile = new UploadFile();
+        uploadFile.setChunkNumber(1);
+        uploadFile.setChunkSize(0);
+        uploadFile.setTotalChunks(1);
+        uploadFile.setIdentifier(UUID.randomUUID().toString());
+
+        Iterator<String> iter = request.getFileNames();
+        while (iter.hasNext()) {
+
+            saveUploadFileList = doUpload(request, iter, uploadFile);
+        }
+
+
+        log.info("结束上传");
+        return saveUploadFileList;
+    }
+
+    @Override
     public List<UploadFile> upload(HttpServletRequest httpServletRequest, UploadFile uploadFile) {
         log.info("开始上传upload");
 
@@ -73,7 +101,9 @@ public class AliyunOSSUploader extends Uploader {
             uploadFile.setFileName(fileName);
             uploadFile.setFileType(fileType);
             uploadFile.setTimeStampName(timeStampName);
-
+            if (uploadFile.getTotalChunks() == 1) {
+                uploadFile.setTotalSize(multipartfile.getSize());
+            }
             String ossFilePath = savePath + FILE_SEPARATOR + timeStampName + FILE_SEPARATOR + fileName + "." + fileType;
             String confFilePath = savePath + FILE_SEPARATOR + uploadFile.getIdentifier() + "." + "conf";
             File confFile = new File(PathUtil.getStaticPath() + FILE_SEPARATOR + confFilePath);
@@ -99,7 +129,7 @@ public class AliyunOSSUploader extends Uploader {
             uploadPartRequest.setKey(uploadFileInfo.getKey());
             uploadPartRequest.setUploadId(uploadFileInfo.getUploadId());
             uploadPartRequest.setInputStream(multipartfile.getInputStream());
-            uploadPartRequest.setPartSize(uploadFile.getCurrentChunkSize());
+            uploadPartRequest.setPartSize(multipartfile.getSize());
             uploadPartRequest.setPartNumber(uploadFile.getChunkNumber());
             log.info(JSON.toJSONString(uploadPartRequest));
 

@@ -26,8 +26,25 @@ public abstract class Uploader {
     // 文件大小限制，单位KB
     public final int maxSize = 10000000;
 
+    /**
+     * 普通上传
+     * @param httpServletRequest http的request请求
+     * @return 文件列表
+     */
+    public abstract List<UploadFile> upload(HttpServletRequest httpServletRequest);
 
-    public abstract List<UploadFile> upload(HttpServletRequest request, UploadFile uploadFile);
+    /**
+     * 分片上传
+     * @param httpServletRequest http的request请求
+     * @param uploadFile 分片上传参数
+     * @return 文件列表
+     */
+    public abstract List<UploadFile> upload(HttpServletRequest httpServletRequest, UploadFile uploadFile);
+
+    /**
+     * 取消上传
+     * @param uploadFile
+     */
     public abstract void cancelUpload(UploadFile uploadFile);
 
     /**

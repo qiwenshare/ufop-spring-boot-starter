@@ -21,6 +21,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @Component
@@ -33,6 +34,37 @@ public class FastDFSUploader extends Uploader {
     RedisLock redisLock;
     @Resource
     RedisUtil redisUtil;
+
+    @Override
+    public List<UploadFile> upload(HttpServletRequest httpServletRequest) {
+        List<UploadFile> saveUploadFileList = new ArrayList<>();
+        StandardMultipartHttpServletRequest standardMultipartHttpServletRequest = (StandardMultipartHttpServletRequest) httpServletRequest;
+
+        boolean isMultipart = ServletFileUpload.isMultipartContent(standardMultipartHttpServletRequest);
+        if (!isMultipart) {
+            throw new UploadException("未包含文件上传域");
+        }
+
+        String savePath = getLocalFileSavePath();
+        UploadFile uploadFile = new UploadFile();
+        uploadFile.setChunkNumber(1);
+        uploadFile.setChunkSize(0);
+
+        uploadFile.setTotalChunks(1);
+        uploadFile.setIdentifier(UUID.randomUUID().toString());
+        try {
+
+            Iterator<String> iter = standardMultipartHttpServletRequest.getFileNames();
+            while (iter.hasNext()) {
+                saveUploadFileList = doUpload(standardMultipartHttpServletRequest, savePath, iter, uploadFile);
+            }
+        } catch (Exception e) {
+            throw new UploadException(e);
+        }
+
+        log.info("结束上传");
+        return saveUploadFileList;
+    }
 
     @Override
     public List<UploadFile> upload(HttpServletRequest request, UploadFile uploadFile) {
@@ -80,7 +112,9 @@ public class FastDFSUploader extends Uploader {
             uploadFile.setFileName(fileName);
             uploadFile.setFileType(fileType);
             uploadFile.setTimeStampName(timeStampName);
-
+            if (uploadFile.getTotalChunks() == 1) {
+                uploadFile.setTotalSize(multipartfile.getSize());
+            }
 
             String confFilePath = savePath + FILE_SEPARATOR + uploadFile.getIdentifier() + "." + "conf";
             File confFile = new File(PathUtil.getStaticPath() + FILE_SEPARATOR + confFilePath);
@@ -138,7 +172,7 @@ public class FastDFSUploader extends Uploader {
                 storePath = defaultAppendFileStorageClient.uploadAppenderFile("group1", multipartFile.getInputStream(),
                         multipartFile.getSize(), FileUtil.getFileExtendName(multipartFile.getOriginalFilename()));
                 // 记录第一个分片上传的大小
-                redisUtil.set(uploadFile.getIdentifier() + "_uploaded_size", uploadFile.getCurrentChunkSize(), 1000 * 60 * 60);
+                redisUtil.set(uploadFile.getIdentifier() + "_uploaded_size", multipartFile.getSize(), 1000 * 60 * 60);
 
                 log.info("第一块上传完成");
                 if (storePath == null) {
