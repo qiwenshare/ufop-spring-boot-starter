@@ -4,6 +4,7 @@ import com.qiwenshare.ufo.config.AliyunConfig;
 import com.qiwenshare.ufo.factory.UFOFactory;
 import com.qiwenshare.ufo.operation.delete.product.FastDFSDeleter;
 import com.qiwenshare.ufo.operation.download.product.FastDFSDownloader;
+import com.qiwenshare.ufo.operation.read.product.FastDFSReader;
 import com.qiwenshare.ufo.operation.upload.product.FastDFSUploader;
         import com.qiwenshare.ufo.util.RedisUtil;
 import com.qiwenshare.ufo.util.concurrent.locks.RedisLock;
@@ -37,6 +38,10 @@ public class UFOAutoConfiguration {
     @Bean
     public FastDFSDeleter fastDFSDeleter() {
         return new FastDFSDeleter();
+    }
+    @Bean
+    public FastDFSReader fastDFSReader() {
+        return new FastDFSReader();
     }
 
     @Bean

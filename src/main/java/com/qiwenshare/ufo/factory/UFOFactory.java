@@ -8,6 +8,10 @@ import com.qiwenshare.ufo.operation.download.Downloader;
 import com.qiwenshare.ufo.operation.download.product.AliyunOSSDownloader;
 import com.qiwenshare.ufo.operation.download.product.FastDFSDownloader;
 import com.qiwenshare.ufo.operation.download.product.LocalStorageDownloader;
+import com.qiwenshare.ufo.operation.read.Reader;
+import com.qiwenshare.ufo.operation.read.product.AliyunOSSReader;
+import com.qiwenshare.ufo.operation.read.product.FastDFSReader;
+import com.qiwenshare.ufo.operation.read.product.LocalStorageReader;
 import com.qiwenshare.ufo.operation.rename.Renamer;
 import com.qiwenshare.ufo.operation.rename.product.AliyunOSSRenamer;
 import com.qiwenshare.ufo.operation.upload.Uploader;
@@ -29,6 +33,8 @@ public class UFOFactory {
     private FastDFSDownloader fastDFSDownloader;
     @Resource
     private  FastDFSDeleter fastDFSDeleter;
+    @Resource
+    private FastDFSReader fastDFSReader;
 
     public UFOFactory() {
     }
@@ -82,6 +88,17 @@ public class UFOFactory {
             return new AliyunOSSRenamer();
         } else if (StorageTypeEnum.FAST_DFS.getStorageType() == storageType) {
             return null;
+        }
+        return null;
+    }
+
+    public Reader getReader(int storageType) {
+        if (StorageTypeEnum.LOCAL.getStorageType() == storageType) {
+            return new LocalStorageReader();
+        } else if (StorageTypeEnum.ALIYUN_OSS.getStorageType() == storageType) {
+            return new AliyunOSSReader();
+        } else if (StorageTypeEnum.FAST_DFS.getStorageType() == storageType) {
+            return fastDFSReader;
         }
         return null;
     }
