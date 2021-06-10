@@ -14,7 +14,7 @@ public class PathUtil {
 
     /**
      * 获取项目所在的根目录路径 resources路径
-     * @return
+     * @return 结果
      */
     public static String getProjectRootPath() {
         String absolutePath = null;
@@ -30,8 +30,8 @@ public class PathUtil {
 
     /**
      * 路径解码
-     * @param url
-     * @return
+     * @param url url
+     * @return 结果
      */
     public static String urlDecode(String url){
         String decodeUrl = null;
@@ -46,7 +46,7 @@ public class PathUtil {
     /**
      * 得到static路径
      *
-     * @return
+     * @return 结果
      */
     public static String getStaticPath() {
         String localStoragePath = UFOAutoConfiguration.localStoragePath;//PropertiesUtil.getProperty("qiwen-file.local-storage-path")

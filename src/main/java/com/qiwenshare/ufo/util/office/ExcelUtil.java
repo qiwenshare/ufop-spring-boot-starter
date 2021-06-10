@@ -43,18 +43,14 @@ import org.openxmlformats.schemas.drawingml.x2006.spreadsheetDrawing.CTMarker;
  *
  */
 public class ExcelUtil {
-    public static void main(String[] args) {
-        ExcelUtil.excelToHtml("E:\\poi\\poi.xlsx", "E:\\poi\\testx.html");
-    }
+//    public static void main(String[] args) {
+//        ExcelUtil.excelToHtml("E:\\poi\\poi.xlsx", "E:\\poi\\testx.html");
+//    }
     
        private static String UPLOAD_FILE="E:/";
 
 
-     /**
-     * 测试
-     * 
-     * @param
-     */
+
     public static void excelToHtml(String path,String htmlPositon) {
         InputStream is = null;
         String htmlExcel = null;
@@ -115,11 +111,7 @@ public class ExcelUtil {
      *            文件的路径
      * @param isWithStyle
      *            是否需要表格样式 包含 字体 颜色 边框 对齐方式
-     * @return
-     *         <table>
-     *         ...
-     *         </table>
-     *         字符串
+     * @return 字符串
      */
     public String readExcelToHtml(String filePath, boolean isWithStyle) {
 

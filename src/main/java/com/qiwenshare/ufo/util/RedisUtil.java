@@ -53,7 +53,7 @@ public class RedisUtil {
 
     /**
      * 删除key
-     * @param key
+     * @param key key
      */
     public void deleteKey(String key) {
         redisTemplate.delete(key);

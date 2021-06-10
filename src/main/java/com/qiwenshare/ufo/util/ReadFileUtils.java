@@ -36,25 +36,23 @@ import java.io.InputStream;
 
 /**
  * @author wangshuaijun
- * @description
  * 读取文件工具类：支持以下文件内容读取
  * 1. word(.doc),word(.docx)
  * 2. excel(.xls),excel(xlsx)
  * 3. pdf
  * 4. txt
  * 5. ppt(.ppt),pptx(,pptx)
- * @date 2019年4月19日10:52:45
  *
  */
 public class ReadFileUtils {
 
 
+
     /**
      * 根据文件类型返回文件内容
-     *
-//     * @param filepath
-     * @return
-     * @throws IOException
+     * @param fileurl 文件路径
+     * @return 返回结果
+     * @throws IOException IOException
      */
     public static String getContentByPath(String fileurl) throws IOException {
         FileInputStream fileInputStream = new FileInputStream(fileurl);
@@ -77,12 +75,13 @@ public class ReadFileUtils {
         return "";
     }
 
+
     /**
      * 根据文件类型返回文件内容
-     *
-//     * @param filepath
-     * @return
-     * @throws IOException
+     * @param fileType 文件类型
+     * @param inputStream 输入流
+     * @return 结果
+     * @throws IOException io异常
      */
     public static String getContentByInputStream(String fileType, InputStream inputStream) throws IOException {
 //        FileInputStream fileInputStream = new FileInputStream(filepath);
@@ -105,10 +104,9 @@ public class ReadFileUtils {
     }
 
     /**
-     * 读取PDF中的内容
-     *
-//     * @param filePath
-     * @return
+     * 读取pdf内容
+     * @param inputStream 输入流
+     * @return 结果
      */
     public static String readPdf(InputStream inputStream) {
 //        FileInputStream fileInputStream = null;
@@ -146,9 +144,9 @@ public class ReadFileUtils {
     /**
      * 读取Excel中的内容
      *
-     * @param filePath
-     * @return
-     * @throws IOException
+     * @param filePath 文件路径
+     * @return 返回结果
+     * @throws IOException IOException
      */
     private static String readTxt(String filePath) throws IOException {
         File f = new File(filePath);
@@ -157,9 +155,9 @@ public class ReadFileUtils {
 
     /**
      * 读取Excel中的内容
-     *
-//     * @param filePath
-     * @return
+     * @param fileType 文件类型
+     * @param inputStream 输入流
+     * @return 结果
      */
     private static String readExcel(String fileType, InputStream inputStream) {
 
@@ -209,10 +207,10 @@ public class ReadFileUtils {
     }
 
     /**
-     * 读取word中的内容
-     *
-     * @param fileType
-     * @return
+     * 读取word
+     * @param fileType 文件类型
+     * @param inputStream 输入流
+     * @return 结果
      */
     public static String readWord(String fileType, InputStream inputStream) {
         String buffer = "";

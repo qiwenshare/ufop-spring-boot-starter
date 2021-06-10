@@ -1,12 +1,14 @@
 package com.qiwenshare.ufo.util.office;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import fr.opensagres.poi.xwpf.converter.core.ImageManager;
+import fr.opensagres.poi.xwpf.converter.xhtml.XHTMLConverter;
+import fr.opensagres.poi.xwpf.converter.xhtml.XHTMLOptions;
+import org.apache.poi.hwpf.HWPFDocument;
+import org.apache.poi.hwpf.converter.PicturesManager;
+import org.apache.poi.hwpf.converter.WordToHtmlConverter;
+import org.apache.poi.hwpf.usermodel.PictureType;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.w3c.dom.Document;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -16,22 +18,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-
-import fr.opensagres.poi.xwpf.converter.core.ImageManager;
-import fr.opensagres.poi.xwpf.converter.xhtml.XHTMLConverter;
-import fr.opensagres.poi.xwpf.converter.xhtml.XHTMLOptions;
-import org.apache.poi.hwpf.HWPFDocument;
-import org.apache.poi.hwpf.converter.PicturesManager;
-import org.apache.poi.hwpf.converter.WordToHtmlConverter;
-import org.apache.poi.hwpf.usermodel.PictureType;
-//import org.apache.poi.xwpf.converter.core.BasicURIResolver;
-//import org.apache.poi.xwpf.converter.core.FileImageExtractor;
-//import org.apache.poi.xwpf.converter.core.FileURIResolver;
-//import org.apache.poi.xwpf.converter.xhtml.XHTMLConverter;
-//import org.apache.poi.xwpf.converter.xhtml.XHTMLOptions;
-//import org.apache.poi.xwpf.usermodel.XWPFDocument;
-import org.apache.poi.xwpf.usermodel.XWPFDocument;
-import org.w3c.dom.Document;
+import java.io.*;
 
 /**
  * word 转换成html 2017-2-27
@@ -48,10 +35,13 @@ public class WordUtil {
      *            word文件名称无后缀
      * @param suffix
      *            word文件后缀
-     * @throws IOException
-     * @throws TransformerException
-     * @throws ParserConfigurationException
+     * @return 结果
+     * @throws IOException IOException
+     * @throws TransformerException TransformerException
+     * @throws ParserConfigurationException ParserConfigurationException
+     *
      */
+
     public static String Word2003ToHtml(String wordPath, String wordName,
             String suffix) throws IOException, TransformerException,
             ParserConfigurationException {
@@ -136,8 +126,8 @@ public class WordUtil {
      *            word文件名称无后缀
      * @param suffix
      *            word文件后缀
-     * @return
-     * @throws IOException
+     * @return 结果
+     * @throws IOException IOException
      */
     public static String Word2007ToHtml(String wordPath, String wordName, String suffix)
             throws IOException {

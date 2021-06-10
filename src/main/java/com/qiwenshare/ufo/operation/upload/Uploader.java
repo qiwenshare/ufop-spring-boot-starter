@@ -43,14 +43,14 @@ public abstract class Uploader {
 
     /**
      * 取消上传
-     * @param uploadFile
+     * @param uploadFile 分片上传参数
      */
     public abstract void cancelUpload(UploadFile uploadFile);
 
     /**
      * 获取本地文件保存路径
      *
-     * @return
+     * @return 路径
      */
     protected String getLocalFileSavePath() {
         
@@ -79,7 +79,7 @@ public abstract class Uploader {
     /**
      * 依据原始文件名生成新文件名
      *
-     * @return
+     * @return 返回路径
      */
     protected String getTimeStampName() {
         try {

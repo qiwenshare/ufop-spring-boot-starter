@@ -173,8 +173,10 @@ public class AliyunOSSUploader extends Uploader {
         return saveUploadFileList;
     }
 
+
     /**
      * 将文件分块进行升序排序并执行文件上传。
+     * @param uploadFile 上传信息
      */
     protected void completeMultipartUpload(UploadFile uploadFile) {
 

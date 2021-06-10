@@ -1,9 +1,15 @@
 package com.qiwenshare.ufo.util.office;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics2D;
-import java.awt.Image;
+import com.qiwenshare.common.util.FileUtil;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.RandomUtils;
+import org.apache.poi.hslf.usermodel.*;
+import org.apache.poi.xslf.usermodel.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -12,32 +18,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.UUID;
 
-import javax.imageio.ImageIO;
-
-import com.qiwenshare.common.util.FileUtil;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.RandomUtils;
-import org.apache.poi.hslf.usermodel.HSLFShape;
-import org.apache.poi.hslf.usermodel.HSLFSlideShow;
-import org.apache.poi.hslf.usermodel.HSLFSlideShowImpl;
-import org.apache.poi.hslf.usermodel.HSLFTextParagraph;
-import org.apache.poi.hslf.usermodel.HSLFTextRun;
-import org.apache.poi.hslf.usermodel.HSLFTextShape;
-import org.apache.poi.xslf.usermodel.XMLSlideShow;
-import org.apache.poi.xslf.usermodel.XSLFShape;
-import org.apache.poi.xslf.usermodel.XSLFTextParagraph;
-import org.apache.poi.xslf.usermodel.XSLFTextRun;
-import org.apache.poi.xslf.usermodel.XSLFTextShape;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-//
-//import com.maiyue.base.utils.ComUtil;
-//import com.maiyue.base.utils.FileUtils;
-
 /**
  * ppt转换为html
- *
- * @authorchen
  */
 public class PPTUtil {
 
@@ -48,10 +30,11 @@ public class PPTUtil {
         System.out.println(pptToHtml("E:\\poi\\Java02(团队协作工具之SVN) .ppt", "E:\\poi", "33333"));
     }
     /**
-     * @param sourceFilePath
-     * @param targetFolder
-     * @param targetFileName
-     * @return
+     * ppt转html
+     * @param sourceFilePath 源文件路径
+     * @param targetFolder 目标文件夹
+     * @param targetFileName 目标文件名
+     * @return 结果
      */
     public static String pptToHtml(String sourceFilePath, String targetFolder, String targetFileName) {
 //        FileUtils.createFileFolder(targetFolder);
@@ -110,18 +93,18 @@ public class PPTUtil {
                 }
                 BufferedImage img = new BufferedImage(pgsize.width, pgsize.height, BufferedImage.TYPE_INT_RGB);
                 Graphics2D graphics = img.createGraphics();
-// clear the drawing area
+                // clear the drawing area
                 graphics.setPaint(Color.white);
                 graphics.fill(new Rectangle2D.Float(0, 0, pgsize.width, pgsize.height));
-// render
+                // render
                 ppt.getSlides().get(i).draw(graphics);
-// save the output
+                // save the output
                 String imageDir = targetDir + "/" + imageFileName + "/";
-//                FileUtils.createDir(imageDir);// create image dir
+                //                FileUtils.createDir(imageDir);// create image dir
                 new File(imageDir).mkdirs();
-// 相对路径
+                // 相对路径
                 String relativeImagePath = imageFileName + "/" + imageFileName + "-" + (i + 1) + ".png";
-// 绝对路径
+                // 绝对路径
                 String imagePath = imageDir + imageFileName + "-" + (i + 1) + ".png";
                 sb.append("<br>");
                 sb.append("<img src=" + "\"" + relativeImagePath + "\"" + "/>");
@@ -189,11 +172,12 @@ public class PPTUtil {
     }
 
     /**
-     * @param srcImgPath
-     * @param distImgPath
-     * @param width
-     * @param height
-     * @throws IOException
+     * 旋转
+     * @param srcImgPath 源图像路径
+     * @param distImgPath 目标图像路径
+     * @param width 宽
+     * @param height 高
+     * @throws IOException IOException
      */
     public static void resizeImage(String srcImgPath, String distImgPath, int width, int height) throws IOException {
         File srcFile = new File(srcImgPath);
@@ -204,9 +188,5 @@ public class PPTUtil {
         ImageIO.write(buffImg, "JPEG", new File(distImgPath));
     }
 
-/*public static void main(String[] args) {
-//POIPptToHtmlUtils.pptToHtml("D:/diagnosis/file/temp//ppt2007.pptx", "D:/diagnosis/file/temp/", "test5.html");
-POIPptToHtmlUtils.pptToHtml("D:/diagnosis/file/temp//ppt2003.ppt", "D:/diagnosis/file/temp/", "test6.html");
-}*/
 
 }
