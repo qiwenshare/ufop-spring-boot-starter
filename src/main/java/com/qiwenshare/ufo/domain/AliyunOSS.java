@@ -10,5 +10,4 @@ public class AliyunOSS {
     private String accessKeySecret;
     private String bucketName;
     private String objectName;
-    private String domain;
 }
