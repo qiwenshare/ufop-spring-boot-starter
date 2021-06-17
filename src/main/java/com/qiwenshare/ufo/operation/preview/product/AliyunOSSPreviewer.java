@@ -32,10 +32,11 @@ public class AliyunOSSPreviewer extends Previewer {
         url.append(previewFile.getFileUrl());
 
         Map<String, Object> param = new HashMap<>();
-        int width = previewFile.getWidth() == 0 ? 150 : previewFile.getWidth();
-        int height = previewFile.getHeight() == 0 ? 150 : previewFile.getHeight();
-        int rotate = previewFile.getRotate() <= 0 ? 0 : previewFile.getRotate();
-        param.put("x-oss-process", "image/resize,m_fill,h_"+height+",w_"+width+"/rotate,"+rotate);
+        int thumbImageWidth = UFOAutoConfiguration.thumbImageWidth;
+        int thumbImageHeight = UFOAutoConfiguration.thumbImageHeight;
+        int width = thumbImageWidth == 0 ? 150 : thumbImageWidth;
+        int height = thumbImageHeight == 0 ? 150 : thumbImageHeight;
+        param.put("x-oss-process", "image/resize,m_fill,h_"+height+",w_"+width+"/rotate,0");
 
         InputStream inputStream = null;
         try {

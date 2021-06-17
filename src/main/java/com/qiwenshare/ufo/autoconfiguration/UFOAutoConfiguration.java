@@ -21,11 +21,15 @@ import org.springframework.context.annotation.Configuration;
 public class UFOAutoConfiguration {
     public static String localStoragePath;
     public static AliyunConfig aliyunConfig;
+    public static int thumbImageWidth;
+    public static int thumbImageHeight;
 
     @Bean
     public UFOFactory ufoFactory(UFOProperties ufoProperties) {
         localStoragePath = ufoProperties.getLocalStoragePath();
         aliyunConfig = ufoProperties.getAliyun();
+        thumbImageWidth = ufoProperties.getThumbImage().getWidth();
+        thumbImageHeight = ufoProperties.getThumbImage().getHeight();
         return new UFOFactory(ufoProperties.getStorageType());
     }
     @Bean

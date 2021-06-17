@@ -6,6 +6,7 @@ import com.github.tobato.fastdfs.service.FastFileStorageClient;
 import com.qiwenshare.common.operation.FileOperation;
 import com.qiwenshare.common.operation.ImageOperation;
 import com.qiwenshare.common.util.FileUtil;
+import com.qiwenshare.ufo.autoconfiguration.UFOAutoConfiguration;
 import com.qiwenshare.ufo.operation.download.domain.DownloadFile;
 import com.qiwenshare.ufo.operation.preview.Previewer;
 import com.qiwenshare.ufo.operation.preview.domain.PreviewFile;
@@ -60,7 +61,11 @@ public class FastDFSPreviewer extends Previewer {
             InputStream inputstream = getInputStream(previewFile.getFileUrl());
             InputStream in = null;
             try {
-                in = ImageOperation.thumbnailsImage(inputstream, saveFile, 150);
+                int thumbImageWidth = UFOAutoConfiguration.thumbImageWidth;
+                int thumbImageHeight = UFOAutoConfiguration.thumbImageHeight;
+                int width = thumbImageWidth == 0 ? 150 : thumbImageWidth;
+                int height = thumbImageHeight == 0 ? 150 : thumbImageHeight;
+                in = ImageOperation.thumbnailsImage(inputstream, saveFile, width, height);
             } catch (IOException e) {
                 e.printStackTrace();
             }
