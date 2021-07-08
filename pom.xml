@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.qiwenshare</groupId>
         <artifactId>qiwenshare</artifactId>
-        <version>1.0.3</version>
+        <version>1.0.4</version>
     </parent>
     <groupId>com.qiwenshare</groupId>
     <artifactId>ufo-spring-boot-starter</artifactId>
@@ -17,6 +17,12 @@
     <description>ufo-spring-boot-starter</description>
     <url>https://gitee.com/qiwen-cloud/ufo-spring-boot-starter</url>
 
+    <repositories>
+        <repository>
+            <id>com.e-iceblue</id>
+            <url>http://repo.e-iceblue.cn/repository/maven-public/</url>
+        </repository>
+    </repositories>
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -77,31 +83,12 @@
             <groupId>fr.opensagres.xdocreport</groupId>
             <artifactId>fr.opensagres.xdocreport.converter.docx.xwpf</artifactId>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>net.arnx</groupId>-->
-<!--            <artifactId>wmf2svg</artifactId>-->
-<!--            <version>0.9.8</version>-->
-<!--        </dependency>-->
-
-
-
-
-        <!--        <dependency>-->
-<!--            <groupId>org.apache.xmlbeans</groupId>-->
-<!--            <artifactId>xmlbeans</artifactId>-->
-<!--            <version>2.6.0</version>-->
-<!--        </dependency>-->
-
-<!--        <dependency>-->
-<!--            <groupId>org.apache.commons</groupId>-->
-<!--            <artifactId>commons-collections4</artifactId>-->
-<!--            <version>4.1</version>-->
-<!--        </dependency>-->
-        <!-- https://mvnrepository.com/artifact/org.apache.pdfbox/pdfbox -->
         <dependency>
             <groupId>org.apache.pdfbox</groupId>
             <artifactId>pdfbox</artifactId>
         </dependency>
+
+
     </dependencies>
 
 

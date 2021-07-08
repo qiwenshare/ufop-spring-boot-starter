@@ -22,6 +22,10 @@ import com.qiwenshare.ufo.operation.upload.Uploader;
 import com.qiwenshare.ufo.operation.upload.product.AliyunOSSUploader;
 import com.qiwenshare.ufo.operation.upload.product.FastDFSUploader;
 import com.qiwenshare.ufo.operation.upload.product.LocalStorageUploader;
+import com.qiwenshare.ufo.operation.write.Writer;
+import com.qiwenshare.ufo.operation.write.product.AliyunOSSWriter;
+import com.qiwenshare.ufo.operation.write.product.FastDFSWriter;
+import com.qiwenshare.ufo.operation.write.product.LocalStorageWriter;
 import lombok.Data;
 import org.springframework.stereotype.Component;
 
@@ -41,6 +45,8 @@ public class UFOFactory {
     private FastDFSReader fastDFSReader;
     @Resource
     private FastDFSPreviewer fastDFSPreviewer;
+    @Resource
+    private FastDFSWriter fastDFSWriter;
 
     public UFOFactory() {
     }
@@ -105,6 +111,17 @@ public class UFOFactory {
             return new AliyunOSSReader();
         } else if (StorageTypeEnum.FAST_DFS.getStorageType() == storageType) {
             return fastDFSReader;
+        }
+        return null;
+    }
+
+    public Writer getWriter(int storageType) {
+        if (StorageTypeEnum.LOCAL.getStorageType() == storageType) {
+            return new LocalStorageWriter();
+        } else if (StorageTypeEnum.ALIYUN_OSS.getStorageType() == storageType) {
+            return new AliyunOSSWriter();
+        } else if (StorageTypeEnum.FAST_DFS.getStorageType() == storageType) {
+            return fastDFSWriter;
         }
         return null;
     }

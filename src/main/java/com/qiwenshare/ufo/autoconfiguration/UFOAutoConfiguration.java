@@ -7,7 +7,8 @@ import com.qiwenshare.ufo.operation.download.product.FastDFSDownloader;
 import com.qiwenshare.ufo.operation.preview.product.FastDFSPreviewer;
 import com.qiwenshare.ufo.operation.read.product.FastDFSReader;
 import com.qiwenshare.ufo.operation.upload.product.FastDFSUploader;
-        import com.qiwenshare.ufo.util.RedisUtil;
+import com.qiwenshare.ufo.operation.write.product.FastDFSWriter;
+import com.qiwenshare.ufo.util.RedisUtil;
 import com.qiwenshare.ufo.util.concurrent.locks.RedisLock;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -49,9 +50,14 @@ public class UFOAutoConfiguration {
         return new FastDFSReader();
     }
     @Bean
+    public FastDFSWriter fastDFSWriter() {
+        return new FastDFSWriter();
+    }
+    @Bean
     public FastDFSPreviewer fastDFSPreviewer() {
         return new FastDFSPreviewer();
     }
+
 
     @Bean
     public RedisLock redisLock() {
