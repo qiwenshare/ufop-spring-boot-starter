@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  com.qiwenshare.ufo.autoconfiguration.UFOAutoConfiguration
+  com.qiwenshare.ufop.autoconfiguration.UFOPAutoConfiguration

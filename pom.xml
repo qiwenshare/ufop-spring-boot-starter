@@ -6,16 +6,16 @@
     <parent>
         <groupId>com.qiwenshare</groupId>
         <artifactId>qiwenshare</artifactId>
-        <version>1.0.4</version>
+        <version>1.0.5</version>
     </parent>
     <groupId>com.qiwenshare</groupId>
-    <artifactId>ufo-spring-boot-starter</artifactId>
+    <artifactId>ufop-spring-boot-starter</artifactId>
     <version>${project.parent.version}</version>
     <packaging>jar</packaging>
 
-    <name>ufo-spring-boot-starter</name>
-    <description>ufo-spring-boot-starter</description>
-    <url>https://gitee.com/qiwen-cloud/ufo-spring-boot-starter</url>
+    <name>ufop-spring-boot-starter</name>
+    <description>ufop-spring-boot-starter</description>
+    <url>https://gitee.com/qiwen-cloud/ufop-spring-boot-starter</url>
 
     <repositories>
         <repository>

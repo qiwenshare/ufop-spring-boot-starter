@@ -1,14 +1,14 @@
-# ufo-spring-boot-starter
+# ufop-spring-boot-starter
 
 #### 介绍
 
-UFO (Unified File Operation) 统一文件操作启动器，通过引入该依赖，可以实现文件操作的统一管理
+UFOP (Unified File Operation Platform) 统一文件操作平台，通过引入该依赖，可以实现文件操作的统一管理
 
 此项目为奇文网盘核心功能，之前有不少人咨询，如何将网盘集成到自己的项目?出于这个目的，就把这块功能剥离出来供大家方便引入，目前实现的主要功能如下：
 
-1. 本地文件上传、下载
-2. 阿里云OSS上传，下载，删除，预览，重命名
-3. FastDFS上传，下载，删除，预览
+1. 本地文件上传、下载，删除，预览，重命名，读文件流，写文件流
+2. 阿里云OSS上传，下载，删除，预览，重命名，读文件流，写文件流
+3. FastDFS上传，下载，删除，预览，重命名，读文件流，写文件流
 4. FastDFS+Redis实现集群化部署
 
 
@@ -24,8 +24,8 @@ UFO (Unified File Operation) 统一文件操作启动器，通过引入该依赖
 ```xml
 <dependency>
     <groupId>com.qiwenshare</groupId>
-    <artifactId>ufo-spring-boot-starter</artifactId>
-    <version>1.0.1<version>
+    <artifactId>ufop-spring-boot-starter</artifactId>
+    <version>1.0.5<version>
 </dependency>
 ```
 2.  application.properties配置文件说明
@@ -33,22 +33,22 @@ UFO (Unified File Operation) 统一文件操作启动器，通过引入该依赖
 配置磁盘存储方式, 0-本地存储， 1-阿里云OSS存储， 2-fastDFS存储
 
 ```properties
-ufo.storage-type=0
+ufop.storage-type=0
 ```
 
 当选择0-本地磁盘存储之后，你还可以继续配置本地文件存储路径
 ```properties
-ufo.local-storage-path=D://test
+ufop.local-storage-path=D://test
 ```
 当选择1-阿里云OSS存储之后，需要配置阿里云OSS相关信息，
 ```properties
 #阿里云oss基本配置
-ufo.aliyun.oss.endpoint=
-ufo.aliyun.oss.access-key-id=
-ufo.aliyun.oss.access-key-secret=
-ufo.aliyun.oss.bucket-name=
+ufop.aliyun.oss.endpoint=
+ufop.aliyun.oss.access-key-id=
+ufop.aliyun.oss.access-key-secret=
+ufop.aliyun.oss.bucket-name=
 #阿里云oss绑定域名
-ufo.aliyun.oss.domain=oss.qiwenshare.com
+ufop.aliyun.oss.domain=oss.qiwenshare.com
 ```
 当选择2-FastDFS存储之后，则需要配置FastDFS服务器信息
 
@@ -135,27 +135,27 @@ public class RedisConfig extends CachingConfigurerSupport {
 
 当配置完基础信息之后，使用就非常简单了，伪代码如下：
 
-注入UFOFactory
+注入UFOPFactory
 ```java
 @Resource
-UFOFactory ufoFactory;
+UFOPFactory ufopFactory;
 ```
-上传文件操作，具体这个上传操作是哪种存储实现，由`ufo.storage-type`配置项决定，
+上传文件操作，具体这个上传操作是哪种存储实现，由`ufop.storage-type`配置项决定，
 
 ```java
 
 //上传操作
-Uploader uploader = ufoFactory.getUploader();
+Uploader uploader = ufopFactory.getUploader();
 uploader.upload(request, uploadFile);
 ```
 
 下载和删除则需要用户自己传入文件存储类型
 ```java
 //下载操作
-Downloader downloader = ufoFactory.getDownloader(fileBean.getStorageType());
+Downloader downloader = ufopFactory.getDownloader(fileBean.getStorageType());
 downloader.download(httpServletResponse, downloadFile);
 //删除操作
-Deleter deleter = ufoFactory.getDeleter(fileBean.getStorageType());
+Deleter deleter = ufopFactory.getDeleter(fileBean.getStorageType());
 deleter.delete(deleteFile);
 
 ```
