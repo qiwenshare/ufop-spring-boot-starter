@@ -18,15 +18,14 @@ import org.springframework.web.multipart.support.StandardMultipartHttpServletReq
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Component
 @Slf4j
 public class FastDFSUploader extends Uploader {
+
+    private static Map<String, String> UPLOAD_RECORD = new HashMap();
 
     @Resource
     AppendFileStorageClient defaultAppendFileStorageClient;
@@ -45,7 +44,6 @@ public class FastDFSUploader extends Uploader {
             throw new UploadException("未包含文件上传域");
         }
 
-        String savePath = getLocalFileSavePath();
         UploadFile uploadFile = new UploadFile();
         uploadFile.setChunkNumber(1);
         uploadFile.setChunkSize(0);
@@ -56,7 +54,7 @@ public class FastDFSUploader extends Uploader {
 
             Iterator<String> iter = standardMultipartHttpServletRequest.getFileNames();
             while (iter.hasNext()) {
-                saveUploadFileList = doUpload(standardMultipartHttpServletRequest, savePath, iter, uploadFile);
+                saveUploadFileList = doUpload(standardMultipartHttpServletRequest, iter, uploadFile);
             }
         } catch (Exception e) {
             throw new UploadException(e);
@@ -77,13 +75,13 @@ public class FastDFSUploader extends Uploader {
             throw new UploadException("未包含文件上传域");
         }
 
-        String savePath = getLocalFileSavePath();
+
 
         try {
 
             Iterator<String> iter = standardMultipartHttpServletRequest.getFileNames();
             while (iter.hasNext()) {
-                saveUploadFileList = doUpload(standardMultipartHttpServletRequest, savePath, iter, uploadFile);
+                saveUploadFileList = doUpload(standardMultipartHttpServletRequest, iter, uploadFile);
             }
         } catch (Exception e) {
             throw new UploadException(e);
@@ -94,7 +92,7 @@ public class FastDFSUploader extends Uploader {
     }
 
 
-    private List<UploadFile> doUpload(StandardMultipartHttpServletRequest standardMultipartHttpServletRequest, String savePath, Iterator<String> iter, UploadFile uploadFile) {
+    private List<UploadFile> doUpload(StandardMultipartHttpServletRequest standardMultipartHttpServletRequest, Iterator<String> iter, UploadFile uploadFile) {
 
         List<UploadFile> saveUploadFileList = new ArrayList<>();
 
@@ -103,21 +101,23 @@ public class FastDFSUploader extends Uploader {
 
             uploadFileChunk(multipartfile, uploadFile);
 
-            String timeStampName = getTimeStampName();
+//            String timeStampName = getTimeStampName();
             String originalName = multipartfile.getOriginalFilename();
 
             String fileName = getFileName(originalName);
 
-            String fileType = FileUtil.getFileExtendName(originalName);
+            String extendName = FileUtil.getFileExtendName(originalName);
             uploadFile.setFileName(fileName);
-            uploadFile.setFileType(fileType);
-            uploadFile.setTimeStampName(timeStampName);
+            uploadFile.setFileType(extendName);
+//            uploadFile.setTimeStampName(timeStampName);
             if (uploadFile.getTotalChunks() == 1) {
                 uploadFile.setTotalSize(multipartfile.getSize());
             }
+            String fileUrl = PathUtil.getUploadFileUrl(uploadFile.getIdentifier(), extendName);
+            String confFileUrl = fileUrl.replace("." + extendName, ".conf");
+//            String confFilePath = savePath + uploadFile.getIdentifier() + "." + "conf";
 
-            String confFilePath = savePath + FILE_SEPARATOR + uploadFile.getIdentifier() + "." + "conf";
-            File confFile = new File(PathUtil.getStaticPath() + FILE_SEPARATOR + confFilePath);
+            File confFile = new File(PathUtil.getStaticPath() + confFileUrl);
 
 
             boolean isComplete = checkUploadStatus(uploadFile, confFile);

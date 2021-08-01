@@ -2,6 +2,7 @@ package com.qiwenshare.ufop.autoconfiguration;
 
 import com.qiwenshare.ufop.config.AliyunConfig;
 import com.qiwenshare.ufop.factory.UFOPFactory;
+import com.qiwenshare.ufop.operation.copy.product.FastDFSCopier;
 import com.qiwenshare.ufop.operation.delete.product.FastDFSDeleter;
 import com.qiwenshare.ufop.operation.download.product.FastDFSDownloader;
 import com.qiwenshare.ufop.operation.preview.product.FastDFSPreviewer;
@@ -32,6 +33,10 @@ public class UFOPAutoConfiguration {
         thumbImageWidth = UFOPProperties.getThumbImage().getWidth();
         thumbImageHeight = UFOPProperties.getThumbImage().getHeight();
         return new UFOPFactory(UFOPProperties.getStorageType());
+    }
+    @Bean
+    public FastDFSCopier fastDFSCreater() {
+        return new FastDFSCopier();
     }
     @Bean
     public FastDFSUploader fastDFSUploader() {

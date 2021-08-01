@@ -9,6 +9,7 @@ import com.qiwenshare.ufop.domain.AliyunOSS;
 import com.qiwenshare.ufop.exception.ReadException;
 import com.qiwenshare.ufop.operation.read.Reader;
 import com.qiwenshare.ufop.operation.read.domain.ReadFile;
+import com.qiwenshare.ufop.util.PathUtil;
 import com.qiwenshare.ufop.util.ReadFileUtils;
 
 import java.io.IOException;
@@ -29,7 +30,7 @@ public class AliyunOSSReader extends Reader {
     public InputStream getInputStream(String fileUrl) {
         OSS ossClient = createOSSClient(UFOPAutoConfiguration.aliyunConfig.getOss());
         OSSObject ossObject = ossClient.getObject(UFOPAutoConfiguration.aliyunConfig.getOss().getBucketName(),
-                fileUrl.substring(1));
+                PathUtil.getAliyunObjectNameByFileUrl(fileUrl));
         InputStream inputStream = ossObject.getObjectContent();
         return inputStream;
     }

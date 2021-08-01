@@ -50,47 +50,47 @@ public abstract class Uploader {
      *
      * @return 路径
      */
-    protected String getLocalFileSavePath() {
-        
-        String path = ROOT_PATH;
-        SimpleDateFormat formater = new SimpleDateFormat("yyyyMMdd");
-        path = FILE_SEPARATOR + path + FILE_SEPARATOR + formater.format(new Date());
-
-        String staticPath = PathUtil.getStaticPath();
-
-        File dir = new File(staticPath + path);
-        //LOG.error(PathUtil.getStaticPath() + path);
-        if (!dir.exists()) {
-            try {
-                boolean isSuccessMakeDir = dir.mkdirs();
-                if (!isSuccessMakeDir) {
-                    log.error("目录创建失败:" + PathUtil.getStaticPath() + path);
-                }
-            } catch (Exception e) {
-                log.error("目录创建失败" + PathUtil.getStaticPath() + path);
-                return "";
-            }
-        }
-        return path;
-    }
+//    protected String getLocalFileSavePath() {
+//
+//        String path = ROOT_PATH;
+//        SimpleDateFormat formater = new SimpleDateFormat("yyyyMMdd");
+//        path = FILE_SEPARATOR + path + FILE_SEPARATOR + formater.format(new Date());
+//
+//        String staticPath = PathUtil.getStaticPath();
+//
+//        File dir = new File(staticPath + path);
+//        //LOG.error(PathUtil.getStaticPath() + path);
+//        if (!dir.exists()) {
+//            try {
+//                boolean isSuccessMakeDir = dir.mkdirs();
+//                if (!isSuccessMakeDir) {
+//                    log.error("目录创建失败:" + PathUtil.getStaticPath() + path);
+//                }
+//            } catch (Exception e) {
+//                log.error("目录创建失败" + PathUtil.getStaticPath() + path);
+//                return "";
+//            }
+//        }
+//        return path;
+//    }
 
     /**
      * 依据原始文件名生成新文件名
      *
      * @return 返回路径
      */
-    protected String getTimeStampName() {
-        try {
-            SecureRandom number = SecureRandom.getInstance("SHA1PRNG");
-            return "" + number.nextInt(10000)
-                    + System.currentTimeMillis();
-        } catch (NoSuchAlgorithmException e) {
-            log.error("生成安全随机数失败");
-        }
-        return ""
-                + System.currentTimeMillis();
-
-    }
+//    protected String getTimeStampName() {
+//        try {
+//            SecureRandom number = SecureRandom.getInstance("SHA1PRNG");
+//            return "" + number.nextInt(10000)
+//                    + System.currentTimeMillis();
+//        } catch (NoSuchAlgorithmException e) {
+//            log.error("生成安全随机数失败");
+//        }
+//        return ""
+//                + System.currentTimeMillis();
+//
+//    }
 
     public synchronized boolean checkUploadStatus(UploadFile param, File confFile) throws IOException {
         RandomAccessFile confAccessFile = new RandomAccessFile(confFile, "rw");

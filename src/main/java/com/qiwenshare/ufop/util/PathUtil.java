@@ -10,6 +10,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.UUID;
+
+import static com.qiwenshare.ufop.operation.upload.Uploader.FILE_SEPARATOR;
+import static com.qiwenshare.ufop.operation.upload.Uploader.ROOT_PATH;
 
 public class PathUtil {
 
@@ -68,6 +74,34 @@ public class PathUtil {
 
     }
 
+    public static String getUploadFileUrl(String identifier, String extendName) {
+
+        SimpleDateFormat formater = new SimpleDateFormat("yyyyMMdd");
+        String path = ROOT_PATH + FILE_SEPARATOR + formater.format(new Date()) + FILE_SEPARATOR;
+
+
+
+        File dir = new File(PathUtil.getStaticPath() + path);
+
+        if (!dir.exists()) {
+            try {
+                dir.mkdirs();
+            } catch (Exception e) {
+                return "";
+            }
+        }
+
+        path = path + identifier + "." + extendName;
+
+        return path;
+    }
+
+    public static String getAliyunObjectNameByFileUrl(String fileUrl) {
+        if (fileUrl.startsWith("/") || fileUrl.startsWith("\\")) {
+            fileUrl = fileUrl.substring(1);
+        }
+        return fileUrl;
+    }
 
     public static String getParentPath(String path) {
         return path.substring(0, path.lastIndexOf(FileConstant.pathSeparator));

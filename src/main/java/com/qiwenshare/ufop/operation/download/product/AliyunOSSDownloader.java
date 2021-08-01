@@ -7,6 +7,7 @@ import com.qiwenshare.ufop.autoconfiguration.UFOPAutoConfiguration;
 import com.qiwenshare.ufop.domain.AliyunOSS;
 import com.qiwenshare.ufop.operation.download.Downloader;
 import com.qiwenshare.ufop.operation.download.domain.DownloadFile;
+import com.qiwenshare.ufop.util.PathUtil;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletResponse;
@@ -26,7 +27,7 @@ public class AliyunOSSDownloader extends Downloader {
 
         OSS ossClient = createOSSClient(UFOPAutoConfiguration.aliyunConfig.getOss());
         OSSObject ossObject = ossClient.getObject(UFOPAutoConfiguration.aliyunConfig.getOss().getBucketName(),
-                downloadFile.getFileUrl().substring(1));
+                PathUtil.getAliyunObjectNameByFileUrl(downloadFile.getFileUrl()));
         InputStream inputStream = ossObject.getObjectContent();
         try {
             bis = new BufferedInputStream(inputStream);
@@ -55,7 +56,7 @@ public class AliyunOSSDownloader extends Downloader {
     public InputStream getInputStream(DownloadFile downloadFile) {
         OSS ossClient = createOSSClient(UFOPAutoConfiguration.aliyunConfig.getOss());
         OSSObject ossObject = ossClient.getObject(UFOPAutoConfiguration.aliyunConfig.getOss().getBucketName(),
-                downloadFile.getFileUrl().substring(1));
+                PathUtil.getAliyunObjectNameByFileUrl(downloadFile.getFileUrl()));
         InputStream inputStream = ossObject.getObjectContent();
         return inputStream;
     }

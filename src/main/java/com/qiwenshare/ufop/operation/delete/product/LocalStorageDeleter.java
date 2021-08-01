@@ -12,8 +12,9 @@ public class LocalStorageDeleter extends Deleter {
     @Override
     public void delete(DeleteFile deleteFile) {
         FileOperation.deleteFile(PathUtil.getStaticPath() + deleteFile.getFileUrl());
-        if (FileUtil.isImageFile(FileUtil.getFileExtendName(deleteFile.getFileUrl()))) {
-            FileOperation.deleteFile(PathUtil.getStaticPath() + deleteFile.getFileUrl().replace(deleteFile.getTimeStampName(), deleteFile.getTimeStampName() + "_min"));
+        String extendName = FileUtil.getFileExtendName(deleteFile.getFileUrl());
+        if (FileUtil.isImageFile(extendName)) {
+            FileOperation.deleteFile(PathUtil.getStaticPath() + deleteFile.getFileUrl().replace("." + extendName, "_min." + extendName));
         }
     }
 }

@@ -9,6 +9,7 @@ import com.qiwenshare.ufop.domain.AliyunOSS;
 import com.qiwenshare.ufop.operation.download.domain.DownloadFile;
 import com.qiwenshare.ufop.operation.preview.Previewer;
 import com.qiwenshare.ufop.operation.preview.domain.PreviewFile;
+import com.qiwenshare.ufop.util.PathUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.servlet.http.HttpServletResponse;
@@ -79,7 +80,7 @@ public class AliyunOSSPreviewer extends Previewer {
 
         OSS ossClient = createOSSClient(UFOPAutoConfiguration.aliyunConfig.getOss());
         OSSObject ossObject = ossClient.getObject(UFOPAutoConfiguration.aliyunConfig.getOss().getBucketName(),
-                previewFile.getFileUrl().substring(1));
+                PathUtil.getAliyunObjectNameByFileUrl(previewFile.getFileUrl()));
         InputStream inputStream = ossObject.getObjectContent();
         try {
             bis = new BufferedInputStream(inputStream);
@@ -108,7 +109,7 @@ public class AliyunOSSPreviewer extends Previewer {
     public InputStream getInputStream(DownloadFile downloadFile) {
         OSS ossClient = createOSSClient(UFOPAutoConfiguration.aliyunConfig.getOss());
         OSSObject ossObject = ossClient.getObject(UFOPAutoConfiguration.aliyunConfig.getOss().getBucketName(),
-                downloadFile.getFileUrl().substring(1));
+                PathUtil.getAliyunObjectNameByFileUrl(downloadFile.getFileUrl()));
         InputStream inputStream = ossObject.getObjectContent();
         return inputStream;
     }

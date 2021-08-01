@@ -84,7 +84,7 @@ public class AliyunOSSUploader extends Uploader {
     }
 
     private List<UploadFile> doUpload(StandardMultipartHttpServletRequest standardMultipartHttpServletRequest, Iterator<String> iter, UploadFile uploadFile) {
-        String savePath = getLocalFileSavePath();
+//        String savePath = PathUtil.getUploadFileSavePath();
         OSS ossClient = getClient(uploadFile);
 
         List<UploadFile> saveUploadFileList = new ArrayList<>();
@@ -92,29 +92,28 @@ public class AliyunOSSUploader extends Uploader {
         try {
             MultipartFile multipartfile = standardMultipartHttpServletRequest.getFile(iter.next());
 
-            String timeStampName = getTimeStampName();
+//            String timeStampName = getTimeStampName();
             String originalName = multipartfile.getOriginalFilename();
             String fileName = getFileName(originalName);
-            String fileType = FileUtil.getFileExtendName(originalName);
+            String extendName = FileUtil.getFileExtendName(originalName);
             uploadFile.setFileName(fileName);
-            uploadFile.setFileType(fileType);
-            uploadFile.setTimeStampName(timeStampName);
+            uploadFile.setFileType(extendName);
             if (uploadFile.getTotalChunks() == 1) {
                 uploadFile.setTotalSize(multipartfile.getSize());
             }
-            String ossFilePath = savePath + FILE_SEPARATOR + timeStampName + FILE_SEPARATOR + fileName + "." + fileType;
-            String confFilePath = savePath + FILE_SEPARATOR + uploadFile.getIdentifier() + "." + "conf";
-            File confFile = new File(PathUtil.getStaticPath() + FILE_SEPARATOR + confFilePath);
+            String fileUrl = PathUtil.getUploadFileUrl(uploadFile.getIdentifier(), extendName);
+            String confFileUrl = fileUrl.replace("." + extendName, ".conf");
+            File confFile = new File(PathUtil.getStaticPath() + confFileUrl);
 
             synchronized (AliyunOSSUploader.class) {
                 if (uploadPartRequestMap.get(uploadFile.getIdentifier()) == null) {
-                    InitiateMultipartUploadRequest request = new InitiateMultipartUploadRequest(UFOPAutoConfiguration.aliyunConfig.getOss().getBucketName(), ossFilePath.substring(1));
+                    InitiateMultipartUploadRequest request = new InitiateMultipartUploadRequest(UFOPAutoConfiguration.aliyunConfig.getOss().getBucketName(), fileUrl);
                     InitiateMultipartUploadResult upresult = ossClient.initiateMultipartUpload(request);
                     String uploadId = upresult.getUploadId();
 
                     UploadFileInfo uploadPartRequest = new UploadFileInfo();
                     uploadPartRequest.setBucketName(UFOPAutoConfiguration.aliyunConfig.getOss().getBucketName());
-                    uploadPartRequest.setKey(ossFilePath.substring(1));
+                    uploadPartRequest.setKey(fileUrl);
                     uploadPartRequest.setUploadId(uploadId);
                     uploadPartRequestMap.put(uploadFile.getIdentifier(), uploadPartRequest);
                 }
@@ -148,7 +147,7 @@ public class AliyunOSSUploader extends Uploader {
                 log.info("分片上传完成");
                 completeMultipartUpload(uploadFile);
 
-                uploadFile.setUrl("/" + uploadPartRequestMap.get(uploadFile.getIdentifier()).getKey());
+                uploadFile.setUrl(uploadPartRequestMap.get(uploadFile.getIdentifier()).getKey());
                 uploadFile.setSuccess(1);
                 uploadFile.setMessage("上传成功");
                 partETagsMap.remove(uploadFile.getIdentifier());

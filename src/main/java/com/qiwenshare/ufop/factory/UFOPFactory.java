@@ -1,5 +1,9 @@
 package com.qiwenshare.ufop.factory;
 
+import com.qiwenshare.ufop.operation.copy.Copier;
+import com.qiwenshare.ufop.operation.copy.product.AliyunOSSCopier;
+import com.qiwenshare.ufop.operation.copy.product.FastDFSCopier;
+import com.qiwenshare.ufop.operation.copy.product.LocalStorageCopier;
 import com.qiwenshare.ufop.operation.delete.Deleter;
 import com.qiwenshare.ufop.operation.delete.product.AliyunOSSDeleter;
 import com.qiwenshare.ufop.operation.delete.product.FastDFSDeleter;
@@ -26,14 +30,13 @@ import com.qiwenshare.ufop.operation.write.Writer;
 import com.qiwenshare.ufop.operation.write.product.AliyunOSSWriter;
 import com.qiwenshare.ufop.operation.write.product.FastDFSWriter;
 import com.qiwenshare.ufop.operation.write.product.LocalStorageWriter;
-import lombok.Data;
 
 import javax.annotation.Resource;
 
-@Data
 public class UFOPFactory {
     private String storageType;
-
+    @Resource
+    private FastDFSCopier fastDFSCopier;
     @Resource
     private FastDFSUploader fastDFSUploader;
     @Resource
@@ -132,6 +135,19 @@ public class UFOPFactory {
             return new AliyunOSSPreviewer();
         } else if (StorageTypeEnum.FAST_DFS.getStorageType() == storageType) {
             return fastDFSPreviewer;
+        }
+        return null;
+    }
+
+    public Copier getCopier() {
+        int type = Integer.parseInt(storageType);
+
+        if (StorageTypeEnum.LOCAL.getStorageType() == type) {
+            return new LocalStorageCopier();
+        } else if (StorageTypeEnum.ALIYUN_OSS.getStorageType() == type) {
+            return new AliyunOSSCopier();
+        } else if (StorageTypeEnum.FAST_DFS.getStorageType() == type) {
+            return fastDFSCopier;
         }
         return null;
     }

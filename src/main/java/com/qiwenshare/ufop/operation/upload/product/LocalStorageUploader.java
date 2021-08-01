@@ -83,39 +83,32 @@ public class LocalStorageUploader extends Uploader {
     }
 
     private List<UploadFile> doUpload(StandardMultipartHttpServletRequest standardMultipartHttpServletRequest,  Iterator<String> iter, UploadFile uploadFile) throws IOException, NotSameFileExpection {
-        String savePath = getLocalFileSavePath();
+
         List<UploadFile> saveUploadFileList = new ArrayList<UploadFile>();
         MultipartFile multipartfile = standardMultipartHttpServletRequest.getFile(iter.next());
-
-        String timeStampName = uploadFile.getIdentifier();
 
         String originalName = multipartfile.getOriginalFilename();
 
 
         String fileName = getFileName(originalName);
-        String fileType = FileUtil.getFileExtendName(originalName);
+        String extendName = FileUtil.getFileExtendName(originalName);
         if (uploadFile.getTotalChunks() == 1) {
             uploadFile.setTotalSize(multipartfile.getSize());
         }
         uploadFile.setFileName(fileName);
-        uploadFile.setFileType(fileType);
-        uploadFile.setTimeStampName(timeStampName);
+        uploadFile.setFileType(extendName);
+        String fileUrl = PathUtil.getUploadFileUrl(uploadFile.getIdentifier(), extendName);
+        String tempFileUrl = fileUrl + "_tmp";
+        String minFileUrl = fileUrl.replace("." + extendName, "_min." + extendName);
+        String confFileUrl = fileUrl.replace("." + extendName, ".conf");
 
-        String saveFilePath = savePath + FILE_SEPARATOR + timeStampName + "." + fileType;
-        String tempFilePath = savePath + FILE_SEPARATOR + timeStampName + "." + fileType + "_tmp";
-        String minFilePath = savePath + FILE_SEPARATOR + timeStampName + "_min" + "." + fileType;
-        String confFilePath = savePath + FILE_SEPARATOR + timeStampName + "." + "conf";
-        File file = new File(PathUtil.getStaticPath() + FILE_SEPARATOR + saveFilePath);
-        File tempFile = new File(PathUtil.getStaticPath() + FILE_SEPARATOR + tempFilePath);
-        File minFile = new File(PathUtil.getStaticPath() + FILE_SEPARATOR + minFilePath);
-        File confFile = new File(PathUtil.getStaticPath() + FILE_SEPARATOR + confFilePath);
+        File file = new File(PathUtil.getStaticPath() + fileUrl);
+        File tempFile = new File(PathUtil.getStaticPath() + tempFileUrl);
+        File minFile = new File(PathUtil.getStaticPath() + minFileUrl);
+        File confFile = new File(PathUtil.getStaticPath() + confFileUrl);
 
         uploadFile.setStorageType(0);
-        uploadFile.setUrl(saveFilePath);
-
-        if (StringUtils.isEmpty(uploadFile.getTaskId())) {
-            uploadFile.setTaskId(UUID.randomUUID().toString());
-        }
+        uploadFile.setUrl(fileUrl);
 
         //第一步 打开将要写入的文件
         RandomAccessFile raf = new RandomAccessFile(tempFile, "rw");
@@ -134,20 +127,15 @@ public class LocalStorageUploader extends Uploader {
         //判断是否完成文件的传输并进行校验与重命名
         boolean isComplete = checkUploadStatus(uploadFile, confFile);
         if (isComplete) {
-//            FileInputStream fileInputStream = new FileInputStream(tempFile.getPath());
-//            String md5 = DigestUtils.md5Hex(fileInputStream);
-//            fileInputStream.close();
-//            if (StringUtils.isNotBlank(md5) && !md5.equals(uploadFile.getIdentifier())) {
-//                throw new NotSameFileExpection();
-//            }
+
             tempFile.renameTo(file);
-            if (FileUtil.isImageFile(uploadFile.getFileType())){
-                int thumbImageWidth = UFOPAutoConfiguration.thumbImageWidth;
-                int thumbImageHeight = UFOPAutoConfiguration.thumbImageHeight;
-                int width = thumbImageWidth == 0 ? 150 : thumbImageWidth;
-                int height = thumbImageHeight == 0 ? 150 : thumbImageHeight;
-                ImageOperation.thumbnailsImage(file, minFile, width, height);
-            }
+//            if (FileUtil.isImageFile(uploadFile.getFileType())){
+//                int thumbImageWidth = UFOPAutoConfiguration.thumbImageWidth;
+//                int thumbImageHeight = UFOPAutoConfiguration.thumbImageHeight;
+//                int width = thumbImageWidth == 0 ? 150 : thumbImageWidth;
+//                int height = thumbImageHeight == 0 ? 150 : thumbImageHeight;
+//                ImageOperation.thumbnailsImage(file, minFile, width, height);
+//            }
 
             uploadFile.setSuccess(1);
             uploadFile.setMessage("上传成功");

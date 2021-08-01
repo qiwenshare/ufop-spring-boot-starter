@@ -5,6 +5,7 @@ import com.aliyun.oss.OSSClientBuilder;
 import com.qiwenshare.ufop.autoconfiguration.UFOPAutoConfiguration;
 import com.qiwenshare.ufop.operation.delete.Deleter;
 import com.qiwenshare.ufop.operation.delete.domain.DeleteFile;
+import com.qiwenshare.ufop.util.PathUtil;
 import org.springframework.stereotype.Component;
 
 
@@ -19,7 +20,7 @@ public class AliyunOSSDeleter extends Deleter {
         String bucketName = UFOPAutoConfiguration.aliyunConfig.getOss().getBucketName();
         OSS ossClient = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
 
-        ossClient.deleteObject(bucketName, deleteFile.getFileUrl().substring(1));
+        ossClient.deleteObject(bucketName, PathUtil.getAliyunObjectNameByFileUrl(deleteFile.getFileUrl()));
 
 
 
