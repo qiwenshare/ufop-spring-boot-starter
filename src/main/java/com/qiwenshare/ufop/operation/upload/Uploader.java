@@ -1,35 +1,49 @@
 package com.qiwenshare.ufop.operation.upload;
 
+import com.qiwenshare.ufop.exception.UploadException;
 import com.qiwenshare.ufop.operation.upload.domain.UploadFile;
-import com.qiwenshare.ufop.util.PathUtil;
+import com.qiwenshare.ufop.operation.upload.domain.UploadFileResult;
+import com.qiwenshare.ufop.operation.upload.request.QiwenMultipartFile;
+import com.qiwenshare.ufop.util.RedisUtil;
+import com.qiwenshare.ufop.util.concurrent.locks.RedisLock;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FileUtils;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.io.File;
 import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
+@Component
 public abstract class Uploader {
-    
+    @Resource
+    RedisLock redisLock;
+    @Resource
+    RedisUtil redisUtil;
 
     public static final String ROOT_PATH = "upload";
     public static final String FILE_SEPARATOR = "/";
-    // 文件大小限制，单位KB
-    public final int maxSize = 10000000;
 
     /**
      * 普通上传
      * @param httpServletRequest http的request请求
      * @return 文件列表
      */
-    public abstract List<UploadFile> upload(HttpServletRequest httpServletRequest);
+    public List<UploadFileResult> upload(HttpServletRequest httpServletRequest) {
+
+        UploadFile uploadFile = new UploadFile();
+        uploadFile.setChunkNumber(1);
+        uploadFile.setChunkSize(0);
+        uploadFile.setTotalChunks(1);
+        uploadFile.setIdentifier(UUID.randomUUID().toString());
+
+        List<UploadFileResult> uploadFileResultList = upload(httpServletRequest, uploadFile);
+
+        return uploadFileResultList;
+    }
 
     /**
      * 分片上传
@@ -37,7 +51,7 @@ public abstract class Uploader {
      * @param uploadFile 分片上传参数
      * @return 文件列表
      */
-    public abstract List<UploadFile> upload(HttpServletRequest httpServletRequest, UploadFile uploadFile);
+    public abstract List<UploadFileResult> upload(HttpServletRequest httpServletRequest, UploadFile uploadFile);
 
     /**
      * 取消上传
@@ -45,77 +59,42 @@ public abstract class Uploader {
      */
     public abstract void cancelUpload(UploadFile uploadFile);
 
-    /**
-     * 获取本地文件保存路径
-     *
-     * @return 路径
-     */
-//    protected String getLocalFileSavePath() {
-//
-//        String path = ROOT_PATH;
-//        SimpleDateFormat formater = new SimpleDateFormat("yyyyMMdd");
-//        path = FILE_SEPARATOR + path + FILE_SEPARATOR + formater.format(new Date());
-//
-//        String staticPath = PathUtil.getStaticPath();
-//
-//        File dir = new File(staticPath + path);
-//        //LOG.error(PathUtil.getStaticPath() + path);
-//        if (!dir.exists()) {
-//            try {
-//                boolean isSuccessMakeDir = dir.mkdirs();
-//                if (!isSuccessMakeDir) {
-//                    log.error("目录创建失败:" + PathUtil.getStaticPath() + path);
-//                }
-//            } catch (Exception e) {
-//                log.error("目录创建失败" + PathUtil.getStaticPath() + path);
-//                return "";
-//            }
-//        }
-//        return path;
-//    }
 
-    /**
-     * 依据原始文件名生成新文件名
-     *
-     * @return 返回路径
-     */
-//    protected String getTimeStampName() {
-//        try {
-//            SecureRandom number = SecureRandom.getInstance("SHA1PRNG");
-//            return "" + number.nextInt(10000)
-//                    + System.currentTimeMillis();
-//        } catch (NoSuchAlgorithmException e) {
-//            log.error("生成安全随机数失败");
-//        }
-//        return ""
-//                + System.currentTimeMillis();
-//
-//    }
+    public void uploadFileChunk(QiwenMultipartFile qiwenMultipartFile, UploadFile uploadFile) {
+        redisLock.lock(uploadFile.getIdentifier());
+        try {
 
-    public synchronized boolean checkUploadStatus(UploadFile param, File confFile) throws IOException {
-        RandomAccessFile confAccessFile = new RandomAccessFile(confFile, "rw");
-        //设置文件长度
-        confAccessFile.setLength(param.getTotalChunks());
-        //设置起始偏移量
-        confAccessFile.seek(param.getChunkNumber() - 1);
-        //将指定的一个字节写入文件中 127，
-        confAccessFile.write(Byte.MAX_VALUE);
-        byte[] completeStatusList = FileUtils.readFileToByteArray(confFile);
-        confAccessFile.close();//不关闭会造成无法占用
-        //创建conf文件文件长度为总分片数，每上传一个分块即向conf文件中写入一个127，那么没上传的位置就是默认的0,已上传的就是127
-        for (int i = 0; i < completeStatusList.length; i++) {
-            if (completeStatusList[i] != Byte.MAX_VALUE) {
-                return false;
+            if (redisUtil.getObject(uploadFile.getIdentifier() + "_current_upload_chunk_number") == null) {
+                redisUtil.set(uploadFile.getIdentifier() + "_current_upload_chunk_number", 1, 1000 * 60 * 60);
             }
+
+            String currentUploadChunkNumber = redisUtil.getObject(uploadFile.getIdentifier() + "_current_upload_chunk_number");
+            if (uploadFile.getChunkNumber() != Integer.parseInt(currentUploadChunkNumber)) {
+                redisLock.unlock(uploadFile.getIdentifier());
+                while (redisLock.tryLock(uploadFile.getIdentifier(), 300, TimeUnit.SECONDS)) {
+                    if (uploadFile.getChunkNumber() == Integer.parseInt(redisUtil.getObject(uploadFile.getIdentifier() + "_current_upload_chunk_number"))) {
+                        break;
+                    } else {
+                        redisLock.unlock(uploadFile.getIdentifier());
+                    }
+                }
+            }
+
+            log.info("***********开始上传第{}块**********", uploadFile.getChunkNumber());
+            doUploadFileChunk(qiwenMultipartFile, uploadFile);
+            log.info("***********第{}块上传成功**********", uploadFile.getChunkNumber());
+        } catch (Exception e) {
+            log.error("***********第{}块上传失败，自动重试**********", uploadFile.getChunkNumber());
+            redisUtil.set(uploadFile.getIdentifier() + "_current_upload_chunk_number", uploadFile.getChunkNumber(), 1000 * 60 * 60);
+            throw new UploadException("更新远程文件出错", e);
+        } finally {
+            redisLock.unlock(uploadFile.getIdentifier());
         }
-        confFile.delete();
-        return true;
+
     }
 
-    protected String getFileName(String fileName){
-        if (!fileName.contains(".")) {
-            return fileName;
-        }
-        return fileName.substring(0, fileName.lastIndexOf("."));
-    }
+    protected abstract void doUploadFileChunk(QiwenMultipartFile qiwenMultipartFile, UploadFile uploadFile)  throws IOException;
+
+
+
 }

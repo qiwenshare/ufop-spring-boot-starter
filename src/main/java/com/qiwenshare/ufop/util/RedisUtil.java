@@ -51,6 +51,11 @@ public class RedisUtil {
         }
     }
 
+
+    public boolean hasKey(String key) {
+        return redisTemplate.hasKey(key);
+    }
+
     /**
      * 删除key
      * @param key key

@@ -7,6 +7,7 @@ import com.qiwenshare.ufop.operation.delete.product.FastDFSDeleter;
 import com.qiwenshare.ufop.operation.download.product.FastDFSDownloader;
 import com.qiwenshare.ufop.operation.preview.product.FastDFSPreviewer;
 import com.qiwenshare.ufop.operation.read.product.FastDFSReader;
+import com.qiwenshare.ufop.operation.upload.product.AliyunOSSUploader;
 import com.qiwenshare.ufop.operation.upload.product.FastDFSUploader;
 import com.qiwenshare.ufop.operation.write.product.FastDFSWriter;
 import com.qiwenshare.ufop.util.RedisUtil;
@@ -61,6 +62,10 @@ public class UFOPAutoConfiguration {
     @Bean
     public FastDFSPreviewer fastDFSPreviewer() {
         return new FastDFSPreviewer();
+    }
+    @Bean
+    public AliyunOSSUploader aliyunOSSUploader() {
+        return new AliyunOSSUploader();
     }
 
 

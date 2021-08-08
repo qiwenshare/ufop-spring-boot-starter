@@ -4,13 +4,7 @@ import lombok.Data;
 
 @Data
 public class UploadFile {
-    private String fileName;
-    private String fileType;
-    private long fileSize;
-    private int success;
-    private String message;
-    private String url;
-    private Integer storageType;
+
     //切片上传相关参数
     private int chunkNumber;
     private long chunkSize;

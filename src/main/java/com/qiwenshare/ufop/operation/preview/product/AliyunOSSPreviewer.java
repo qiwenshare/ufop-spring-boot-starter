@@ -24,13 +24,13 @@ public class AliyunOSSPreviewer extends Previewer {
     public void imageThumbnailPreview(HttpServletResponse httpServletResponse, PreviewFile previewFile) {
         BufferedInputStream bis = null;
         byte[] buffer = new byte[1024];
-        //https://qiwen-file-free.oss-cn-zhangjiakou.aliyuncs.com/upload/20210416/56611618584472857/%E5%86%AF%E6%8F%90%E8%8E%AB%20(1).jpg?x-oss-process=image/resize,m_fill,h_250,w_250/rotate,0
+
         StringBuffer url = new StringBuffer();
         url.append("https://");
         url.append(UFOPAutoConfiguration.aliyunConfig.getOss().getBucketName());
         url.append(".");
         url.append(UFOPAutoConfiguration.aliyunConfig.getOss().getEndpoint());
-        url.append(previewFile.getFileUrl());
+        url.append("/" + PathUtil.getAliyunObjectNameByFileUrl(previewFile.getFileUrl()));
 
         Map<String, Object> param = new HashMap<>();
         int thumbImageWidth = UFOPAutoConfiguration.thumbImageWidth;

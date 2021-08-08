@@ -1,5 +1,6 @@
 package com.qiwenshare.ufop.factory;
 
+import com.qiwenshare.ufop.constant.StorageTypeEnum;
 import com.qiwenshare.ufop.operation.copy.Copier;
 import com.qiwenshare.ufop.operation.copy.product.AliyunOSSCopier;
 import com.qiwenshare.ufop.operation.copy.product.FastDFSCopier;
@@ -49,6 +50,8 @@ public class UFOPFactory {
     private FastDFSPreviewer fastDFSPreviewer;
     @Resource
     private FastDFSWriter fastDFSWriter;
+    @Resource
+    private AliyunOSSUploader aliyunOSSUploader;
 
     public UFOPFactory() {
     }
@@ -61,11 +64,11 @@ public class UFOPFactory {
 
         int type = Integer.parseInt(storageType);
 
-        if (StorageTypeEnum.LOCAL.getStorageType() == type) {
+        if (StorageTypeEnum.LOCAL.getCode() == type) {
             return new LocalStorageUploader();
-        } else if (StorageTypeEnum.ALIYUN_OSS.getStorageType() == type) {
-            return new AliyunOSSUploader();
-        } else if (StorageTypeEnum.FAST_DFS.getStorageType() == type) {
+        } else if (StorageTypeEnum.ALIYUN_OSS.getCode() == type) {
+            return aliyunOSSUploader;
+        } else if (StorageTypeEnum.FAST_DFS.getCode() == type) {
             return fastDFSUploader;
         }
         return null;
@@ -73,11 +76,11 @@ public class UFOPFactory {
 
 
     public Downloader getDownloader(int storageType) {
-        if (StorageTypeEnum.LOCAL.getStorageType() == storageType) {
+        if (StorageTypeEnum.LOCAL.getCode() == storageType) {
             return new LocalStorageDownloader();
-        } else if (StorageTypeEnum.ALIYUN_OSS.getStorageType() == storageType) {
+        } else if (StorageTypeEnum.ALIYUN_OSS.getCode() == storageType) {
             return new AliyunOSSDownloader();
-        } else if (StorageTypeEnum.FAST_DFS.getStorageType() == storageType) {
+        } else if (StorageTypeEnum.FAST_DFS.getCode() == storageType) {
             return fastDFSDownloader;
         }
         return null;
@@ -85,55 +88,55 @@ public class UFOPFactory {
 
 
     public Deleter getDeleter(int storageType) {
-        if (StorageTypeEnum.LOCAL.getStorageType() == storageType) {
+        if (StorageTypeEnum.LOCAL.getCode() == storageType) {
             return new LocalStorageDeleter();
-        } else if (StorageTypeEnum.ALIYUN_OSS.getStorageType() == storageType) {
+        } else if (StorageTypeEnum.ALIYUN_OSS.getCode() == storageType) {
             return new AliyunOSSDeleter();
-        } else if (StorageTypeEnum.FAST_DFS.getStorageType() == storageType) {
+        } else if (StorageTypeEnum.FAST_DFS.getCode() == storageType) {
             return fastDFSDeleter;
         }
         return null;
     }
 
     public Renamer getRenamer(int storageType) {
-        if (StorageTypeEnum.LOCAL.getStorageType() == storageType) {
+        if (StorageTypeEnum.LOCAL.getCode() == storageType) {
             return null;
-        } else if (StorageTypeEnum.ALIYUN_OSS.getStorageType() == storageType) {
+        } else if (StorageTypeEnum.ALIYUN_OSS.getCode() == storageType) {
             return new AliyunOSSRenamer();
-        } else if (StorageTypeEnum.FAST_DFS.getStorageType() == storageType) {
+        } else if (StorageTypeEnum.FAST_DFS.getCode() == storageType) {
             return null;
         }
         return null;
     }
 
     public Reader getReader(int storageType) {
-        if (StorageTypeEnum.LOCAL.getStorageType() == storageType) {
+        if (StorageTypeEnum.LOCAL.getCode() == storageType) {
             return new LocalStorageReader();
-        } else if (StorageTypeEnum.ALIYUN_OSS.getStorageType() == storageType) {
+        } else if (StorageTypeEnum.ALIYUN_OSS.getCode() == storageType) {
             return new AliyunOSSReader();
-        } else if (StorageTypeEnum.FAST_DFS.getStorageType() == storageType) {
+        } else if (StorageTypeEnum.FAST_DFS.getCode() == storageType) {
             return fastDFSReader;
         }
         return null;
     }
 
     public Writer getWriter(int storageType) {
-        if (StorageTypeEnum.LOCAL.getStorageType() == storageType) {
+        if (StorageTypeEnum.LOCAL.getCode() == storageType) {
             return new LocalStorageWriter();
-        } else if (StorageTypeEnum.ALIYUN_OSS.getStorageType() == storageType) {
+        } else if (StorageTypeEnum.ALIYUN_OSS.getCode() == storageType) {
             return new AliyunOSSWriter();
-        } else if (StorageTypeEnum.FAST_DFS.getStorageType() == storageType) {
+        } else if (StorageTypeEnum.FAST_DFS.getCode() == storageType) {
             return fastDFSWriter;
         }
         return null;
     }
 
     public Previewer getPreviewer(int storageType) {
-        if (StorageTypeEnum.LOCAL.getStorageType() == storageType) {
+        if (StorageTypeEnum.LOCAL.getCode() == storageType) {
             return new LocalStoragePreviewer();
-        } else if (StorageTypeEnum.ALIYUN_OSS.getStorageType() == storageType) {
+        } else if (StorageTypeEnum.ALIYUN_OSS.getCode() == storageType) {
             return new AliyunOSSPreviewer();
-        } else if (StorageTypeEnum.FAST_DFS.getStorageType() == storageType) {
+        } else if (StorageTypeEnum.FAST_DFS.getCode() == storageType) {
             return fastDFSPreviewer;
         }
         return null;
@@ -142,11 +145,11 @@ public class UFOPFactory {
     public Copier getCopier() {
         int type = Integer.parseInt(storageType);
 
-        if (StorageTypeEnum.LOCAL.getStorageType() == type) {
+        if (StorageTypeEnum.LOCAL.getCode() == type) {
             return new LocalStorageCopier();
-        } else if (StorageTypeEnum.ALIYUN_OSS.getStorageType() == type) {
+        } else if (StorageTypeEnum.ALIYUN_OSS.getCode() == type) {
             return new AliyunOSSCopier();
-        } else if (StorageTypeEnum.FAST_DFS.getStorageType() == type) {
+        } else if (StorageTypeEnum.FAST_DFS.getCode() == type) {
             return fastDFSCopier;
         }
         return null;
