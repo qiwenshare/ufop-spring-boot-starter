@@ -124,11 +124,11 @@ public class AliyunOSSUploader extends Uploader {
         uploadPartRequest.setInputStream(qiwenMultipartFile.getUploadInputStream());
         uploadPartRequest.setPartSize(qiwenMultipartFile.getSize());
         uploadPartRequest.setPartNumber(uploadFile.getChunkNumber());
-        log.info(JSON.toJSONString(uploadPartRequest));
+        log.debug(JSON.toJSONString(uploadPartRequest));
         OSS ossClient = getClient();
         UploadPartResult uploadPartResult = ossClient.uploadPart(uploadPartRequest);
 
-        log.info("上传结果：" + JSON.toJSONString(uploadPartResult));
+        log.debug("上传结果：" + JSON.toJSONString(uploadPartResult));
         if (redisUtil.hasKey("partETags:" + uploadFile.getIdentifier())) {
             List<PartETag> partETags = JSON.parseArray(redisUtil.getObject("partETags:" + uploadFile.getIdentifier()), PartETag.class);
             partETags.add(uploadPartResult.getPartETag());
@@ -186,7 +186,7 @@ public class AliyunOSSUploader extends Uploader {
     }
 
     @Data
-    public static class UploadFileInfo {
+    public class UploadFileInfo {
         private String bucketName;
         private String key;
         private String uploadId;

@@ -6,7 +6,7 @@ import com.qiwenshare.common.operation.ImageOperation;
 import com.qiwenshare.ufop.autoconfiguration.UFOPAutoConfiguration;
 import com.qiwenshare.ufop.operation.preview.Previewer;
 import com.qiwenshare.ufop.operation.preview.domain.PreviewFile;
-import com.qiwenshare.ufop.util.PathUtil;
+import com.qiwenshare.ufop.util.UFOPUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -24,7 +24,7 @@ public class FastDFSPreviewer extends Previewer {
     @Override
     public void imageThumbnailPreview(HttpServletResponse httpServletResponse, PreviewFile previewFile) {
 
-        String savePath = PathUtil.getStaticPath() + "cache" + File.separator + previewFile.getFileUrl();
+        String savePath = UFOPUtils.getStaticPath() + "cache" + File.separator + previewFile.getFileUrl();
         File saveFile = new File(savePath);
         BufferedInputStream bis = null;
         byte[] buffer = new byte[1024];

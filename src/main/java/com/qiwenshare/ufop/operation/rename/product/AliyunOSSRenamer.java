@@ -23,7 +23,7 @@ public class AliyunOSSRenamer extends Renamer {
 
         ossClient.deleteObject(bucketName, renameFile.getSrcName());
         ObjectMetadata metadata = new ObjectMetadata();
-//        if ("pdf".equals(FileUtil.getFileType(objectName))) {
+//        if ("pdf".equals(UFOPUtils.getFileType(objectName))) {
 //            metadata.setContentDisposition("attachment");
 //        }
 

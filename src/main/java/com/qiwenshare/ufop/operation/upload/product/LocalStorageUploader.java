@@ -8,7 +8,7 @@ import com.qiwenshare.ufop.operation.upload.Uploader;
 import com.qiwenshare.ufop.operation.upload.domain.UploadFile;
 import com.qiwenshare.ufop.operation.upload.domain.UploadFileResult;
 import com.qiwenshare.ufop.operation.upload.request.QiwenMultipartFile;
-import com.qiwenshare.ufop.util.PathUtil;
+import com.qiwenshare.ufop.util.UFOPUtils;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Component;
@@ -57,13 +57,13 @@ public class LocalStorageUploader extends Uploader {
     private UploadFileResult doUpload(QiwenMultipartFile qiwenMultipartFile, UploadFile uploadFile) throws IOException, NotSameFileExpection {
         UploadFileResult uploadFileResult = new UploadFileResult();
 
-        String fileUrl = PathUtil.getUploadFileUrl(uploadFile.getIdentifier(), qiwenMultipartFile.getExtendName());
+        String fileUrl = UFOPUtils.getUploadFileUrl(uploadFile.getIdentifier(), qiwenMultipartFile.getExtendName());
         String tempFileUrl = fileUrl + "_tmp";
         String confFileUrl = fileUrl.replace("." + qiwenMultipartFile.getExtendName(), ".conf");
 
-        File file = new File(PathUtil.getStaticPath() + fileUrl);
-        File tempFile = new File(PathUtil.getStaticPath() + tempFileUrl);
-        File confFile = new File(PathUtil.getStaticPath() + confFileUrl);
+        File file = new File(UFOPUtils.getStaticPath() + fileUrl);
+        File tempFile = new File(UFOPUtils.getStaticPath() + tempFileUrl);
+        File confFile = new File(UFOPUtils.getStaticPath() + confFileUrl);
 
         //第一步 打开将要写入的文件
         RandomAccessFile raf = new RandomAccessFile(tempFile, "rw");

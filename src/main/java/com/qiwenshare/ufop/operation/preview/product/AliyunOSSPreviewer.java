@@ -9,7 +9,7 @@ import com.qiwenshare.ufop.domain.AliyunOSS;
 import com.qiwenshare.ufop.operation.download.domain.DownloadFile;
 import com.qiwenshare.ufop.operation.preview.Previewer;
 import com.qiwenshare.ufop.operation.preview.domain.PreviewFile;
-import com.qiwenshare.ufop.util.PathUtil;
+import com.qiwenshare.ufop.util.UFOPUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.servlet.http.HttpServletResponse;
@@ -30,7 +30,7 @@ public class AliyunOSSPreviewer extends Previewer {
         url.append(UFOPAutoConfiguration.aliyunConfig.getOss().getBucketName());
         url.append(".");
         url.append(UFOPAutoConfiguration.aliyunConfig.getOss().getEndpoint());
-        url.append("/" + PathUtil.getAliyunObjectNameByFileUrl(previewFile.getFileUrl()));
+        url.append("/" + UFOPUtils.getAliyunObjectNameByFileUrl(previewFile.getFileUrl()));
 
         Map<String, Object> param = new HashMap<>();
         int thumbImageWidth = UFOPAutoConfiguration.thumbImageWidth;
@@ -80,7 +80,7 @@ public class AliyunOSSPreviewer extends Previewer {
 
         OSS ossClient = createOSSClient(UFOPAutoConfiguration.aliyunConfig.getOss());
         OSSObject ossObject = ossClient.getObject(UFOPAutoConfiguration.aliyunConfig.getOss().getBucketName(),
-                PathUtil.getAliyunObjectNameByFileUrl(previewFile.getFileUrl()));
+                UFOPUtils.getAliyunObjectNameByFileUrl(previewFile.getFileUrl()));
         InputStream inputStream = ossObject.getObjectContent();
         try {
             bis = new BufferedInputStream(inputStream);
@@ -109,7 +109,7 @@ public class AliyunOSSPreviewer extends Previewer {
     public InputStream getInputStream(DownloadFile downloadFile) {
         OSS ossClient = createOSSClient(UFOPAutoConfiguration.aliyunConfig.getOss());
         OSSObject ossObject = ossClient.getObject(UFOPAutoConfiguration.aliyunConfig.getOss().getBucketName(),
-                PathUtil.getAliyunObjectNameByFileUrl(downloadFile.getFileUrl()));
+                UFOPUtils.getAliyunObjectNameByFileUrl(downloadFile.getFileUrl()));
         InputStream inputStream = ossObject.getObjectContent();
         return inputStream;
     }

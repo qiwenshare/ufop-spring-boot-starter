@@ -1,7 +1,6 @@
 package com.qiwenshare.ufop.operation.upload.request;
 
-import com.qiwenshare.common.util.FileUtil;
-import com.qiwenshare.ufop.util.PathUtil;
+import com.qiwenshare.ufop.util.UFOPUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -30,18 +29,18 @@ public class QiwenMultipartFile {
 
     public String getExtendName() {
         String originalName = getMultipartFile().getOriginalFilename();
-        String extendName = FileUtil.getFileExtendName(originalName);
+        String extendName = UFOPUtils.getFileExtendName(originalName);
         return extendName;
     }
 
     public String getFileUrl() {
         String uuid = UUID.randomUUID().toString();
-        String fileUrl = PathUtil.getUploadFileUrl(uuid, getExtendName());
+        String fileUrl = UFOPUtils.getUploadFileUrl(uuid, getExtendName());
         return fileUrl;
     }
 
     public String getFileUrl(String identify) {
-        String fileUrl = PathUtil.getUploadFileUrl(identify, getExtendName());
+        String fileUrl = UFOPUtils.getUploadFileUrl(identify, getExtendName());
         return fileUrl;
     }
 

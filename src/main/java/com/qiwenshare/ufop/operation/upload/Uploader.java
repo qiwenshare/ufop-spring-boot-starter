@@ -80,9 +80,9 @@ public abstract class Uploader {
                 }
             }
 
-            log.info("***********开始上传第{}块**********", uploadFile.getChunkNumber());
+            log.debug(">>>>>>>>>>开始上传第{}块>>>>>>>>>>", uploadFile.getChunkNumber());
             doUploadFileChunk(qiwenMultipartFile, uploadFile);
-            log.info("***********第{}块上传成功**********", uploadFile.getChunkNumber());
+            log.debug("第{}块上传成功", uploadFile.getChunkNumber());
         } catch (Exception e) {
             log.error("***********第{}块上传失败，自动重试**********", uploadFile.getChunkNumber());
             redisUtil.set(uploadFile.getIdentifier() + "_current_upload_chunk_number", uploadFile.getChunkNumber(), 1000 * 60 * 60);

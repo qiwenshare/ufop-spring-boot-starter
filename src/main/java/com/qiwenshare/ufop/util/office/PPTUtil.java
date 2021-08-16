@@ -1,6 +1,6 @@
 package com.qiwenshare.ufop.util.office;
 
-import com.qiwenshare.common.util.FileUtil;
+import com.qiwenshare.ufop.util.UFOPUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.poi.hslf.usermodel.*;
@@ -42,7 +42,7 @@ public class PPTUtil {
         File pptFile = new File(sourceFilePath);
         if (pptFile.exists()) {
             try {
-                String type = FileUtil.getFileExtendName(sourceFilePath);
+                String type = UFOPUtils.getFileExtendName(sourceFilePath);
                 String targetFilePath = targetFolder + "/" + targetFileName;
                 if ("ppt".equals(type)) {
                     String htmlStr = toImage2003(sourceFilePath, targetFolder);

@@ -5,7 +5,7 @@ import com.aliyun.oss.OSSClientBuilder;
 import com.qiwenshare.ufop.autoconfiguration.UFOPAutoConfiguration;
 import com.qiwenshare.ufop.operation.copy.Copier;
 import com.qiwenshare.ufop.operation.copy.domain.CopyFile;
-import com.qiwenshare.ufop.util.PathUtil;
+import com.qiwenshare.ufop.util.UFOPUtils;
 import lombok.Data;
 
 import java.io.InputStream;
@@ -15,7 +15,7 @@ public class AliyunOSSCopier extends Copier {
     @Override
     public String copy(InputStream inputStream, CopyFile copyFile) {
         String uuid = UUID.randomUUID().toString();
-        String fileUrl = PathUtil.getUploadFileUrl(uuid, copyFile.getExtendName());
+        String fileUrl = UFOPUtils.getUploadFileUrl(uuid, copyFile.getExtendName());
         OSS ossClient = getClient();
         ossClient.putObject(UFOPAutoConfiguration.aliyunConfig.getOss().getBucketName()
                 , fileUrl, inputStream);

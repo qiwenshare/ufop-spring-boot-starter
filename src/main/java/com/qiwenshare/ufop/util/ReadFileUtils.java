@@ -1,6 +1,5 @@
 package com.qiwenshare.ufop.util;
 
-import com.qiwenshare.common.util.FileUtil;
 import org.apache.commons.io.FileUtils;
 import org.apache.pdfbox.io.RandomAccessBuffer;
 import org.apache.pdfbox.pdfparser.PDFParser;
@@ -54,7 +53,7 @@ public class ReadFileUtils {
      */
     public static String getContentByPath(String fileurl) throws IOException {
         FileInputStream fileInputStream = new FileInputStream(fileurl);
-        String fileType = FileUtil.getFileExtendName(fileurl);
+        String fileType = UFOPUtils.getFileExtendName(fileurl);
 //        String[] fileTypeArr = filepath.split("\\.");
 //        String fileType = fileTypeArr[fileTypeArr.length - 1];
         if ("doc".equals(fileType) || "docx".equals(fileType)) {

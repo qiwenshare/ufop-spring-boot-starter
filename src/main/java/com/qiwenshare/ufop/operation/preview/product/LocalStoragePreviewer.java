@@ -1,13 +1,10 @@
 package com.qiwenshare.ufop.operation.preview.product;
 
-import com.qiwenshare.common.operation.FileOperation;
 import com.qiwenshare.common.operation.ImageOperation;
-import com.qiwenshare.common.util.FileUtil;
 import com.qiwenshare.ufop.autoconfiguration.UFOPAutoConfiguration;
-import com.qiwenshare.ufop.operation.download.domain.DownloadFile;
 import com.qiwenshare.ufop.operation.preview.Previewer;
 import com.qiwenshare.ufop.operation.preview.domain.PreviewFile;
-import com.qiwenshare.ufop.util.PathUtil;
+import com.qiwenshare.ufop.util.UFOPUtils;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
@@ -15,7 +12,7 @@ import java.io.*;
 public class LocalStoragePreviewer extends Previewer {
     @Override
     public void imageThumbnailPreview(HttpServletResponse httpServletResponse, PreviewFile previewFile) {
-        String savePath = PathUtil.getStaticPath() + "cache" + File.separator + previewFile.getFileUrl();
+        String savePath = UFOPUtils.getStaticPath() + "cache" + File.separator + previewFile.getFileUrl();
         File saveFile = new File(savePath);
         BufferedInputStream bis = null;
         byte[] buffer = new byte[1024];
@@ -80,12 +77,12 @@ public class LocalStoragePreviewer extends Previewer {
 
 
 
-//        String extendName = FileUtil.getFileExtendName(previewFile.getFileUrl());
+//        String extendName = UFOPUtils.getFileExtendName(previewFile.getFileUrl());
 //        previewFile.setFileUrl(previewFile.getFileUrl().replace("." + extendName, "_min." + extendName));
 //        BufferedInputStream bis = null;
 //        byte[] buffer = new byte[1024];
 //        //设置文件路径
-//        File file = FileOperation.newFile(PathUtil.getStaticPath() + previewFile.getFileUrl());
+//        File file = FileOperation.newFile(UFOPUtils.getStaticPath() + previewFile.getFileUrl());
 //        if (file.exists()) {
 //
 //            FileInputStream fis = null;
@@ -120,7 +117,7 @@ public class LocalStoragePreviewer extends Previewer {
         BufferedInputStream bis = null;
         byte[] buffer = new byte[1024];
         //设置文件路径
-        File file = FileOperation.newFile(PathUtil.getStaticPath() + previewFile.getFileUrl());
+        File file = UFOPUtils.getLocalSaveFile(previewFile.getFileUrl());
         if (file.exists()) {
 
             FileInputStream fis = null;
@@ -151,7 +148,7 @@ public class LocalStoragePreviewer extends Previewer {
 
     public InputStream getInputStream(String fileUrl) {
         //设置文件路径
-        File file = FileOperation.newFile(PathUtil.getStaticPath() + fileUrl);
+        File file = UFOPUtils.getLocalSaveFile(fileUrl);
         InputStream inputStream = null;
         try {
             inputStream = new FileInputStream(file);

@@ -1,23 +1,30 @@
 package com.qiwenshare.ufop.operation.read.product;
 
-import com.qiwenshare.common.operation.FileOperation;
-import com.qiwenshare.common.util.FileUtil;
+import com.github.tobato.fastdfs.proto.storage.DownloadByteArray;
+import com.github.tobato.fastdfs.service.FastFileStorageClient;
 import com.qiwenshare.ufop.exception.ReadException;
 import com.qiwenshare.ufop.operation.read.Reader;
 import com.qiwenshare.ufop.operation.read.domain.ReadFile;
-import com.qiwenshare.ufop.util.PathUtil;
 import com.qiwenshare.ufop.util.ReadFileUtils;
+import com.qiwenshare.ufop.util.UFOPUtils;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
+@Slf4j
+@Component
 public class FastDFSReader extends Reader {
+    @Autowired
+    private FastFileStorageClient fastFileStorageClient;
     @Override
     public String read(ReadFile readFile) {
-//        String extendName = FileUtil.getFileExtendName(readFile.getFileUrl());
-//        return null;
 
         String fileUrl = readFile.getFileUrl();
-        String fileType = FileUtil.getFileExtendName(fileUrl);
+        String fileType = UFOPUtils.getFileExtendName(fileUrl);
         try {
             return ReadFileUtils.getContentByInputStream(fileType, getInputStream(readFile.getFileUrl()));
         } catch (IOException e) {
@@ -26,15 +33,12 @@ public class FastDFSReader extends Reader {
     }
 
     public InputStream getInputStream(String fileUrl) {
-        //设置文件路径
-        File file = FileOperation.newFile(PathUtil.getStaticPath() + fileUrl);
-        InputStream inputStream = null;
-        try {
-            inputStream = new FileInputStream(file);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+        String group = fileUrl.substring(0, fileUrl.indexOf("/"));
+        group = "group1";
+        String path = fileUrl.substring(fileUrl.indexOf("/") + 1);
+        DownloadByteArray downloadByteArray = new DownloadByteArray();
+        byte[] bytes = fastFileStorageClient.downloadFile(group, path, downloadByteArray);
+        InputStream inputStream = new ByteArrayInputStream(bytes);
         return inputStream;
-
     }
 }

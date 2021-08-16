@@ -3,7 +3,7 @@ package com.qiwenshare.ufop.operation.write.product;
 import com.qiwenshare.ufop.exception.WriteException;
 import com.qiwenshare.ufop.operation.write.Writer;
 import com.qiwenshare.ufop.operation.write.domain.WriteFile;
-import com.qiwenshare.ufop.util.PathUtil;
+import com.qiwenshare.ufop.util.UFOPUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.FileNotFoundException;
@@ -15,7 +15,7 @@ import java.io.InputStream;
 public class LocalStorageWriter extends Writer {
     @Override
     public void write(InputStream inputStream, WriteFile writeFile) {
-        try (FileOutputStream out = new FileOutputStream(PathUtil.getStaticPath() + writeFile.getFileUrl())){
+        try (FileOutputStream out = new FileOutputStream(UFOPUtils.getStaticPath() + writeFile.getFileUrl())){
             int read;
             final byte[] bytes = new byte[1024];
             while ((read = inputStream.read(bytes)) != -1) {
