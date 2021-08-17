@@ -20,6 +20,8 @@ import static com.qiwenshare.ufop.operation.upload.Uploader.ROOT_PATH;
 
 public class UFOPUtils {
 
+    public static String LOCAL_STORAGE_PATH;
+
     public static final String[] IMG_FILE = {"bmp", "jpg", "png", "tif", "gif", "jpeg"};
     public static final String[] DOC_FILE = {"doc", "docx", "ppt", "pptx", "xls", "xlsx", "txt", "hlp", "wps", "rtf", "html", "pdf"};
     public static final String[] VIDEO_FILE = {"avi", "mp4", "mpg", "mov", "swf"};
@@ -158,7 +160,7 @@ public class UFOPUtils {
      * @return 结果
      */
     public static String getStaticPath() {
-        String localStoragePath = UFOPAutoConfiguration.localStoragePath;//PropertiesUtil.getProperty("qiwen-file.local-storage-path")
+        String localStoragePath = LOCAL_STORAGE_PATH;
         if (StringUtils.isNotEmpty(localStoragePath)) {
 
             return new File(localStoragePath).getPath() + File.separator;

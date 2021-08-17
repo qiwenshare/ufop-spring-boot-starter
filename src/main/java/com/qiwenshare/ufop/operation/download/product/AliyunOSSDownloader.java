@@ -4,6 +4,7 @@ import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
 import com.aliyun.oss.model.OSSObject;
 import com.qiwenshare.ufop.autoconfiguration.UFOPAutoConfiguration;
+import com.qiwenshare.ufop.config.AliyunConfig;
 import com.qiwenshare.ufop.domain.AliyunOSS;
 import com.qiwenshare.ufop.operation.download.Downloader;
 import com.qiwenshare.ufop.operation.download.domain.DownloadFile;
@@ -16,17 +17,25 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-@Component
 public class AliyunOSSDownloader extends Downloader {
 
+    private AliyunConfig aliyunConfig;
+
+    public AliyunOSSDownloader(){
+
+    }
+
+    public AliyunOSSDownloader(AliyunConfig aliyunConfig) {
+        this.aliyunConfig = aliyunConfig;
+    }
     @Override
     public void download(HttpServletResponse httpServletResponse, DownloadFile downloadFile) {
 
         BufferedInputStream bis = null;
         byte[] buffer = new byte[1024];
 
-        OSS ossClient = createOSSClient(UFOPAutoConfiguration.aliyunConfig.getOss());
-        OSSObject ossObject = ossClient.getObject(UFOPAutoConfiguration.aliyunConfig.getOss().getBucketName(),
+        OSS ossClient = createOSSClient(aliyunConfig.getOss());
+        OSSObject ossObject = ossClient.getObject(aliyunConfig.getOss().getBucketName(),
                 UFOPUtils.getAliyunObjectNameByFileUrl(downloadFile.getFileUrl()));
         InputStream inputStream = ossObject.getObjectContent();
         try {
@@ -54,8 +63,8 @@ public class AliyunOSSDownloader extends Downloader {
 
     @Override
     public InputStream getInputStream(DownloadFile downloadFile) {
-        OSS ossClient = createOSSClient(UFOPAutoConfiguration.aliyunConfig.getOss());
-        OSSObject ossObject = ossClient.getObject(UFOPAutoConfiguration.aliyunConfig.getOss().getBucketName(),
+        OSS ossClient = createOSSClient(aliyunConfig.getOss());
+        OSSObject ossObject = ossClient.getObject(aliyunConfig.getOss().getBucketName(),
                 UFOPUtils.getAliyunObjectNameByFileUrl(downloadFile.getFileUrl()));
         InputStream inputStream = ossObject.getObjectContent();
         return inputStream;

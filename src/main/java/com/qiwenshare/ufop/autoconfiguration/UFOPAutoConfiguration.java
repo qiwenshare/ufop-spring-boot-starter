@@ -11,29 +11,29 @@ import com.qiwenshare.ufop.operation.upload.product.AliyunOSSUploader;
 import com.qiwenshare.ufop.operation.upload.product.FastDFSUploader;
 import com.qiwenshare.ufop.operation.write.product.FastDFSWriter;
 import com.qiwenshare.ufop.util.RedisUtil;
+import com.qiwenshare.ufop.util.UFOPUtils;
 import com.qiwenshare.ufop.util.concurrent.locks.RedisLock;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
 
 @Slf4j
 @Configuration
 //@ConditionalOnClass(UFOService.class)
 @EnableConfigurationProperties({UFOPProperties.class})
 public class UFOPAutoConfiguration {
-    public static String localStoragePath;
-    public static AliyunConfig aliyunConfig;
-    public static int thumbImageWidth;
-    public static int thumbImageHeight;
+
+    @Autowired
+    private UFOPProperties ufopProperties;
+
 
     @Bean
-    public UFOPFactory ufopFactory(UFOPProperties UFOPProperties) {
-        localStoragePath = UFOPProperties.getLocalStoragePath();
-        aliyunConfig = UFOPProperties.getAliyun();
-        thumbImageWidth = UFOPProperties.getThumbImage().getWidth();
-        thumbImageHeight = UFOPProperties.getThumbImage().getHeight();
-        return new UFOPFactory(UFOPProperties.getStorageType());
+    public UFOPFactory ufopFactory() {
+        UFOPUtils.LOCAL_STORAGE_PATH = ufopProperties.getLocalStoragePath();
+        return new UFOPFactory(ufopProperties);
     }
     @Bean
     public FastDFSCopier fastDFSCreater() {
@@ -61,11 +61,11 @@ public class UFOPAutoConfiguration {
     }
     @Bean
     public FastDFSPreviewer fastDFSPreviewer() {
-        return new FastDFSPreviewer();
+        return new FastDFSPreviewer(ufopProperties.getThumbImage());
     }
     @Bean
     public AliyunOSSUploader aliyunOSSUploader() {
-        return new AliyunOSSUploader();
+        return new AliyunOSSUploader(ufopProperties.getAliyun());
     }
 
 

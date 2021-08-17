@@ -5,11 +5,14 @@ import com.aliyun.oss.OSSClientBuilder;
 import com.aliyun.oss.model.OSSObject;
 import com.qiwenshare.common.util.HttpsUtils;
 import com.qiwenshare.ufop.autoconfiguration.UFOPAutoConfiguration;
+import com.qiwenshare.ufop.config.AliyunConfig;
 import com.qiwenshare.ufop.domain.AliyunOSS;
+import com.qiwenshare.ufop.domain.ThumbImage;
 import com.qiwenshare.ufop.operation.download.domain.DownloadFile;
 import com.qiwenshare.ufop.operation.preview.Previewer;
 import com.qiwenshare.ufop.operation.preview.domain.PreviewFile;
 import com.qiwenshare.ufop.util.UFOPUtils;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.servlet.http.HttpServletResponse;
@@ -18,8 +21,23 @@ import java.net.*;
 import java.util.HashMap;
 import java.util.Map;
 
+@Data
 @Slf4j
 public class AliyunOSSPreviewer extends Previewer {
+
+
+    private AliyunConfig aliyunConfig;
+    private ThumbImage thumbImage;
+
+    public AliyunOSSPreviewer(){
+
+    }
+
+    public AliyunOSSPreviewer(AliyunConfig aliyunConfig, ThumbImage thumbImage) {
+        this.aliyunConfig = aliyunConfig;
+        this.thumbImage = thumbImage;
+    }
+
     @Override
     public void imageThumbnailPreview(HttpServletResponse httpServletResponse, PreviewFile previewFile) {
         BufferedInputStream bis = null;
@@ -27,14 +45,14 @@ public class AliyunOSSPreviewer extends Previewer {
 
         StringBuffer url = new StringBuffer();
         url.append("https://");
-        url.append(UFOPAutoConfiguration.aliyunConfig.getOss().getBucketName());
+        url.append(aliyunConfig.getOss().getBucketName());
         url.append(".");
-        url.append(UFOPAutoConfiguration.aliyunConfig.getOss().getEndpoint());
+        url.append(aliyunConfig.getOss().getEndpoint());
         url.append("/" + UFOPUtils.getAliyunObjectNameByFileUrl(previewFile.getFileUrl()));
 
         Map<String, Object> param = new HashMap<>();
-        int thumbImageWidth = UFOPAutoConfiguration.thumbImageWidth;
-        int thumbImageHeight = UFOPAutoConfiguration.thumbImageHeight;
+        int thumbImageWidth = thumbImage.getWidth();
+        int thumbImageHeight = thumbImage.getHeight();
         int width = thumbImageWidth == 0 ? 150 : thumbImageWidth;
         int height = thumbImageHeight == 0 ? 150 : thumbImageHeight;
         param.put("x-oss-process", "image/resize,m_fill,h_"+height+",w_"+width+"/rotate,0");
@@ -78,8 +96,8 @@ public class AliyunOSSPreviewer extends Previewer {
         BufferedInputStream bis = null;
         byte[] buffer = new byte[1024];
 
-        OSS ossClient = createOSSClient(UFOPAutoConfiguration.aliyunConfig.getOss());
-        OSSObject ossObject = ossClient.getObject(UFOPAutoConfiguration.aliyunConfig.getOss().getBucketName(),
+        OSS ossClient = createOSSClient(aliyunConfig.getOss());
+        OSSObject ossObject = ossClient.getObject(aliyunConfig.getOss().getBucketName(),
                 UFOPUtils.getAliyunObjectNameByFileUrl(previewFile.getFileUrl()));
         InputStream inputStream = ossObject.getObjectContent();
         try {
@@ -107,8 +125,8 @@ public class AliyunOSSPreviewer extends Previewer {
 
 
     public InputStream getInputStream(DownloadFile downloadFile) {
-        OSS ossClient = createOSSClient(UFOPAutoConfiguration.aliyunConfig.getOss());
-        OSSObject ossObject = ossClient.getObject(UFOPAutoConfiguration.aliyunConfig.getOss().getBucketName(),
+        OSS ossClient = createOSSClient(aliyunConfig.getOss());
+        OSSObject ossObject = ossClient.getObject(aliyunConfig.getOss().getBucketName(),
                 UFOPUtils.getAliyunObjectNameByFileUrl(downloadFile.getFileUrl()));
         InputStream inputStream = ossObject.getObjectContent();
         return inputStream;

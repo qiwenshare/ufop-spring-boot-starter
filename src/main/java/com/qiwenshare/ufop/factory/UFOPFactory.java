@@ -1,6 +1,9 @@
 package com.qiwenshare.ufop.factory;
 
+import com.qiwenshare.ufop.autoconfiguration.UFOPProperties;
+import com.qiwenshare.ufop.config.AliyunConfig;
 import com.qiwenshare.ufop.constant.StorageTypeEnum;
+import com.qiwenshare.ufop.domain.ThumbImage;
 import com.qiwenshare.ufop.operation.copy.Copier;
 import com.qiwenshare.ufop.operation.copy.product.AliyunOSSCopier;
 import com.qiwenshare.ufop.operation.copy.product.FastDFSCopier;
@@ -36,6 +39,9 @@ import javax.annotation.Resource;
 
 public class UFOPFactory {
     private String storageType;
+    private String localStoragePath;
+    private AliyunConfig aliyunConfig;
+    private ThumbImage thumbImage;
     @Resource
     private FastDFSCopier fastDFSCopier;
     @Resource
@@ -56,8 +62,11 @@ public class UFOPFactory {
     public UFOPFactory() {
     }
 
-    public UFOPFactory(String storageType) {
-        this.storageType = storageType;
+    public UFOPFactory(UFOPProperties ufopProperties) {
+        this.storageType = ufopProperties.getStorageType();
+        this.localStoragePath = ufopProperties.getLocalStoragePath();
+        this.aliyunConfig = ufopProperties.getAliyun();
+        this.thumbImage = ufopProperties.getThumbImage();
     }
 
     public Uploader getUploader() {
@@ -79,7 +88,7 @@ public class UFOPFactory {
         if (StorageTypeEnum.LOCAL.getCode() == storageType) {
             return new LocalStorageDownloader();
         } else if (StorageTypeEnum.ALIYUN_OSS.getCode() == storageType) {
-            return new AliyunOSSDownloader();
+            return new AliyunOSSDownloader(aliyunConfig);
         } else if (StorageTypeEnum.FAST_DFS.getCode() == storageType) {
             return fastDFSDownloader;
         }
@@ -91,7 +100,7 @@ public class UFOPFactory {
         if (StorageTypeEnum.LOCAL.getCode() == storageType) {
             return new LocalStorageDeleter();
         } else if (StorageTypeEnum.ALIYUN_OSS.getCode() == storageType) {
-            return new AliyunOSSDeleter();
+            return new AliyunOSSDeleter(aliyunConfig);
         } else if (StorageTypeEnum.FAST_DFS.getCode() == storageType) {
             return fastDFSDeleter;
         }
@@ -102,7 +111,7 @@ public class UFOPFactory {
         if (StorageTypeEnum.LOCAL.getCode() == storageType) {
             return null;
         } else if (StorageTypeEnum.ALIYUN_OSS.getCode() == storageType) {
-            return new AliyunOSSRenamer();
+            return new AliyunOSSRenamer(aliyunConfig);
         } else if (StorageTypeEnum.FAST_DFS.getCode() == storageType) {
             return null;
         }
@@ -113,7 +122,7 @@ public class UFOPFactory {
         if (StorageTypeEnum.LOCAL.getCode() == storageType) {
             return new LocalStorageReader();
         } else if (StorageTypeEnum.ALIYUN_OSS.getCode() == storageType) {
-            return new AliyunOSSReader();
+            return new AliyunOSSReader(aliyunConfig);
         } else if (StorageTypeEnum.FAST_DFS.getCode() == storageType) {
             return fastDFSReader;
         }
@@ -124,7 +133,7 @@ public class UFOPFactory {
         if (StorageTypeEnum.LOCAL.getCode() == storageType) {
             return new LocalStorageWriter();
         } else if (StorageTypeEnum.ALIYUN_OSS.getCode() == storageType) {
-            return new AliyunOSSWriter();
+            return new AliyunOSSWriter(aliyunConfig);
         } else if (StorageTypeEnum.FAST_DFS.getCode() == storageType) {
             return fastDFSWriter;
         }
@@ -133,9 +142,9 @@ public class UFOPFactory {
 
     public Previewer getPreviewer(int storageType) {
         if (StorageTypeEnum.LOCAL.getCode() == storageType) {
-            return new LocalStoragePreviewer();
+            return new LocalStoragePreviewer(thumbImage);
         } else if (StorageTypeEnum.ALIYUN_OSS.getCode() == storageType) {
-            return new AliyunOSSPreviewer();
+            return new AliyunOSSPreviewer(aliyunConfig, thumbImage);
         } else if (StorageTypeEnum.FAST_DFS.getCode() == storageType) {
             return fastDFSPreviewer;
         }
@@ -148,7 +157,7 @@ public class UFOPFactory {
         if (StorageTypeEnum.LOCAL.getCode() == type) {
             return new LocalStorageCopier();
         } else if (StorageTypeEnum.ALIYUN_OSS.getCode() == type) {
-            return new AliyunOSSCopier();
+            return new AliyunOSSCopier(aliyunConfig);
         } else if (StorageTypeEnum.FAST_DFS.getCode() == type) {
             return fastDFSCopier;
         }

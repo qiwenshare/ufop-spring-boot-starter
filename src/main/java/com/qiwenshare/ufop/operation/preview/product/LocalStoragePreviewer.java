@@ -2,6 +2,8 @@ package com.qiwenshare.ufop.operation.preview.product;
 
 import com.qiwenshare.common.operation.ImageOperation;
 import com.qiwenshare.ufop.autoconfiguration.UFOPAutoConfiguration;
+import com.qiwenshare.ufop.config.AliyunConfig;
+import com.qiwenshare.ufop.domain.ThumbImage;
 import com.qiwenshare.ufop.operation.preview.Previewer;
 import com.qiwenshare.ufop.operation.preview.domain.PreviewFile;
 import com.qiwenshare.ufop.util.UFOPUtils;
@@ -10,6 +12,16 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 
 public class LocalStoragePreviewer extends Previewer {
+
+    private ThumbImage thumbImage;
+
+    public LocalStoragePreviewer(){
+
+    }
+    public LocalStoragePreviewer(ThumbImage thumbImage) {
+        this.thumbImage = thumbImage;
+    }
+
     @Override
     public void imageThumbnailPreview(HttpServletResponse httpServletResponse, PreviewFile previewFile) {
         String savePath = UFOPUtils.getStaticPath() + "cache" + File.separator + previewFile.getFileUrl();
@@ -44,8 +56,8 @@ public class LocalStoragePreviewer extends Previewer {
             InputStream inputstream = getInputStream(previewFile.getFileUrl());
             InputStream in = null;
             try {
-                int thumbImageWidth = UFOPAutoConfiguration.thumbImageWidth;
-                int thumbImageHeight = UFOPAutoConfiguration.thumbImageHeight;
+                int thumbImageWidth = thumbImage.getWidth();
+                int thumbImageHeight = thumbImage.getHeight();
                 int width = thumbImageWidth == 0 ? 150 : thumbImageWidth;
                 int height = thumbImageHeight == 0 ? 150 : thumbImageHeight;
                 in = ImageOperation.thumbnailsImage(inputstream, saveFile, width, height);
@@ -74,41 +86,6 @@ public class LocalStoragePreviewer extends Previewer {
                 }
             }
         }
-
-
-
-//        String extendName = UFOPUtils.getFileExtendName(previewFile.getFileUrl());
-//        previewFile.setFileUrl(previewFile.getFileUrl().replace("." + extendName, "_min." + extendName));
-//        BufferedInputStream bis = null;
-//        byte[] buffer = new byte[1024];
-//        //设置文件路径
-//        File file = FileOperation.newFile(UFOPUtils.getStaticPath() + previewFile.getFileUrl());
-//        if (file.exists()) {
-//
-//            FileInputStream fis = null;
-//
-//            try {
-//                fis = new FileInputStream(file);
-//                bis = new BufferedInputStream(fis);
-//                OutputStream os = httpServletResponse.getOutputStream();
-//                int i = bis.read(buffer);
-//                while (i != -1) {
-//                    os.write(buffer, 0, i);
-//                    i = bis.read(buffer);
-//                }
-//
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            } finally {
-//                if (bis != null) {
-//                    try {
-//                        bis.close();
-//                    } catch (IOException e) {
-//                        e.printStackTrace();
-//                    }
-//                }
-//            }
-//        }
     }
 
     @Override

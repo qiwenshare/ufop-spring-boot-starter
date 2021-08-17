@@ -4,6 +4,7 @@ import com.github.tobato.fastdfs.proto.storage.DownloadByteArray;
 import com.github.tobato.fastdfs.service.FastFileStorageClient;
 import com.qiwenshare.common.operation.ImageOperation;
 import com.qiwenshare.ufop.autoconfiguration.UFOPAutoConfiguration;
+import com.qiwenshare.ufop.domain.ThumbImage;
 import com.qiwenshare.ufop.operation.preview.Previewer;
 import com.qiwenshare.ufop.operation.preview.domain.PreviewFile;
 import com.qiwenshare.ufop.util.UFOPUtils;
@@ -21,11 +22,20 @@ public class FastDFSPreviewer extends Previewer {
     @Autowired
     private FastFileStorageClient fastFileStorageClient;
 
+    private ThumbImage thumbImage;
+
+
+
+    public FastDFSPreviewer(){}
+
+    public FastDFSPreviewer(ThumbImage thumbImage) {
+        this.thumbImage = thumbImage;
+    }
+
     @Override
     public void imageThumbnailPreview(HttpServletResponse httpServletResponse, PreviewFile previewFile) {
 
-        String savePath = UFOPUtils.getStaticPath() + "cache" + File.separator + previewFile.getFileUrl();
-        File saveFile = new File(savePath);
+        File saveFile = UFOPUtils.getCacheFile(previewFile.getFileUrl());
         BufferedInputStream bis = null;
         byte[] buffer = new byte[1024];
         if (saveFile.exists()) {
@@ -56,8 +66,8 @@ public class FastDFSPreviewer extends Previewer {
             InputStream inputstream = getInputStream(previewFile.getFileUrl());
             InputStream in = null;
             try {
-                int thumbImageWidth = UFOPAutoConfiguration.thumbImageWidth;
-                int thumbImageHeight = UFOPAutoConfiguration.thumbImageHeight;
+                int thumbImageWidth = thumbImage.getWidth();
+                int thumbImageHeight = thumbImage.getHeight();
                 int width = thumbImageWidth == 0 ? 150 : thumbImageWidth;
                 int height = thumbImageHeight == 0 ? 150 : thumbImageHeight;
                 in = ImageOperation.thumbnailsImage(inputstream, saveFile, width, height);

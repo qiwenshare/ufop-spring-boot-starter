@@ -6,6 +6,7 @@ import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
 import com.aliyun.oss.model.*;
 import com.qiwenshare.ufop.autoconfiguration.UFOPAutoConfiguration;
+import com.qiwenshare.ufop.config.AliyunConfig;
 import com.qiwenshare.ufop.constant.StorageTypeEnum;
 import com.qiwenshare.ufop.constant.UploadFileStatusEnum;
 import com.qiwenshare.ufop.exception.UploadException;
@@ -32,6 +33,16 @@ public class AliyunOSSUploader extends Uploader {
 
     @Resource
     RedisUtil redisUtil;
+
+    private AliyunConfig aliyunConfig;
+
+    public AliyunOSSUploader(){
+
+    }
+
+    public AliyunOSSUploader(AliyunConfig aliyunConfig) {
+        this.aliyunConfig = aliyunConfig;
+    }
 
     @Override
     public List<UploadFileResult> upload(HttpServletRequest httpServletRequest, UploadFile uploadFile) {
@@ -105,12 +116,12 @@ public class AliyunOSSUploader extends Uploader {
         String fileUrl = qiwenMultipartFile.getFileUrl();
         if (uploadFileInfo == null) {
             OSS ossClient = getClient();
-            InitiateMultipartUploadRequest request = new InitiateMultipartUploadRequest(UFOPAutoConfiguration.aliyunConfig.getOss().getBucketName(), fileUrl);
+            InitiateMultipartUploadRequest request = new InitiateMultipartUploadRequest(aliyunConfig.getOss().getBucketName(), fileUrl);
             InitiateMultipartUploadResult upresult = ossClient.initiateMultipartUpload(request);
             String uploadId = upresult.getUploadId();
 
             uploadFileInfo = new UploadFileInfo();
-            uploadFileInfo.setBucketName(UFOPAutoConfiguration.aliyunConfig.getOss().getBucketName());
+            uploadFileInfo.setBucketName(aliyunConfig.getOss().getBucketName());
             uploadFileInfo.setKey(fileUrl);
             uploadFileInfo.setUploadId(uploadId);
             redisUtil.set("uploadPartRequest:" + uploadFile.getIdentifier(), JSON.toJSONString(uploadFileInfo));
@@ -155,7 +166,7 @@ public class AliyunOSSUploader extends Uploader {
         UploadFileInfo uploadFileInfo = JSON.parseObject(redisUtil.getObject("uploadPartRequest:" + uploadFile.getIdentifier()), UploadFileInfo.class);
 
         CompleteMultipartUploadRequest completeMultipartUploadRequest =
-                new CompleteMultipartUploadRequest(UFOPAutoConfiguration.aliyunConfig.getOss().getBucketName(),
+                new CompleteMultipartUploadRequest(aliyunConfig.getOss().getBucketName(),
                         uploadFileInfo.getKey(),
                         uploadFileInfo.getUploadId(),
                         partETags);
@@ -174,14 +185,14 @@ public class AliyunOSSUploader extends Uploader {
         UploadFileInfo uploadFileInfo = JSON.parseObject(redisUtil.getObject("uploadPartRequest:" + uploadFile.getIdentifier()), UploadFileInfo.class);
 
         AbortMultipartUploadRequest abortMultipartUploadRequest =
-                new AbortMultipartUploadRequest(UFOPAutoConfiguration.aliyunConfig.getOss().getBucketName(),
+                new AbortMultipartUploadRequest(aliyunConfig.getOss().getBucketName(),
                         uploadFileInfo.getKey(),
                         uploadFileInfo.getUploadId());
         getClient().abortMultipartUpload(abortMultipartUploadRequest);
     }
 
     private synchronized OSS getClient() {
-        OSS ossClient = new OSSClientBuilder().build(UFOPAutoConfiguration.aliyunConfig.getOss().getEndpoint(), UFOPAutoConfiguration.aliyunConfig.getOss().getAccessKeyId(), UFOPAutoConfiguration.aliyunConfig.getOss().getAccessKeySecret());
+        OSS ossClient = new OSSClientBuilder().build(aliyunConfig.getOss().getEndpoint(), aliyunConfig.getOss().getAccessKeyId(), aliyunConfig.getOss().getAccessKeySecret());
         return ossClient;
     }
 
