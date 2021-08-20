@@ -31,7 +31,7 @@ public class RedisLock {
 
     private static final String UNLOCK_LUA;
 
-    private static final long LOCK_EXPIRE_TIME = 60 * 15; //获取锁最大15分钟就会过期
+    private static final long LOCK_EXPIRE_TIME = 60 * 5; //获取锁最大5分钟就会过期
 
 
     @Resource
@@ -135,13 +135,13 @@ public class RedisLock {
                         lockMap.set(map);
                     }
                     map.put(key, new LockVO(1, lockId, expire * 1000 + before, expire * 1000 + after));
-                    log.debug("acquire lock {} {} ", key, 1);
+                    log.info("acquire lock {} {} ", key, 1);
                     return true;
                 }
                 Thread.sleep(DEFAULT_ACQUIRE_RESOLUTION_MILLIS);
             } while (acquireTime == -1 || acquireTime > System.currentTimeMillis());
         }
-        log.debug("acquire lock {} fail，because timeout ", key);
+        log.info("acquire lock {} fail，because timeout ", key);
         return false;
     }
 

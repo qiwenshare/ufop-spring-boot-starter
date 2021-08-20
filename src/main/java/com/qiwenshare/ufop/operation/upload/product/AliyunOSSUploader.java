@@ -12,6 +12,7 @@ import com.qiwenshare.ufop.constant.UploadFileStatusEnum;
 import com.qiwenshare.ufop.exception.UploadException;
 import com.qiwenshare.ufop.operation.upload.Uploader;
 import com.qiwenshare.ufop.operation.upload.domain.UploadFile;
+import com.qiwenshare.ufop.operation.upload.domain.UploadFileInfo;
 import com.qiwenshare.ufop.operation.upload.domain.UploadFileResult;
 import com.qiwenshare.ufop.operation.upload.request.QiwenMultipartFile;
 import com.qiwenshare.ufop.util.RedisUtil;
@@ -45,74 +46,9 @@ public class AliyunOSSUploader extends Uploader {
     }
 
     @Override
-    public List<UploadFileResult> upload(HttpServletRequest httpServletRequest, UploadFile uploadFile) {
-
-        List<UploadFileResult> uploadFileResultList = new ArrayList<UploadFileResult>();
-
-        StandardMultipartHttpServletRequest request = (StandardMultipartHttpServletRequest) httpServletRequest;
-
-        boolean isMultipart = ServletFileUpload.isMultipartContent(request);
-        if (!isMultipart) {
-            throw new UploadException("未包含文件上传域");
-        }
-
-        Iterator<String> iter = request.getFileNames();
-        while (iter.hasNext()) {
-            MultipartFile multipartFile = request.getFile(iter.next());
-            QiwenMultipartFile qiwenMultipartFile = new QiwenMultipartFile(multipartFile);
-            UploadFileResult uploadFileResult = doUpload(qiwenMultipartFile, uploadFile);
-            uploadFileResultList.add(uploadFileResult);
-        }
-
-        return uploadFileResultList;
-    }
-
-    private UploadFileResult doUpload(QiwenMultipartFile qiwenMultipartFile, UploadFile uploadFile) {
-        UploadFileResult uploadFileResult = new UploadFileResult();
-
-        try {
-
-            if (uploadFile.getTotalChunks() == 1) {
-                uploadFile.setTotalSize(qiwenMultipartFile.getSize());
-            }
-
-            uploadFileChunk(qiwenMultipartFile, uploadFile);
-
-            UploadFileInfo uploadFileInfo = JSON.parseObject(redisUtil.getObject("uploadPartRequest:" + uploadFile.getIdentifier()), UploadFileInfo.class);
-            uploadFileResult.setFileUrl(uploadFileInfo.getKey());
-            uploadFileResult.setFileName(qiwenMultipartFile.getFileName());
-            uploadFileResult.setExtendName(qiwenMultipartFile.getExtendName());
-            uploadFileResult.setFileSize(uploadFile.getTotalSize());
-            if (uploadFile.getTotalChunks() == 1) {
-                uploadFileResult.setFileSize(qiwenMultipartFile.getSize());
-            }
-            uploadFileResult.setStorageType(StorageTypeEnum.ALIYUN_OSS);
-
-            if (uploadFile.getChunkNumber() == uploadFile.getTotalChunks()) {
-                log.info("分片上传完成");
-                completeMultipartUpload(uploadFile);
-
-                redisUtil.deleteKey("partETags:" + uploadFile.getIdentifier());
-                redisUtil.deleteKey("uploadPartRequest:" + uploadFile.getIdentifier());
-
-                uploadFileResult.setStatus(UploadFileStatusEnum.SUCCESS);
-            } else {
-                uploadFileResult.setStatus(UploadFileStatusEnum.UNCOMPLATE);
-
-            }
-
-        } catch (Exception e) {
-            log.error("上传出错：" + e);
-            throw new UploadException(e);
-        }
-
-        return uploadFileResult;
-    }
-
-    @Override
     protected void doUploadFileChunk(QiwenMultipartFile qiwenMultipartFile, UploadFile uploadFile) throws IOException {
-        redisUtil.getIncr(uploadFile.getIdentifier() + "_current_upload_chunk_number");
-        UploadFileInfo uploadFileInfo = JSON.parseObject(redisUtil.getObject("uploadPartRequest:" + uploadFile.getIdentifier()), UploadFileInfo.class);
+
+        UploadFileInfo uploadFileInfo = JSON.parseObject(redisUtil.getObject("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":uploadPartRequest"), UploadFileInfo.class);
         String fileUrl = qiwenMultipartFile.getFileUrl();
         if (uploadFileInfo == null) {
             OSS ossClient = getClient();
@@ -124,7 +60,8 @@ public class AliyunOSSUploader extends Uploader {
             uploadFileInfo.setBucketName(aliyunConfig.getOss().getBucketName());
             uploadFileInfo.setKey(fileUrl);
             uploadFileInfo.setUploadId(uploadId);
-            redisUtil.set("uploadPartRequest:" + uploadFile.getIdentifier(), JSON.toJSONString(uploadFileInfo));
+
+            redisUtil.set("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":uploadPartRequest", JSON.toJSONString(uploadFileInfo));
             ossClient.shutdown();
         }
 
@@ -140,17 +77,47 @@ public class AliyunOSSUploader extends Uploader {
         UploadPartResult uploadPartResult = ossClient.uploadPart(uploadPartRequest);
 
         log.debug("上传结果：" + JSON.toJSONString(uploadPartResult));
-        if (redisUtil.hasKey("partETags:" + uploadFile.getIdentifier())) {
-            List<PartETag> partETags = JSON.parseArray(redisUtil.getObject("partETags:" + uploadFile.getIdentifier()), PartETag.class);
+
+        if (redisUtil.hasKey("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":partETags")) {
+            List<PartETag> partETags = JSON.parseArray(redisUtil.getObject("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":partETags"), PartETag.class);
             partETags.add(uploadPartResult.getPartETag());
-            redisUtil.set("partETags:" + uploadFile.getIdentifier(), JSON.toJSONString(partETags));
+            redisUtil.set("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":partETags", JSON.toJSONString(partETags));
         } else {
             List<PartETag> partETags = new ArrayList<PartETag>();
             partETags.add(uploadPartResult.getPartETag());
-            redisUtil.set("partETags:" + uploadFile.getIdentifier(), JSON.toJSONString(partETags));
+            redisUtil.set("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":partETags", JSON.toJSONString(partETags));
         }
         ossClient.shutdown();
 
+    }
+
+    @Override
+    protected UploadFileResult organizationalResults(QiwenMultipartFile qiwenMultipartFile, UploadFile uploadFile) {
+        UploadFileResult uploadFileResult = new UploadFileResult();
+        UploadFileInfo uploadFileInfo = JSON.parseObject(redisUtil.getObject("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":uploadPartRequest"), UploadFileInfo.class);
+
+        uploadFileResult.setFileUrl(uploadFileInfo.getKey());
+        uploadFileResult.setFileName(qiwenMultipartFile.getFileName());
+        uploadFileResult.setExtendName(qiwenMultipartFile.getExtendName());
+        uploadFileResult.setFileSize(uploadFile.getTotalSize());
+        if (uploadFile.getTotalChunks() == 1) {
+            uploadFileResult.setFileSize(qiwenMultipartFile.getSize());
+        }
+        uploadFileResult.setStorageType(StorageTypeEnum.ALIYUN_OSS);
+
+        if (uploadFile.getChunkNumber() == uploadFile.getTotalChunks()) {
+            log.info("分片上传完成");
+            completeMultipartUpload(uploadFile);
+            redisUtil.deleteKey("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":current_upload_chunk_number");
+            redisUtil.deleteKey("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":partETags");
+            redisUtil.deleteKey("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":uploadPartRequest");
+
+            uploadFileResult.setStatus(UploadFileStatusEnum.SUCCESS);
+        } else {
+            uploadFileResult.setStatus(UploadFileStatusEnum.UNCOMPLATE);
+
+        }
+        return uploadFileResult;
     }
 
 
@@ -160,10 +127,11 @@ public class AliyunOSSUploader extends Uploader {
      */
     private void completeMultipartUpload(UploadFile uploadFile) {
 
-        List<PartETag> partETags = JSON.parseArray(redisUtil.getObject("partETags:" + uploadFile.getIdentifier()), PartETag.class);
+        List<PartETag> partETags = JSON.parseArray(redisUtil.getObject("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":partETags"), PartETag.class);
 
         Collections.sort(partETags, Comparator.comparingInt(PartETag::getPartNumber));
-        UploadFileInfo uploadFileInfo = JSON.parseObject(redisUtil.getObject("uploadPartRequest:" + uploadFile.getIdentifier()), UploadFileInfo.class);
+
+        UploadFileInfo uploadFileInfo = JSON.parseObject(redisUtil.getObject("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":uploadPartRequest"), UploadFileInfo.class);
 
         CompleteMultipartUploadRequest completeMultipartUploadRequest =
                 new CompleteMultipartUploadRequest(aliyunConfig.getOss().getBucketName(),
@@ -182,7 +150,8 @@ public class AliyunOSSUploader extends Uploader {
      */
     @Override
     public void cancelUpload(UploadFile uploadFile) {
-        UploadFileInfo uploadFileInfo = JSON.parseObject(redisUtil.getObject("uploadPartRequest:" + uploadFile.getIdentifier()), UploadFileInfo.class);
+
+        UploadFileInfo uploadFileInfo = JSON.parseObject(redisUtil.getObject("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":uploadPartRequest"), UploadFileInfo.class);
 
         AbortMultipartUploadRequest abortMultipartUploadRequest =
                 new AbortMultipartUploadRequest(aliyunConfig.getOss().getBucketName(),
@@ -196,11 +165,5 @@ public class AliyunOSSUploader extends Uploader {
         return ossClient;
     }
 
-    @Data
-    public class UploadFileInfo {
-        private String bucketName;
-        private String key;
-        private String uploadId;
-    }
 
 }

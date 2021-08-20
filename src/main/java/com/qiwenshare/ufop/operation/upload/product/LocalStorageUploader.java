@@ -28,75 +28,54 @@ import java.util.List;
 @Component
 public class LocalStorageUploader extends Uploader {
 
-    @Override
-    public List<UploadFileResult> upload(HttpServletRequest httpServletRequest, UploadFile uploadFile) {
-        List<UploadFileResult> uploadFileResultList = new ArrayList<UploadFileResult>();
-        StandardMultipartHttpServletRequest request = (StandardMultipartHttpServletRequest) httpServletRequest;
-        boolean isMultipart = ServletFileUpload.isMultipartContent(request);
-        if (!isMultipart) {
-            throw new UploadException("未包含文件上传域");
-        }
-
+    protected UploadFileResult doUploadFlow(QiwenMultipartFile qiwenMultipartFile, UploadFile uploadFile) {
+        UploadFileResult uploadFileResult = new UploadFileResult();
         try {
+            String fileUrl = UFOPUtils.getUploadFileUrl(uploadFile.getIdentifier(), qiwenMultipartFile.getExtendName());
+            String tempFileUrl = fileUrl + "_tmp";
+            String confFileUrl = fileUrl.replace("." + qiwenMultipartFile.getExtendName(), ".conf");
 
-            Iterator<String> iter = request.getFileNames();
-            while (iter.hasNext()) {
-                MultipartFile multipartFile = request.getFile(iter.next());
-                QiwenMultipartFile qiwenMultipartFile = new QiwenMultipartFile(multipartFile);
-                UploadFileResult uploadFileResult = doUpload(qiwenMultipartFile, uploadFile);
-                uploadFileResultList.add(uploadFileResult);
+            File file = new File(UFOPUtils.getStaticPath() + fileUrl);
+            File tempFile = new File(UFOPUtils.getStaticPath() + tempFileUrl);
+            File confFile = new File(UFOPUtils.getStaticPath() + confFileUrl);
+
+            //第一步 打开将要写入的文件
+            RandomAccessFile raf = new RandomAccessFile(tempFile, "rw");
+            //第二步 打开通道
+            FileChannel fileChannel = raf.getChannel();
+            //第三步 计算偏移量
+            long position = (uploadFile.getChunkNumber() - 1) * uploadFile.getChunkSize();
+            //第四步 获取分片数据
+            byte[] fileData = qiwenMultipartFile.getUploadBytes();
+            //第五步 写入数据
+            fileChannel.position(position);
+            fileChannel.write(ByteBuffer.wrap(fileData));
+            fileChannel.force(true);
+            fileChannel.close();
+            raf.close();
+            //判断是否完成文件的传输并进行校验与重命名
+            boolean isComplete = checkUploadStatus(uploadFile, confFile);
+            uploadFileResult.setFileUrl(fileUrl);
+            uploadFileResult.setFileName(qiwenMultipartFile.getFileName());
+            uploadFileResult.setExtendName(qiwenMultipartFile.getExtendName());
+            uploadFileResult.setFileSize(uploadFile.getTotalSize());
+            uploadFileResult.setStorageType(StorageTypeEnum.LOCAL);
+
+            if (uploadFile.getTotalChunks() == 1) {
+                uploadFileResult.setFileSize(qiwenMultipartFile.getSize());
+            }
+
+            if (isComplete) {
+                tempFile.renameTo(file);
+                uploadFileResult.setStatus(UploadFileStatusEnum.SUCCESS);
+            } else {
+                uploadFileResult.setStatus(UploadFileStatusEnum.UNCOMPLATE);
             }
         } catch (IOException e) {
-            throw new UploadException("未包含文件上传域");
-        } catch (NotSameFileExpection notSameFileExpection) {
-            notSameFileExpection.printStackTrace();
-        }
-        return uploadFileResultList;
-    }
-
-    private UploadFileResult doUpload(QiwenMultipartFile qiwenMultipartFile, UploadFile uploadFile) throws IOException, NotSameFileExpection {
-        UploadFileResult uploadFileResult = new UploadFileResult();
-
-        String fileUrl = UFOPUtils.getUploadFileUrl(uploadFile.getIdentifier(), qiwenMultipartFile.getExtendName());
-        String tempFileUrl = fileUrl + "_tmp";
-        String confFileUrl = fileUrl.replace("." + qiwenMultipartFile.getExtendName(), ".conf");
-
-        File file = new File(UFOPUtils.getStaticPath() + fileUrl);
-        File tempFile = new File(UFOPUtils.getStaticPath() + tempFileUrl);
-        File confFile = new File(UFOPUtils.getStaticPath() + confFileUrl);
-
-        //第一步 打开将要写入的文件
-        RandomAccessFile raf = new RandomAccessFile(tempFile, "rw");
-        //第二步 打开通道
-        FileChannel fileChannel = raf.getChannel();
-        //第三步 计算偏移量
-        long position = (uploadFile.getChunkNumber() - 1) * uploadFile.getChunkSize();
-        //第四步 获取分片数据
-        byte[] fileData = qiwenMultipartFile.getUploadBytes();
-        //第五步 写入数据
-        fileChannel.position(position);
-        fileChannel.write(ByteBuffer.wrap(fileData));
-        fileChannel.force(true);
-        fileChannel.close();
-        raf.close();
-        //判断是否完成文件的传输并进行校验与重命名
-        boolean isComplete = checkUploadStatus(uploadFile, confFile);
-        uploadFileResult.setFileUrl(fileUrl);
-        uploadFileResult.setFileName(qiwenMultipartFile.getFileName());
-        uploadFileResult.setExtendName(qiwenMultipartFile.getExtendName());
-        uploadFileResult.setFileSize(uploadFile.getTotalSize());
-        uploadFileResult.setStorageType(StorageTypeEnum.LOCAL);
-
-        if (uploadFile.getTotalChunks() == 1) {
-            uploadFileResult.setFileSize(qiwenMultipartFile.getSize());
+            throw new UploadException(e);
         }
 
-        if (isComplete) {
-            tempFile.renameTo(file);
-            uploadFileResult.setStatus(UploadFileStatusEnum.SUCCESS);
-        } else {
-            uploadFileResult.setStatus(UploadFileStatusEnum.UNCOMPLATE);
-        }
+
         return uploadFileResult;
     }
 
@@ -108,6 +87,11 @@ public class LocalStorageUploader extends Uploader {
     @Override
     protected void doUploadFileChunk(QiwenMultipartFile qiwenMultipartFile, UploadFile uploadFile) throws IOException {
 
+    }
+
+    @Override
+    protected UploadFileResult organizationalResults(QiwenMultipartFile qiwenMultipartFile, UploadFile uploadFile) {
+        return null;
     }
 
 

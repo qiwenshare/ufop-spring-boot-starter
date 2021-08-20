@@ -6,7 +6,9 @@ import com.qiwenshare.ufop.config.AliyunConfig;
 import com.qiwenshare.ufop.domain.ThumbImage;
 import com.qiwenshare.ufop.operation.preview.Previewer;
 import com.qiwenshare.ufop.operation.preview.domain.PreviewFile;
+import com.qiwenshare.ufop.util.CharsetUtils;
 import com.qiwenshare.ufop.util.UFOPUtils;
+import org.apache.commons.io.IOUtils;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
@@ -91,30 +93,39 @@ public class LocalStoragePreviewer extends Previewer {
     @Override
     public void imageOriginalPreview(HttpServletResponse httpServletResponse, PreviewFile previewFile) {
 
-        BufferedInputStream bis = null;
-        byte[] buffer = new byte[1024];
         //设置文件路径
         File file = UFOPUtils.getLocalSaveFile(previewFile.getFileUrl());
         if (file.exists()) {
 
             FileInputStream fis = null;
-
+            OutputStream outputStream = null;
             try {
                 fis = new FileInputStream(file);
-                bis = new BufferedInputStream(fis);
-                OutputStream os = httpServletResponse.getOutputStream();
-                int i = bis.read(buffer);
-                while (i != -1) {
-                    os.write(buffer, 0, i);
-                    i = bis.read(buffer);
-                }
+                byte[] bytes = IOUtils.toByteArray(fis);
+                bytes = CharsetUtils.convertCharset(bytes,  UFOPUtils.getFileExtendName(previewFile.getFileUrl()));
+
+//                bis = new BufferedInputStream(fis);
+                outputStream = httpServletResponse.getOutputStream();
+                outputStream.write(bytes);
+//                int i = bis.read(buffer);
+//                while (i != -1) {
+//                    os.write(buffer, 0, i);
+//                    i = bis.read(buffer);
+//                }
 
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
-                if (bis != null) {
+                if (fis != null) {
                     try {
-                        bis.close();
+                        fis.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                if (outputStream != null) {
+                    try {
+                        outputStream.close();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }

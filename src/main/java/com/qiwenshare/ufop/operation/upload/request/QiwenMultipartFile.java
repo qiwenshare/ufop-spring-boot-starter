@@ -57,7 +57,7 @@ public class QiwenMultipartFile {
         return size;
     }
 
-    private MultipartFile getMultipartFile() {
+    public MultipartFile getMultipartFile() {
         return multipartFile;
     }
 

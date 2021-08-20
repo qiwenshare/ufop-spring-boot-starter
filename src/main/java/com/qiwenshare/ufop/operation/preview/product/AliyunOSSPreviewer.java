@@ -4,16 +4,17 @@ import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
 import com.aliyun.oss.model.OSSObject;
 import com.qiwenshare.common.util.HttpsUtils;
-import com.qiwenshare.ufop.autoconfiguration.UFOPAutoConfiguration;
 import com.qiwenshare.ufop.config.AliyunConfig;
 import com.qiwenshare.ufop.domain.AliyunOSS;
 import com.qiwenshare.ufop.domain.ThumbImage;
 import com.qiwenshare.ufop.operation.download.domain.DownloadFile;
 import com.qiwenshare.ufop.operation.preview.Previewer;
 import com.qiwenshare.ufop.operation.preview.domain.PreviewFile;
+import com.qiwenshare.ufop.util.CharsetUtils;
 import com.qiwenshare.ufop.util.UFOPUtils;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
@@ -93,27 +94,32 @@ public class AliyunOSSPreviewer extends Previewer {
 
     @Override
     public void imageOriginalPreview(HttpServletResponse httpServletResponse, PreviewFile previewFile) {
-        BufferedInputStream bis = null;
-        byte[] buffer = new byte[1024];
 
         OSS ossClient = createOSSClient(aliyunConfig.getOss());
         OSSObject ossObject = ossClient.getObject(aliyunConfig.getOss().getBucketName(),
                 UFOPUtils.getAliyunObjectNameByFileUrl(previewFile.getFileUrl()));
         InputStream inputStream = ossObject.getObjectContent();
+        OutputStream outputStream = null;
+        
         try {
-            bis = new BufferedInputStream(inputStream);
-            OutputStream os = httpServletResponse.getOutputStream();
-            int i = bis.read(buffer);
-            while (i != -1) {
-                os.write(buffer, 0, i);
-                i = bis.read(buffer);
-            }
+            outputStream = httpServletResponse.getOutputStream();
+            byte[] bytes = IOUtils.toByteArray(inputStream);
+            bytes = CharsetUtils.convertCharset(bytes, UFOPUtils.getFileExtendName(previewFile.getFileUrl()));
+            outputStream.write(bytes);
+           
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            if (bis != null) {
+            if (inputStream != null) {
                 try {
-                    bis.close();
+                    inputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (outputStream != null) {
+                try {
+                    outputStream.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -139,5 +145,6 @@ public class AliyunOSSPreviewer extends Previewer {
         OSS ossClient = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
         return ossClient;
     }
+
 
 }

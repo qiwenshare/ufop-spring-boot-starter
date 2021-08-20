@@ -7,6 +7,7 @@ import com.qiwenshare.ufop.autoconfiguration.UFOPAutoConfiguration;
 import com.qiwenshare.ufop.domain.ThumbImage;
 import com.qiwenshare.ufop.operation.preview.Previewer;
 import com.qiwenshare.ufop.operation.preview.domain.PreviewFile;
+import com.qiwenshare.ufop.util.CharsetUtils;
 import com.qiwenshare.ufop.util.UFOPUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.util.Arrays;
 
 @Slf4j
 @Component
@@ -118,6 +120,8 @@ public class FastDFSPreviewer extends Previewer {
                 bytes = fastFileStorageClient.downloadFile(group,
                         path,
                         downloadByteArray);
+                bytes = CharsetUtils.convertCharset(bytes, UFOPUtils.getFileExtendName(previewFile.getFileUrl()));
+
                 outputStream.write(bytes);
                 log.debug("文件小于缓冲区大小，一次性加载：fileSize:" + previewFile.getFileSize());
             } else {
@@ -129,6 +133,9 @@ public class FastDFSPreviewer extends Previewer {
                             fileOffset,
                             bufferSize,
                             downloadByteArray);
+//                    ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
+//                    String str = new String(bytes, CharsetUtils.getFileCharsetName(byteArrayInputStream));
+                    bytes = CharsetUtils.convertCharset(bytes,  UFOPUtils.getFileExtendName(previewFile.getFileUrl()));
                     outputStream.write(bytes);
                     fileOffset += bufferSize;
                     int percent = (int)((double) fileOffset / (double) fileSize * 100);
@@ -139,7 +146,11 @@ public class FastDFSPreviewer extends Previewer {
                         fileOffset,
                         previewFile.getFileSize() -  fileOffset,
                         downloadByteArray);
+//                ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
+//                String str = new String(bytes);
+                bytes = CharsetUtils.convertCharset(bytes,  UFOPUtils.getFileExtendName(previewFile.getFileUrl()));
                 outputStream.write(bytes);
+//                outputStream.write(bytes);
                 log.debug("正在下载文件:{}, 进度：{}", previewFile.getFileUrl(), 100 + "%");
             }
 
@@ -167,4 +178,6 @@ public class FastDFSPreviewer extends Previewer {
         InputStream inputStream = new ByteArrayInputStream(bytes);
         return inputStream;
     }
+
+
 }
