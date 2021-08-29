@@ -49,7 +49,7 @@ public class AliyunOSSUploader extends Uploader {
     protected void doUploadFileChunk(QiwenMultipartFile qiwenMultipartFile, UploadFile uploadFile) throws IOException {
 
         UploadFileInfo uploadFileInfo = JSON.parseObject(redisUtil.getObject("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":uploadPartRequest"), UploadFileInfo.class);
-        String fileUrl = qiwenMultipartFile.getFileUrl();
+            String fileUrl = qiwenMultipartFile.getFileUrl();
         if (uploadFileInfo == null) {
             OSS ossClient = getClient();
             InitiateMultipartUploadRequest request = new InitiateMultipartUploadRequest(aliyunConfig.getOss().getBucketName(), fileUrl);

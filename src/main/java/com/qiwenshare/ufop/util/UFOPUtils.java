@@ -3,6 +3,7 @@ package com.qiwenshare.ufop.util;
 import com.qiwenshare.common.constant.FileConstant;
 import com.qiwenshare.ufop.autoconfiguration.UFOPAutoConfiguration;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.tomcat.util.net.AprEndpoint;
 import org.springframework.util.ResourceUtils;
 
 import java.io.File;
@@ -119,9 +120,25 @@ public class UFOPUtils {
         return new File(cachePath);
     }
 
-    public static File getTempPath(String fileUrl) {
+    public static File getTempFile(String fileUrl) {
         String tempPath = UFOPUtils.getStaticPath() + "temp" + File.separator + fileUrl;
-        return new File(tempPath);
+        File tempFile = new File(tempPath);
+        File parentFile = tempFile.getParentFile();
+        if (!parentFile.exists()) {
+            parentFile.mkdirs();
+        }
+
+        return tempFile;
+    }
+
+    public static File getProcessFile(String fileUrl) {
+        String processPath = UFOPUtils.getStaticPath() + "temp" + File.separator + "process" + File.separator + fileUrl;
+        File processFile = new File(processPath);
+        File parentFile = processFile.getParentFile();
+        if (!parentFile.exists()) {
+            parentFile.mkdirs();
+        }
+        return processFile;
     }
 
     /**
@@ -179,6 +196,13 @@ public class UFOPUtils {
 
     }
 
+    /**
+     * 获取上传文件路径
+     * 返回路径格式 “upload/yyyyMMdd/”
+     * @param identifier
+     * @param extendName
+     * @return 返回上传文件路径
+     */
     public static String getUploadFileUrl(String identifier, String extendName) {
 
         SimpleDateFormat formater = new SimpleDateFormat("yyyyMMdd");

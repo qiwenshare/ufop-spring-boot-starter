@@ -8,6 +8,7 @@ import com.qiwenshare.ufop.util.RedisUtil;
 import com.qiwenshare.ufop.util.concurrent.locks.RedisLock;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -15,7 +16,12 @@ import org.springframework.web.multipart.support.StandardMultipartHttpServletReq
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -149,6 +155,49 @@ public abstract class Uploader {
         } finally {
 
             redisLock.unlock(key);
+        }
+
+    }
+
+    public synchronized boolean checkUploadStatus(UploadFile param, File confFile) throws IOException {
+        RandomAccessFile confAccessFile = new RandomAccessFile(confFile, "rw");
+        //设置文件长度
+        confAccessFile.setLength(param.getTotalChunks());
+        //设置起始偏移量
+        confAccessFile.seek(param.getChunkNumber() - 1);
+        //将指定的一个字节写入文件中 127，
+        confAccessFile.write(Byte.MAX_VALUE);
+        byte[] completeStatusList = FileUtils.readFileToByteArray(confFile);
+        confAccessFile.close();//不关闭会造成无法占用
+        //创建conf文件文件长度为总分片数，每上传一个分块即向conf文件中写入一个127，那么没上传的位置就是默认的0,已上传的就是127
+        for (int i = 0; i < completeStatusList.length; i++) {
+            if (completeStatusList[i] != Byte.MAX_VALUE) {
+                return false;
+            }
+        }
+        confFile.delete();
+        return true;
+    }
+
+    public void writeByteDataToFile(byte[] fileData, File file, UploadFile uploadFile) {
+        //第一步 打开将要写入的文件
+        RandomAccessFile raf = null;
+        try {
+            raf = new RandomAccessFile(file, "rw");
+            //第二步 打开通道
+            FileChannel fileChannel = raf.getChannel();
+            //第三步 计算偏移量
+            long position = (uploadFile.getChunkNumber() - 1) * uploadFile.getChunkSize();
+            //第四步 获取分片数据
+//            byte[] fileData = qiwenMultipartFile.getUploadBytes();
+            //第五步 写入数据
+            fileChannel.position(position);
+            fileChannel.write(ByteBuffer.wrap(fileData));
+            fileChannel.force(true);
+            fileChannel.close();
+            raf.close();
+        } catch (IOException e) {
+            throw new UploadException(e);
         }
 
     }
