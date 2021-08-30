@@ -10,6 +10,7 @@ import com.qiwenshare.ufop.domain.ThumbImage;
 import com.qiwenshare.ufop.operation.download.domain.DownloadFile;
 import com.qiwenshare.ufop.operation.preview.Previewer;
 import com.qiwenshare.ufop.operation.preview.domain.PreviewFile;
+import com.qiwenshare.ufop.util.AliyunUtils;
 import com.qiwenshare.ufop.util.CharsetUtils;
 import com.qiwenshare.ufop.util.UFOPUtils;
 import lombok.Data;
@@ -70,32 +71,14 @@ public class AliyunOSSPreviewer extends Previewer {
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
-        try {
-            bis = new BufferedInputStream(inputStream);
-            OutputStream os = httpServletResponse.getOutputStream();
-            int i = bis.read(buffer);
-            while (i != -1) {
-                os.write(buffer, 0, i);
-                i = bis.read(buffer);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (bis != null) {
-                try {
-                    bis.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+        com.qiwenshare.ufop.util.IOUtils.writeInputStreamToResponse(inputStream, httpServletResponse);
 
-        }
     }
 
     @Override
     public void imageOriginalPreview(HttpServletResponse httpServletResponse, PreviewFile previewFile) {
 
-        OSS ossClient = createOSSClient(aliyunConfig.getOss());
+        OSS ossClient = AliyunUtils.getOSSClient(aliyunConfig);
         OSSObject ossObject = ossClient.getObject(aliyunConfig.getOss().getBucketName(),
                 UFOPUtils.getAliyunObjectNameByFileUrl(previewFile.getFileUrl()));
         InputStream inputStream = ossObject.getObjectContent();
@@ -131,19 +114,11 @@ public class AliyunOSSPreviewer extends Previewer {
 
 
     public InputStream getInputStream(DownloadFile downloadFile) {
-        OSS ossClient = createOSSClient(aliyunConfig.getOss());
+        OSS ossClient = AliyunUtils.getOSSClient(aliyunConfig);
         OSSObject ossObject = ossClient.getObject(aliyunConfig.getOss().getBucketName(),
                 UFOPUtils.getAliyunObjectNameByFileUrl(downloadFile.getFileUrl()));
         InputStream inputStream = ossObject.getObjectContent();
         return inputStream;
-    }
-
-    public OSS createOSSClient(AliyunOSS aliyunOSS) {
-        String endpoint = aliyunOSS.getEndpoint();
-        String accessKeyId = aliyunOSS.getAccessKeyId();
-        String accessKeySecret = aliyunOSS.getAccessKeySecret();
-        OSS ossClient = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
-        return ossClient;
     }
 
 

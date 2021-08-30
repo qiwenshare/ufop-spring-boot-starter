@@ -5,6 +5,7 @@ import com.aliyun.oss.OSSClientBuilder;
 import com.qiwenshare.ufop.config.AliyunConfig;
 import com.qiwenshare.ufop.operation.copy.Copier;
 import com.qiwenshare.ufop.operation.copy.domain.CopyFile;
+import com.qiwenshare.ufop.util.AliyunUtils;
 import com.qiwenshare.ufop.util.UFOPUtils;
 
 import java.io.InputStream;
@@ -25,16 +26,13 @@ public class AliyunOSSCopier extends Copier {
     public String copy(InputStream inputStream, CopyFile copyFile) {
         String uuid = UUID.randomUUID().toString();
         String fileUrl = UFOPUtils.getUploadFileUrl(uuid, copyFile.getExtendName());
-        OSS ossClient = getClient();
-        ossClient.putObject(aliyunConfig.getOss().getBucketName()
-                , fileUrl, inputStream);
+        OSS ossClient = AliyunUtils.getOSSClient(aliyunConfig);
+        try {
+            ossClient.putObject(aliyunConfig.getOss().getBucketName(), fileUrl, inputStream);
+        } finally {
+            ossClient.shutdown();
+        }
         return fileUrl;
-    }
-
-    private synchronized OSS getClient() {
-        OSS ossClient = new OSSClientBuilder().build(aliyunConfig.getOss().getEndpoint(), aliyunConfig.getOss().getAccessKeyId(), aliyunConfig.getOss().getAccessKeySecret());;
-
-        return ossClient;
     }
 
 }

@@ -32,28 +32,13 @@ public class LocalStoragePreviewer extends Previewer {
         byte[] buffer = new byte[1024];
         if (saveFile.exists()) {
             FileInputStream fis = null;
-
             try {
                 fis = new FileInputStream(saveFile);
-                bis = new BufferedInputStream(fis);
-                OutputStream os = httpServletResponse.getOutputStream();
-                int i = bis.read(buffer);
-                while (i != -1) {
-                    os.write(buffer, 0, i);
-                    i = bis.read(buffer);
-                }
-
-            } catch (Exception e) {
+            } catch (FileNotFoundException e) {
                 e.printStackTrace();
-            } finally {
-                if (bis != null) {
-                    try {
-                        bis.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
             }
+            com.qiwenshare.ufop.util.IOUtils.writeInputStreamToResponse(fis, httpServletResponse);
+
         } else {
             InputStream inputstream = getInputStream(previewFile.getFileUrl());
             InputStream in = null;
@@ -66,27 +51,8 @@ public class LocalStoragePreviewer extends Previewer {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            com.qiwenshare.ufop.util.IOUtils.writeInputStreamToResponse(in, httpServletResponse);
 
-            try {
-                bis = new BufferedInputStream(in);
-                OutputStream os = httpServletResponse.getOutputStream();
-                int i = bis.read(buffer);
-                while (i != -1) {
-                    os.write(buffer, 0, i);
-                    i = bis.read(buffer);
-                }
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                if (bis != null) {
-                    try {
-                        bis.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
         }
     }
 

@@ -3,6 +3,7 @@ package com.qiwenshare.ufop.operation.download.product;
 import com.qiwenshare.common.operation.FileOperation;
 import com.qiwenshare.ufop.operation.download.Downloader;
 import com.qiwenshare.ufop.operation.download.domain.DownloadFile;
+import com.qiwenshare.ufop.util.IOUtils;
 import com.qiwenshare.ufop.util.UFOPUtils;
 import org.springframework.stereotype.Component;
 
@@ -21,28 +22,14 @@ public class LocalStorageDownloader extends Downloader {
 
 
             FileInputStream fis = null;
-
             try {
                 fis = new FileInputStream(file);
-                bis = new BufferedInputStream(fis);
-                OutputStream os = httpServletResponse.getOutputStream();
-                int i = bis.read(buffer);
-                while (i != -1) {
-                    os.write(buffer, 0, i);
-                    i = bis.read(buffer);
-                }
-
-            } catch (Exception e) {
+            } catch (FileNotFoundException e) {
                 e.printStackTrace();
-            } finally {
-                if (bis != null) {
-                    try {
-                        bis.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
             }
+
+            IOUtils.writeInputStreamToResponse(fis, httpServletResponse);
+
         }
     }
 

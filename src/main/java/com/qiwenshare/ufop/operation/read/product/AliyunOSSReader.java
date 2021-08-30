@@ -9,6 +9,7 @@ import com.qiwenshare.ufop.domain.AliyunOSS;
 import com.qiwenshare.ufop.exception.ReadException;
 import com.qiwenshare.ufop.operation.read.Reader;
 import com.qiwenshare.ufop.operation.read.domain.ReadFile;
+import com.qiwenshare.ufop.util.AliyunUtils;
 import com.qiwenshare.ufop.util.UFOPUtils;
 import com.qiwenshare.ufop.util.ReadFileUtils;
 
@@ -39,19 +40,11 @@ public class AliyunOSSReader extends Reader {
     }
 
     public InputStream getInputStream(String fileUrl) {
-        OSS ossClient = createOSSClient(aliyunConfig.getOss());
+        OSS ossClient = AliyunUtils.getOSSClient(aliyunConfig);
         OSSObject ossObject = ossClient.getObject(aliyunConfig.getOss().getBucketName(),
                 UFOPUtils.getAliyunObjectNameByFileUrl(fileUrl));
         InputStream inputStream = ossObject.getObjectContent();
         return inputStream;
     }
 
-
-    public OSS createOSSClient(AliyunOSS aliyunOSS) {
-        String endpoint = aliyunOSS.getEndpoint();
-        String accessKeyId = aliyunOSS.getAccessKeyId();
-        String accessKeySecret = aliyunOSS.getAccessKeySecret();
-        OSS ossClient = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
-        return ossClient;
-    }
 }

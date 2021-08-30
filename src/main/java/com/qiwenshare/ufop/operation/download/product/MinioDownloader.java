@@ -8,6 +8,7 @@ import com.qiwenshare.ufop.config.MinioConfig;
 import com.qiwenshare.ufop.domain.AliyunOSS;
 import com.qiwenshare.ufop.operation.download.Downloader;
 import com.qiwenshare.ufop.operation.download.domain.DownloadFile;
+import com.qiwenshare.ufop.util.IOUtils;
 import com.qiwenshare.ufop.util.UFOPUtils;
 import io.minio.MinioClient;
 import io.minio.errors.*;
@@ -45,28 +46,8 @@ public class MinioDownloader extends Downloader {
 
             // 获取"myobject"的输入流。
             InputStream inputStream = minioClient.getObject(minioConfig.getBucketName(), downloadFile.getFileUrl());
-            BufferedInputStream bis = null;
-            byte[] buffer = new byte[1024];
-            try {
-                bis = new BufferedInputStream(inputStream);
-                OutputStream os = httpServletResponse.getOutputStream();
-                int i = bis.read(buffer);
-                while (i != -1) {
-                    os.write(buffer, 0, i);
-                    i = bis.read(buffer);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                if (bis != null) {
-                    try {
-                        bis.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
+            IOUtils.writeInputStreamToResponse(inputStream, httpServletResponse);
 
-            }
         } catch (MinioException e) {
             System.out.println("Error occurred: " + e);
         } catch (IOException e) {

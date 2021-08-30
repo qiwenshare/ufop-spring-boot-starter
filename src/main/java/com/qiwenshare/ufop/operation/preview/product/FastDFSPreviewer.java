@@ -8,6 +8,7 @@ import com.qiwenshare.ufop.domain.ThumbImage;
 import com.qiwenshare.ufop.operation.preview.Previewer;
 import com.qiwenshare.ufop.operation.preview.domain.PreviewFile;
 import com.qiwenshare.ufop.util.CharsetUtils;
+import com.qiwenshare.ufop.util.IOUtils;
 import com.qiwenshare.ufop.util.UFOPUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,28 +43,13 @@ public class FastDFSPreviewer extends Previewer {
         byte[] buffer = new byte[1024];
         if (saveFile.exists()) {
             FileInputStream fis = null;
-
             try {
                 fis = new FileInputStream(saveFile);
-                bis = new BufferedInputStream(fis);
-                OutputStream os = httpServletResponse.getOutputStream();
-                int i = bis.read(buffer);
-                while (i != -1) {
-                    os.write(buffer, 0, i);
-                    i = bis.read(buffer);
-                }
-
-            } catch (Exception e) {
+            } catch (FileNotFoundException e) {
                 e.printStackTrace();
-            } finally {
-                if (bis != null) {
-                    try {
-                        bis.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
             }
+            IOUtils.writeInputStreamToResponse(fis, httpServletResponse);
+
         } else {
             InputStream inputstream = getInputStream(previewFile.getFileUrl());
             InputStream in = null;
@@ -77,26 +63,8 @@ public class FastDFSPreviewer extends Previewer {
                 e.printStackTrace();
             }
 
-            try {
-                bis = new BufferedInputStream(in);
-                OutputStream os = httpServletResponse.getOutputStream();
-                int i = bis.read(buffer);
-                while (i != -1) {
-                    os.write(buffer, 0, i);
-                    i = bis.read(buffer);
-                }
+            IOUtils.writeInputStreamToResponse(in, httpServletResponse);
 
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                if (bis != null) {
-                    try {
-                        bis.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
         }
 
     }
