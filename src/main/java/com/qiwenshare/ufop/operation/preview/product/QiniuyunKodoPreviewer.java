@@ -1,7 +1,11 @@
 package com.qiwenshare.ufop.operation.preview.product;
 
+import com.qiniu.util.Auth;
 import com.qiwenshare.common.operation.ImageOperation;
+import com.qiwenshare.common.operation.VideoOperation;
+import com.qiwenshare.common.util.HttpsUtils;
 import com.qiwenshare.ufop.config.MinioConfig;
+import com.qiwenshare.ufop.config.QiniuyunConfig;
 import com.qiwenshare.ufop.domain.ThumbImage;
 import com.qiwenshare.ufop.operation.preview.Previewer;
 import com.qiwenshare.ufop.operation.preview.domain.PreviewFile;
@@ -17,32 +21,40 @@ import org.apache.commons.io.IOUtils;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.net.URLEncoder;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
 @Getter
 @Setter
 @Slf4j
-public class MinioPreviewer extends Previewer {
+public class QiniuyunKodoPreviewer extends Previewer {
 
 
-    private MinioConfig minioConfig;
+    private QiniuyunConfig qiniuyunConfig;
     private ThumbImage thumbImage;
 
-    public MinioPreviewer(){
+    public QiniuyunKodoPreviewer(){
 
     }
 
-    public MinioPreviewer(MinioConfig minioConfig, ThumbImage thumbImage) {
-        this.minioConfig = minioConfig;
+    public QiniuyunKodoPreviewer(QiniuyunConfig qiniuyunConfig, ThumbImage thumbImage) {
+        this.qiniuyunConfig = qiniuyunConfig;
         this.thumbImage = thumbImage;
     }
 
     @Override
     public void imageThumbnailPreview(HttpServletResponse httpServletResponse, PreviewFile previewFile) {
-        File saveFile = UFOPUtils.getCacheFile(previewFile.getFileUrl());
-        BufferedInputStream bis = null;
-        byte[] buffer = new byte[1024];
+        String fileUrl = previewFile.getFileUrl();
+        boolean isVideo = UFOPUtils.isVideoFile(UFOPUtils.getFileExtendName(fileUrl));
+        String thumbnailImgUrl = previewFile.getFileUrl();
+        if (isVideo) {
+            thumbnailImgUrl = fileUrl.replace("." + UFOPUtils.getFileExtendName(fileUrl), ".jpg");
+        }
+
+
+        File saveFile = UFOPUtils.getCacheFile(thumbnailImgUrl);
+
         if (saveFile.exists()) {
             FileInputStream fis = null;
             try {
@@ -60,7 +72,11 @@ public class MinioPreviewer extends Previewer {
                 int thumbImageHeight = thumbImage.getHeight();
                 int width = thumbImageWidth == 0 ? 150 : thumbImageWidth;
                 int height = thumbImageHeight == 0 ? 150 : thumbImageHeight;
-                in = ImageOperation.thumbnailsImage(inputstream, saveFile, width, height);
+                if (isVideo) {
+                    in = VideoOperation.thumbnailsImage(inputstream, saveFile, width, height);
+                } else {
+                    in = ImageOperation.thumbnailsImage(inputstream, saveFile, width, height);
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -73,7 +89,6 @@ public class MinioPreviewer extends Previewer {
     public void imageOriginalPreview(HttpServletResponse httpServletResponse, PreviewFile previewFile) {
 
         InputStream inputStream = getInputStream(previewFile.getFileUrl());
-
         OutputStream outputStream = null;
         
         try {
@@ -104,26 +119,19 @@ public class MinioPreviewer extends Previewer {
     }
 
     public InputStream getInputStream(String fileUrl) {
-        InputStream inputStream = null;
+
+        String encodedFileName = null;
         try {
-            // 使用MinIO服务的URL，端口，Access key和Secret key创建一个MinioClient对象
-            MinioClient minioClient = new MinioClient(minioConfig.getEndpoint(), minioConfig.getAccessKey(), minioConfig.getSecretKey());
-            // 调用statObject()来判断对象是否存在。
-            // 如果不存在, statObject()抛出异常,
-            // 否则则代表对象存在。
-            minioClient.statObject(minioConfig.getBucketName(), fileUrl);
-
-            // 获取"myobject"的输入流。
-            inputStream = minioClient.getObject(minioConfig.getBucketName(), fileUrl);
-
-        } catch (MinioException e) {
-            System.out.println("Error occurred: " + e);
-        } catch (IOException | NoSuchAlgorithmException | InvalidKeyException e) {
-            log.error(e.getMessage());
+            encodedFileName = URLEncoder.encode(fileUrl, "utf-8").replace("+", "%20");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
         }
+        String publicUrl = String.format("%s/%s", qiniuyunConfig.getKodo().getDomain(), encodedFileName);
+        Auth auth = Auth.create(qiniuyunConfig.getKodo().getAccessKey(), qiniuyunConfig.getKodo().getSecretKey());
+        long expireInSeconds = 3600;//1小时，可以自定义链接过期时间
+        String urlString = auth.privateDownloadUrl(publicUrl, expireInSeconds);
 
-
-        return inputStream;
+        return HttpsUtils.doGet(urlString);
     }
 
 

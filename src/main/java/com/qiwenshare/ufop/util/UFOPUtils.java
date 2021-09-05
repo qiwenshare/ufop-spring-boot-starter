@@ -2,6 +2,9 @@ package com.qiwenshare.ufop.util;
 
 import com.qiwenshare.common.constant.FileConstant;
 import com.qiwenshare.ufop.autoconfiguration.UFOPAutoConfiguration;
+import com.qiwenshare.ufop.exception.UFOPException;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tomcat.util.net.AprEndpoint;
 import org.springframework.util.ResourceUtils;
@@ -68,8 +71,22 @@ public class UFOPUtils {
      * @return 是否为图片文件
      */
     public static boolean isImageFile(String extendName) {
-        for (int i = 0; i < IMG_FILE.length; i++) {
-            if (extendName.equalsIgnoreCase(IMG_FILE[i])) {
+        for (String extend : IMG_FILE) {
+            if (extendName.equalsIgnoreCase(extend)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 判断是否为视频文件
+     * @param extendName 扩展名
+     * @return 是否为视频文件
+     */
+    public static boolean isVideoFile(String extendName) {
+        for (String extend : VIDEO_FILE) {
+            if (extendName.equalsIgnoreCase(extend)) {
                 return true;
             }
         }
@@ -79,23 +96,20 @@ public class UFOPUtils {
 
 
     public static String pathSplitFormat(String filePath) {
-        String path = filePath.replace("///", "/")
+        return filePath.replace("///", "/")
                 .replace("//", "/")
                 .replace("\\\\\\", "\\")
                 .replace("\\\\", "\\");
-        return path;
     }
 
     /**
      * 获取文件扩展名
+     *
      * @param fileName 文件名
      * @return 文件扩展名
      */
     public static String getFileExtendName(String fileName) {
-        if (fileName.lastIndexOf(".") == -1) {
-            return "";
-        }
-        return fileName.substring(fileName.lastIndexOf(".") + 1);
+        return FilenameUtils.getExtension(fileName);
     }
 
     /**
@@ -105,8 +119,7 @@ public class UFOPUtils {
      * @return 文件名（不带扩展名）
      */
     public static String getFileNameNotExtend(String fileName) {
-        String fileType = getFileExtendName(fileName);
-        return fileName.replace("." + fileType, "");
+        return FilenameUtils.removeExtension(fileName);
     }
 
     public static File getLocalSaveFile(String fileUrl) {
@@ -125,7 +138,10 @@ public class UFOPUtils {
         File tempFile = new File(tempPath);
         File parentFile = tempFile.getParentFile();
         if (!parentFile.exists()) {
-            parentFile.mkdirs();
+            boolean result = parentFile.mkdirs();
+            if (!result) {
+                throw new UFOPException("创建temp目录失败：目录路径："+ parentFile.getPath());
+            }
         }
 
         return tempFile;
@@ -136,7 +152,10 @@ public class UFOPUtils {
         File processFile = new File(processPath);
         File parentFile = processFile.getParentFile();
         if (!parentFile.exists()) {
-            parentFile.mkdirs();
+            boolean result = parentFile.mkdirs();
+            if (!result) {
+                throw new UFOPException("创建process目录失败：目录路径："+ parentFile.getPath());
+            }
         }
         return processFile;
     }
@@ -199,8 +218,8 @@ public class UFOPUtils {
     /**
      * 获取上传文件路径
      * 返回路径格式 “upload/yyyyMMdd/”
-     * @param identifier
-     * @param extendName
+     * @param identifier 文件名（一般传入md5或uuid,防止文件名重复）
+     * @param extendName 文件扩展名
      * @return 返回上传文件路径
      */
     public static String getUploadFileUrl(String identifier, String extendName) {
@@ -208,16 +227,15 @@ public class UFOPUtils {
         SimpleDateFormat formater = new SimpleDateFormat("yyyyMMdd");
         String path = ROOT_PATH + FILE_SEPARATOR + formater.format(new Date()) + FILE_SEPARATOR;
 
-
-
         File dir = new File(UFOPUtils.getStaticPath() + path);
 
         if (!dir.exists()) {
-            try {
-                dir.mkdirs();
-            } catch (Exception e) {
-                return "";
+
+            boolean result = dir.mkdirs();
+            if (!result) {
+                throw new UFOPException("创建upload目录失败：目录路径："+ dir.getPath());
             }
+
         }
 
         path = path + identifier + "." + extendName;

@@ -8,7 +8,6 @@
         <artifactId>qiwenshare</artifactId>
         <version>1.0.9</version>
     </parent>
-    <groupId>com.qiwenshare</groupId>
     <artifactId>ufop-spring-boot-starter</artifactId>
     <version>${project.parent.version}</version>
     <packaging>jar</packaging>
@@ -90,13 +89,13 @@
         <dependency>
             <groupId>io.minio</groupId>
             <artifactId>minio</artifactId>
-            <version>7.0.2</version>
         </dependency>
         <dependency>
             <groupId>com.qiniu</groupId>
             <artifactId>qiniu-java-sdk</artifactId>
-            <version>7.7.0</version>
         </dependency>
+
+
 
     </dependencies>
 

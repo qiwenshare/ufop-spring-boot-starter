@@ -1,10 +1,9 @@
 package com.qiwenshare.ufop.config;
 
+import com.qiwenshare.ufop.domain.QiniuyunKodo;
 import lombok.Data;
 
 @Data
 public class QiniuyunConfig {
-    private String accessKey;
-    private String secretKey;
-    private String bucketName;
+    private QiniuyunKodo kodo = new QiniuyunKodo();
 }

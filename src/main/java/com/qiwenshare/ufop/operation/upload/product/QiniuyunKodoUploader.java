@@ -13,11 +13,13 @@ import com.qiwenshare.ufop.config.MinioConfig;
 import com.qiwenshare.ufop.config.QiniuyunConfig;
 import com.qiwenshare.ufop.constant.StorageTypeEnum;
 import com.qiwenshare.ufop.constant.UploadFileStatusEnum;
+import com.qiwenshare.ufop.exception.UFOPException;
 import com.qiwenshare.ufop.exception.UploadException;
 import com.qiwenshare.ufop.operation.upload.Uploader;
 import com.qiwenshare.ufop.operation.upload.domain.UploadFile;
 import com.qiwenshare.ufop.operation.upload.domain.UploadFileResult;
 import com.qiwenshare.ufop.operation.upload.request.QiwenMultipartFile;
+import com.qiwenshare.ufop.util.QiniuyunUtils;
 import com.qiwenshare.ufop.util.RedisUtil;
 import com.qiwenshare.ufop.util.UFOPUtils;
 import io.minio.MinioClient;
@@ -35,18 +37,18 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
 @Slf4j
-public class QiniuyunKODOUploader extends Uploader {
+public class QiniuyunKodoUploader extends Uploader {
 
     private QiniuyunConfig qiniuyunConfig;
 
     @Resource
     RedisUtil redisUtil;
 
-    public QiniuyunKODOUploader(){
+    public QiniuyunKodoUploader(){
 
     }
 
-    public QiniuyunKODOUploader(QiniuyunConfig qiniuyunConfig){
+    public QiniuyunKodoUploader(QiniuyunConfig qiniuyunConfig){
         this.qiniuyunConfig = qiniuyunConfig;
     }
 
@@ -56,7 +58,7 @@ public class QiniuyunKODOUploader extends Uploader {
     }
 
     @Override
-    protected void doUploadFileChunk(QiwenMultipartFile qiwenMultipartFile, UploadFile uploadFile) throws IOException {
+    protected void doUploadFileChunk(QiwenMultipartFile qiwenMultipartFile, UploadFile uploadFile) {
 
     }
 
@@ -84,7 +86,7 @@ public class QiniuyunKODOUploader extends Uploader {
             uploadFileResult.setFileName(qiwenMultipartFile.getFileName());
             uploadFileResult.setExtendName(qiwenMultipartFile.getExtendName());
             uploadFileResult.setFileSize(uploadFile.getTotalSize());
-            uploadFileResult.setStorageType(StorageTypeEnum.MINIO);
+            uploadFileResult.setStorageType(StorageTypeEnum.QINIUYUN_KODO);
 
             if (uploadFile.getTotalChunks() == 1) {
                 uploadFileResult.setFileSize(qiwenMultipartFile.getSize());
@@ -94,7 +96,10 @@ public class QiniuyunKODOUploader extends Uploader {
 
                 qiniuUpload(fileUrl, tempFile, uploadFile);
                 uploadFileResult.setFileUrl(fileUrl);
-                tempFile.delete();
+                boolean result = tempFile.delete();
+                if (!result) {
+                    throw new UFOPException("删除temp文件失败：目录路径："+ tempFile.getPath());
+                }
                 uploadFileResult.setStatus(UploadFileStatusEnum.SUCCESS);
             } else {
                 uploadFileResult.setStatus(UploadFileStatusEnum.UNCOMPLATE);
@@ -109,9 +114,7 @@ public class QiniuyunKODOUploader extends Uploader {
 
 
     private void qiniuUpload(String fileUrl, File file,  UploadFile uploadFile) {
-
-        //构造一个带指定 Region 对象的配置类
-        Configuration cfg = new Configuration(Region.region0());
+        Configuration cfg = QiniuyunUtils.getCfg(qiniuyunConfig);
         cfg.resumableUploadAPIVersion = Configuration.ResumableUploadAPIVersion.V2;// 指定分片上传版本
         cfg.resumableUploadMaxConcurrentTaskCount = 2;  // 设置分片上传并发，1：采用同步上传；大于1：采用并发上传
 //...其他参数参考类注释
@@ -120,8 +123,8 @@ public class QiniuyunKODOUploader extends Uploader {
 
 
 
-        Auth auth = Auth.create(qiniuyunConfig.getAccessKey(), qiniuyunConfig.getSecretKey());
-        String upToken = auth.uploadToken(qiniuyunConfig.getBucketName());
+        Auth auth = Auth.create(qiniuyunConfig.getKodo().getAccessKey(), qiniuyunConfig.getKodo().getSecretKey());
+        String upToken = auth.uploadToken(qiniuyunConfig.getKodo().getBucketName());
 
         String localTempDir = UFOPUtils.getStaticPath() + "temp";
         try {

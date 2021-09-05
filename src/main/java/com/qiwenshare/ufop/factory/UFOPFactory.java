@@ -3,45 +3,23 @@ package com.qiwenshare.ufop.factory;
 import com.qiwenshare.ufop.autoconfiguration.UFOPProperties;
 import com.qiwenshare.ufop.config.AliyunConfig;
 import com.qiwenshare.ufop.config.MinioConfig;
+import com.qiwenshare.ufop.config.QiniuyunConfig;
 import com.qiwenshare.ufop.constant.StorageTypeEnum;
 import com.qiwenshare.ufop.domain.ThumbImage;
 import com.qiwenshare.ufop.operation.copy.Copier;
-import com.qiwenshare.ufop.operation.copy.product.AliyunOSSCopier;
-import com.qiwenshare.ufop.operation.copy.product.FastDFSCopier;
-import com.qiwenshare.ufop.operation.copy.product.LocalStorageCopier;
-import com.qiwenshare.ufop.operation.copy.product.MinioCopier;
+import com.qiwenshare.ufop.operation.copy.product.*;
 import com.qiwenshare.ufop.operation.delete.Deleter;
-import com.qiwenshare.ufop.operation.delete.product.AliyunOSSDeleter;
-import com.qiwenshare.ufop.operation.delete.product.FastDFSDeleter;
-import com.qiwenshare.ufop.operation.delete.product.LocalStorageDeleter;
-import com.qiwenshare.ufop.operation.delete.product.MinioDeleter;
+import com.qiwenshare.ufop.operation.delete.product.*;
 import com.qiwenshare.ufop.operation.download.Downloader;
-import com.qiwenshare.ufop.operation.download.product.AliyunOSSDownloader;
-import com.qiwenshare.ufop.operation.download.product.FastDFSDownloader;
-import com.qiwenshare.ufop.operation.download.product.LocalStorageDownloader;
-import com.qiwenshare.ufop.operation.download.product.MinioDownloader;
+import com.qiwenshare.ufop.operation.download.product.*;
 import com.qiwenshare.ufop.operation.preview.Previewer;
-import com.qiwenshare.ufop.operation.preview.product.AliyunOSSPreviewer;
-import com.qiwenshare.ufop.operation.preview.product.FastDFSPreviewer;
-import com.qiwenshare.ufop.operation.preview.product.LocalStoragePreviewer;
-import com.qiwenshare.ufop.operation.preview.product.MinioPreviewer;
+import com.qiwenshare.ufop.operation.preview.product.*;
 import com.qiwenshare.ufop.operation.read.Reader;
-import com.qiwenshare.ufop.operation.read.product.AliyunOSSReader;
-import com.qiwenshare.ufop.operation.read.product.FastDFSReader;
-import com.qiwenshare.ufop.operation.read.product.LocalStorageReader;
-import com.qiwenshare.ufop.operation.read.product.MinioReader;
-import com.qiwenshare.ufop.operation.rename.Renamer;
-import com.qiwenshare.ufop.operation.rename.product.AliyunOSSRenamer;
+import com.qiwenshare.ufop.operation.read.product.*;
 import com.qiwenshare.ufop.operation.upload.Uploader;
-import com.qiwenshare.ufop.operation.upload.product.AliyunOSSUploader;
-import com.qiwenshare.ufop.operation.upload.product.FastDFSUploader;
-import com.qiwenshare.ufop.operation.upload.product.LocalStorageUploader;
-import com.qiwenshare.ufop.operation.upload.product.MinioUploader;
+import com.qiwenshare.ufop.operation.upload.product.*;
 import com.qiwenshare.ufop.operation.write.Writer;
-import com.qiwenshare.ufop.operation.write.product.AliyunOSSWriter;
-import com.qiwenshare.ufop.operation.write.product.FastDFSWriter;
-import com.qiwenshare.ufop.operation.write.product.LocalStorageWriter;
-import com.qiwenshare.ufop.operation.write.product.MinioWriter;
+import com.qiwenshare.ufop.operation.write.product.*;
 
 import javax.annotation.Resource;
 
@@ -51,6 +29,7 @@ public class UFOPFactory {
     private AliyunConfig aliyunConfig;
     private ThumbImage thumbImage;
     private MinioConfig minioConfig;
+    private QiniuyunConfig qiniuyunConfig;
     @Resource
     private FastDFSCopier fastDFSCopier;
     @Resource
@@ -69,6 +48,8 @@ public class UFOPFactory {
     private AliyunOSSUploader aliyunOSSUploader;
     @Resource
     private MinioUploader minioUploader;
+    @Resource
+    private QiniuyunKodoUploader qiniuyunKodoUploader;
 
     public UFOPFactory() {
     }
@@ -79,6 +60,7 @@ public class UFOPFactory {
         this.aliyunConfig = ufopProperties.getAliyun();
         this.thumbImage = ufopProperties.getThumbImage();
         this.minioConfig = ufopProperties.getMinio();
+        this.qiniuyunConfig = ufopProperties.getQiniuyun();
     }
 
     public Uploader getUploader() {
@@ -93,6 +75,8 @@ public class UFOPFactory {
             return fastDFSUploader;
         } else if (StorageTypeEnum.MINIO.getCode() == type) {
             return minioUploader;
+        } else if (StorageTypeEnum.QINIUYUN_KODO.getCode() == type) {
+            return qiniuyunKodoUploader;
         }
         return null;
     }
@@ -107,6 +91,8 @@ public class UFOPFactory {
             return fastDFSDownloader;
         } else if (StorageTypeEnum.MINIO.getCode() == storageType) {
             return new MinioDownloader(minioConfig);
+        } else if (StorageTypeEnum.QINIUYUN_KODO.getCode() == storageType) {
+            return new QiniuyunKodoDownloader(qiniuyunConfig);
         }
         return null;
     }
@@ -121,19 +107,8 @@ public class UFOPFactory {
             return fastDFSDeleter;
         } else if (StorageTypeEnum.MINIO.getCode() == storageType) {
             return new MinioDeleter(minioConfig);
-        }
-        return null;
-    }
-
-    public Renamer getRenamer(int storageType) {
-        if (StorageTypeEnum.LOCAL.getCode() == storageType) {
-            return null;
-        } else if (StorageTypeEnum.ALIYUN_OSS.getCode() == storageType) {
-            return new AliyunOSSRenamer(aliyunConfig);
-        } else if (StorageTypeEnum.FAST_DFS.getCode() == storageType) {
-            return null;
-        } else if (StorageTypeEnum.MINIO.getCode() == storageType) {
-            return null;
+        } else if (StorageTypeEnum.QINIUYUN_KODO.getCode() == storageType) {
+            return new QiniuyunKodoDeleter(qiniuyunConfig);
         }
         return null;
     }
@@ -147,6 +122,8 @@ public class UFOPFactory {
             return fastDFSReader;
         } else if (StorageTypeEnum.MINIO.getCode() == storageType) {
             return new MinioReader(minioConfig);
+        } else if (StorageTypeEnum.QINIUYUN_KODO.getCode() == storageType) {
+            return new QiniuyunKodoReader(qiniuyunConfig);
         }
         return null;
     }
@@ -160,6 +137,8 @@ public class UFOPFactory {
             return fastDFSWriter;
         } else if (StorageTypeEnum.MINIO.getCode() == storageType) {
             return new MinioWriter(minioConfig);
+        } else if (StorageTypeEnum.QINIUYUN_KODO.getCode() == storageType) {
+            return new QiniuyunKodoWriter(qiniuyunConfig);
         }
         return null;
     }
@@ -173,6 +152,8 @@ public class UFOPFactory {
             return fastDFSPreviewer;
         } else if (StorageTypeEnum.MINIO.getCode() == storageType) {
             return new MinioPreviewer(minioConfig, thumbImage);
+        } else if (StorageTypeEnum.QINIUYUN_KODO.getCode() == storageType) {
+            return new QiniuyunKodoPreviewer(qiniuyunConfig, thumbImage);
         }
         return null;
     }
@@ -188,6 +169,8 @@ public class UFOPFactory {
             return fastDFSCopier;
         } else if (StorageTypeEnum.MINIO.getCode() == type) {
             return new MinioCopier(minioConfig);
+        } else if (StorageTypeEnum.QINIUYUN_KODO.getCode() == type) {
+            return new QiniuyunKodoCopier(qiniuyunConfig);
         }
         return null;
     }
