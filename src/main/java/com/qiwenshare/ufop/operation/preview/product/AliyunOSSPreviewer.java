@@ -29,7 +29,6 @@ public class AliyunOSSPreviewer extends Previewer {
 
 
     private AliyunConfig aliyunConfig;
-    private ThumbImage thumbImage;
 
     public AliyunOSSPreviewer(){
 
@@ -37,86 +36,15 @@ public class AliyunOSSPreviewer extends Previewer {
 
     public AliyunOSSPreviewer(AliyunConfig aliyunConfig, ThumbImage thumbImage) {
         this.aliyunConfig = aliyunConfig;
-        this.thumbImage = thumbImage;
+        setThumbImage(thumbImage);
     }
+
 
     @Override
-    public void imageThumbnailPreview(HttpServletResponse httpServletResponse, PreviewFile previewFile) {
-        BufferedInputStream bis = null;
-        byte[] buffer = new byte[1024];
-
-        StringBuffer url = new StringBuffer();
-        url.append("https://");
-        url.append(aliyunConfig.getOss().getBucketName());
-        url.append(".");
-        url.append(aliyunConfig.getOss().getEndpoint());
-        url.append("/" + UFOPUtils.getAliyunObjectNameByFileUrl(previewFile.getFileUrl()));
-
-        Map<String, Object> param = new HashMap<>();
-        int thumbImageWidth = thumbImage.getWidth();
-        int thumbImageHeight = thumbImage.getHeight();
-        int width = thumbImageWidth == 0 ? 150 : thumbImageWidth;
-        int height = thumbImageHeight == 0 ? 150 : thumbImageHeight;
-        param.put("x-oss-process", "image/resize,m_fill,h_"+height+",w_"+width+"/rotate,0");
-
-        InputStream inputStream = null;
-        try {
-            URL url1 = new URL(url.toString());
-            URI uri = new URI(url1.getProtocol(), url1.getUserInfo(), url1.getHost(), url1.getPort(), url1.getPath(), url1.getQuery(), url1.getRef());
-            String urlStr = uri.toASCIIString();
-
-            inputStream = HttpsUtils.doGet(urlStr , param);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
-        com.qiwenshare.ufop.util.IOUtils.writeInputStreamToResponse(inputStream, httpServletResponse);
-
-    }
-
-    @Override
-    public void imageOriginalPreview(HttpServletResponse httpServletResponse, PreviewFile previewFile) {
-
+    public InputStream getInputStream(String fileUrl) {
         OSS ossClient = AliyunUtils.getOSSClient(aliyunConfig);
         OSSObject ossObject = ossClient.getObject(aliyunConfig.getOss().getBucketName(),
-                UFOPUtils.getAliyunObjectNameByFileUrl(previewFile.getFileUrl()));
-        InputStream inputStream = ossObject.getObjectContent();
-        OutputStream outputStream = null;
-        
-        try {
-            outputStream = httpServletResponse.getOutputStream();
-            byte[] bytes = IOUtils.toByteArray(inputStream);
-            bytes = CharsetUtils.convertCharset(bytes, UFOPUtils.getFileExtendName(previewFile.getFileUrl()));
-            outputStream.write(bytes);
-           
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (inputStream != null) {
-                try {
-                    inputStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (outputStream != null) {
-                try {
-                    outputStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
-        }
-        ossClient.shutdown();
-    }
-
-
-    public InputStream getInputStream(DownloadFile downloadFile) {
-        OSS ossClient = AliyunUtils.getOSSClient(aliyunConfig);
-        OSSObject ossObject = ossClient.getObject(aliyunConfig.getOss().getBucketName(),
-                UFOPUtils.getAliyunObjectNameByFileUrl(downloadFile.getFileUrl()));
+                UFOPUtils.getAliyunObjectNameByFileUrl(fileUrl));
         InputStream inputStream = ossObject.getObjectContent();
         return inputStream;
     }

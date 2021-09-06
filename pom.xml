@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.qiwenshare</groupId>
         <artifactId>qiwenshare</artifactId>
-        <version>1.0.9</version>
+        <version>1.0.10</version>
     </parent>
     <artifactId>ufop-spring-boot-starter</artifactId>
     <version>${project.parent.version}</version>

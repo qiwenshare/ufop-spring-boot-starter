@@ -52,7 +52,6 @@ public class AliyunOSSDownloader extends Downloader {
         OSSObject ossObject = ossClient.getObject(aliyunConfig.getOss().getBucketName(),
                 UFOPUtils.getAliyunObjectNameByFileUrl(downloadFile.getFileUrl()));
         InputStream inputStream = ossObject.getObjectContent();
-        ossClient.shutdown();
         return inputStream;
     }
 
