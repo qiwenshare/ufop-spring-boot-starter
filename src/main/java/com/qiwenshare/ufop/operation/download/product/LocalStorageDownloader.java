@@ -5,11 +5,15 @@ import com.qiwenshare.ufop.operation.download.Downloader;
 import com.qiwenshare.ufop.operation.download.domain.DownloadFile;
 import com.qiwenshare.ufop.util.IOUtils;
 import com.qiwenshare.ufop.util.UFOPUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 
+import static jdk.nashorn.internal.runtime.regexp.joni.Config.log;
+
+@Slf4j
 @Component
 public class LocalStorageDownloader extends Downloader {
     @Override
@@ -22,13 +26,13 @@ public class LocalStorageDownloader extends Downloader {
 
 
             FileInputStream fis = null;
+
             try {
                 fis = new FileInputStream(file);
+                IOUtils.writeInputStreamToResponse(fis, httpServletResponse);
             } catch (FileNotFoundException e) {
-                e.printStackTrace();
+                log.error("File not found, file: {} " , file.getPath());
             }
-
-            IOUtils.writeInputStreamToResponse(fis, httpServletResponse);
 
         }
     }

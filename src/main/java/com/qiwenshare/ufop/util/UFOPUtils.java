@@ -14,15 +14,14 @@ import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static com.qiwenshare.ufop.operation.upload.Uploader.FILE_SEPARATOR;
 import static com.qiwenshare.ufop.operation.upload.Uploader.ROOT_PATH;
 
 public class UFOPUtils {
+
+    public static Map<String, String> PATH_MAP = new HashMap<>();
 
     public static String LOCAL_STORAGE_PATH;
 

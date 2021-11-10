@@ -9,7 +9,6 @@ import com.qiwenshare.ufop.util.concurrent.locks.RedisLock;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.support.StandardMultipartHttpServletRequest;
@@ -17,7 +16,6 @@ import org.springframework.web.multipart.support.StandardMultipartHttpServletReq
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
@@ -131,11 +129,11 @@ public abstract class Uploader {
 
                     currentUploadChunkNumber = Integer.parseInt(redisUtil.getObject(current_upload_chunk_number));
 
-                    if (uploadFile.getChunkNumber() == currentUploadChunkNumber) {
+                    if (uploadFile.getChunkNumber() <= currentUploadChunkNumber) {
                         break;
                     } else {
 
-                        if (Math.abs(currentUploadChunkNumber - uploadFile.getChunkNumber()) > 2 || uploadFile.getChunkNumber() < currentUploadChunkNumber) {
+                        if (Math.abs(currentUploadChunkNumber - uploadFile.getChunkNumber()) > 2) {
                             log.error("传入的切片数据异常，当前应上传切片为第{}块，传入的为第{}块。", currentUploadChunkNumber, uploadFile.getChunkNumber());
                             throw new UploadException("传入的切片数据异常");
                         }
@@ -145,9 +143,11 @@ public abstract class Uploader {
             }
 
             log.info("文件名{},正在上传第{}块, 共{}块>>>>>>>>>>", qiwenMultipartFile.getMultipartFile().getOriginalFilename(),uploadFile.getChunkNumber(), uploadFile.getTotalChunks());
-            doUploadFileChunk(qiwenMultipartFile, uploadFile);
-            log.info("文件名{},第{}块上传成功", qiwenMultipartFile.getMultipartFile().getOriginalFilename(), uploadFile.getChunkNumber());
-            this.redisUtil.getIncr("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":current_upload_chunk_number");
+            if (uploadFile.getChunkNumber() == currentUploadChunkNumber) {
+                doUploadFileChunk(qiwenMultipartFile, uploadFile);
+                log.info("文件名{},第{}块上传成功", qiwenMultipartFile.getMultipartFile().getOriginalFilename(), uploadFile.getChunkNumber());
+                this.redisUtil.getIncr("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":current_upload_chunk_number");
+            }
         } catch (Exception e) {
             log.error("第{}块上传失败，自动重试", uploadFile.getChunkNumber());
             redisUtil.set("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":current_upload_chunk_number", uploadFile.getChunkNumber(), 1000 * 60 * 60);

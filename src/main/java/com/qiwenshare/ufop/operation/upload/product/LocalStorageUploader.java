@@ -11,6 +11,7 @@ import com.qiwenshare.ufop.operation.upload.request.QiwenMultipartFile;
 import com.qiwenshare.ufop.util.UFOPUtils;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.support.StandardMultipartHttpServletRequest;
@@ -21,17 +22,22 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 @Component
 public class LocalStorageUploader extends Uploader {
+
+    public static Map<String, String> FILE_URL_MAP = new HashMap<>();
 
     protected UploadFileResult doUploadFlow(QiwenMultipartFile qiwenMultipartFile, UploadFile uploadFile) {
         UploadFileResult uploadFileResult = new UploadFileResult();
         try {
             String fileUrl = UFOPUtils.getUploadFileUrl(uploadFile.getIdentifier(), qiwenMultipartFile.getExtendName());
+            if (StringUtils.isNotEmpty(FILE_URL_MAP.get(uploadFile.getIdentifier()))) {
+                fileUrl = FILE_URL_MAP.get(uploadFile.getIdentifier());
+            } else {
+                FILE_URL_MAP.put(uploadFile.getIdentifier(), fileUrl);
+            }
             String tempFileUrl = fileUrl + "_tmp";
             String confFileUrl = fileUrl.replace("." + qiwenMultipartFile.getExtendName(), ".conf");
 
@@ -67,6 +73,7 @@ public class LocalStorageUploader extends Uploader {
 
             if (isComplete) {
                 tempFile.renameTo(file);
+                FILE_URL_MAP.remove(uploadFile.getIdentifier());
                 uploadFileResult.setStatus(UploadFileStatusEnum.SUCCESS);
             } else {
                 uploadFileResult.setStatus(UploadFileStatusEnum.UNCOMPLATE);
