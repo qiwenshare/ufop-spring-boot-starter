@@ -1,29 +1,27 @@
 package com.qiwenshare.ufop.operation.upload.product;
 
 import com.github.tobato.fastdfs.domain.StorePath;
+import com.github.tobato.fastdfs.proto.storage.DownloadByteArray;
 import com.github.tobato.fastdfs.service.AppendFileStorageClient;
 import com.qiwenshare.ufop.constant.StorageTypeEnum;
 import com.qiwenshare.ufop.constant.UploadFileStatusEnum;
-import com.qiwenshare.ufop.exception.UploadException;
+import com.qiwenshare.ufop.exception.operation.UploadException;
 import com.qiwenshare.ufop.operation.upload.Uploader;
 import com.qiwenshare.ufop.operation.upload.domain.UploadFile;
 import com.qiwenshare.ufop.operation.upload.domain.UploadFileResult;
 import com.qiwenshare.ufop.operation.upload.request.QiwenMultipartFile;
 import com.qiwenshare.ufop.util.RedisUtil;
-import com.qiwenshare.ufop.util.concurrent.locks.RedisLock;
+import com.qiwenshare.ufop.util.UFOPUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.io.IOUtils;
 import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.support.StandardMultipartHttpServletRequest;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.UUID;
+import java.io.InputStream;
 
 @Component
 @Slf4j
@@ -99,7 +97,24 @@ public class FastDFSUploader extends Uploader {
             redisUtil.deleteKey("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":current_upload_chunk_number");
             redisUtil.deleteKey("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":storage_path");
             redisUtil.deleteKey("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":uploaded_size");
+            if (UFOPUtils.isImageFile(uploadFileResult.getExtendName())) {
+                String group = "group1";
+                String path1 = uploadFileResult.getFileUrl().substring(uploadFileResult.getFileUrl().indexOf("/") + 1);
+                DownloadByteArray downloadByteArray = new DownloadByteArray();
+                byte[] bytes = defaultAppendFileStorageClient.downloadFile(group, path1, downloadByteArray);
+                InputStream is = new ByteArrayInputStream(bytes);
 
+                BufferedImage src = null;
+                try {
+                    src = ImageIO.read(is);
+                    uploadFileResult.setBufferedImage(src);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } finally {
+                    IOUtils.closeQuietly(is);
+                }
+
+            }
             uploadFileResult.setStatus(UploadFileStatusEnum.SUCCESS);
         } else {
             uploadFileResult.setStatus(UploadFileStatusEnum.UNCOMPLATE);

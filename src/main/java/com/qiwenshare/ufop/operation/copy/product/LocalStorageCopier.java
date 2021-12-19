@@ -1,11 +1,12 @@
 package com.qiwenshare.ufop.operation.copy.product;
 
-import com.qiwenshare.ufop.exception.CopyException;
+import com.qiwenshare.ufop.exception.operation.CopyException;
 import com.qiwenshare.ufop.operation.copy.Copier;
 import com.qiwenshare.ufop.operation.copy.domain.CopyFile;
 import com.qiwenshare.ufop.util.UFOPUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,6 +24,8 @@ public class LocalStorageCopier extends Copier {
             FileUtils.copyInputStreamToFile(inputStream, saveFile);
         } catch (IOException e) {
             throw new CopyException("创建文件出现异常", e);
+        } finally {
+            IOUtils.closeQuietly(inputStream);
         }
         return fileUrl;
     }

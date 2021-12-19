@@ -1,4 +1,4 @@
-package com.qiwenshare.ufop.exception;
+package com.qiwenshare.ufop.exception.operation;
 
 public class WriteException extends RuntimeException{
     public WriteException(Throwable cause) {

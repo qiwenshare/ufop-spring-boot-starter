@@ -1,6 +1,8 @@
-package com.qiwenshare.ufop.exception;
+package com.qiwenshare.ufop.exception.operation;
 
-public class CopyException extends RuntimeException {
+import com.qiwenshare.ufop.exception.UFOPException;
+
+public class CopyException extends UFOPException {
     public CopyException(Throwable cause) {
         super("创建出现了异常", cause);
     }

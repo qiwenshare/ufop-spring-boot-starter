@@ -7,7 +7,9 @@ import com.qiwenshare.ufop.operation.copy.Copier;
 import com.qiwenshare.ufop.operation.copy.domain.CopyFile;
 import com.qiwenshare.ufop.util.AliyunUtils;
 import com.qiwenshare.ufop.util.UFOPUtils;
+import org.apache.commons.io.IOUtils;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.UUID;
 
@@ -30,6 +32,7 @@ public class AliyunOSSCopier extends Copier {
         try {
             ossClient.putObject(aliyunConfig.getOss().getBucketName(), fileUrl, inputStream);
         } finally {
+            IOUtils.closeQuietly(inputStream);
             ossClient.shutdown();
         }
         return fileUrl;

@@ -2,20 +2,15 @@ package com.qiwenshare.ufop.operation.read.product;
 
 import com.qiniu.util.Auth;
 import com.qiwenshare.common.util.HttpsUtils;
-import com.qiwenshare.ufop.config.MinioConfig;
 import com.qiwenshare.ufop.config.QiniuyunConfig;
-import com.qiwenshare.ufop.exception.ReadException;
+import com.qiwenshare.ufop.exception.operation.ReadException;
 import com.qiwenshare.ufop.operation.read.Reader;
 import com.qiwenshare.ufop.operation.read.domain.ReadFile;
 import com.qiwenshare.ufop.util.ReadFileUtils;
 import com.qiwenshare.ufop.util.UFOPUtils;
-import io.minio.MinioClient;
-import io.minio.errors.MinioException;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 
 public class QiniuyunKodoReader extends Reader {
 

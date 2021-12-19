@@ -4,6 +4,7 @@ import com.github.tobato.fastdfs.domain.StorePath;
 import com.github.tobato.fastdfs.service.AppendFileStorageClient;
 import com.qiwenshare.ufop.operation.copy.Copier;
 import com.qiwenshare.ufop.operation.copy.domain.CopyFile;
+import org.apache.commons.io.IOUtils;
 
 import javax.annotation.Resource;
 import java.io.IOException;
@@ -21,6 +22,8 @@ public class FastDFSCopier extends Copier {
                     inputStream.available(), copyFile.getExtendName());
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            IOUtils.closeQuietly(inputStream);
         }
         return storePath.getPath();
     }

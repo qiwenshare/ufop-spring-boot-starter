@@ -1,25 +1,20 @@
 package com.qiwenshare.ufop.operation.upload.product;
 
-import com.qiwenshare.common.exception.NotSameFileExpection;
 import com.qiwenshare.ufop.constant.StorageTypeEnum;
 import com.qiwenshare.ufop.constant.UploadFileStatusEnum;
-import com.qiwenshare.ufop.exception.UploadException;
+import com.qiwenshare.ufop.exception.operation.UploadException;
 import com.qiwenshare.ufop.operation.upload.Uploader;
 import com.qiwenshare.ufop.operation.upload.domain.UploadFile;
 import com.qiwenshare.ufop.operation.upload.domain.UploadFileResult;
 import com.qiwenshare.ufop.operation.upload.request.QiwenMultipartFile;
 import com.qiwenshare.ufop.util.UFOPUtils;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.support.StandardMultipartHttpServletRequest;
 
-import javax.servlet.http.HttpServletRequest;
-import java.io.File;
-import java.io.IOException;
-import java.io.RandomAccessFile;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.*;
@@ -48,17 +43,21 @@ public class LocalStorageUploader extends Uploader {
             //第一步 打开将要写入的文件
             RandomAccessFile raf = new RandomAccessFile(tempFile, "rw");
             //第二步 打开通道
-            FileChannel fileChannel = raf.getChannel();
-            //第三步 计算偏移量
-            long position = (uploadFile.getChunkNumber() - 1) * uploadFile.getChunkSize();
-            //第四步 获取分片数据
-            byte[] fileData = qiwenMultipartFile.getUploadBytes();
-            //第五步 写入数据
-            fileChannel.position(position);
-            fileChannel.write(ByteBuffer.wrap(fileData));
-            fileChannel.force(true);
-            fileChannel.close();
-            raf.close();
+            try {
+                FileChannel fileChannel = raf.getChannel();
+                //第三步 计算偏移量
+                long position = (uploadFile.getChunkNumber() - 1) * uploadFile.getChunkSize();
+                //第四步 获取分片数据
+                byte[] fileData = qiwenMultipartFile.getUploadBytes();
+                //第五步 写入数据
+                fileChannel.position(position);
+                fileChannel.write(ByteBuffer.wrap(fileData));
+                fileChannel.force(true);
+                fileChannel.close();
+            } finally {
+                IOUtils.closeQuietly(raf);
+            }
+
             //判断是否完成文件的传输并进行校验与重命名
             boolean isComplete = checkUploadStatus(uploadFile, confFile);
             uploadFileResult.setFileUrl(fileUrl);
@@ -74,6 +73,23 @@ public class LocalStorageUploader extends Uploader {
             if (isComplete) {
                 tempFile.renameTo(file);
                 FILE_URL_MAP.remove(uploadFile.getIdentifier());
+
+                if (UFOPUtils.isImageFile(uploadFileResult.getExtendName())) {
+
+                    InputStream is = null;
+                    try {
+                        is = new FileInputStream(UFOPUtils.getLocalSaveFile(fileUrl));
+
+                        BufferedImage src = ImageIO.read(is);
+                        uploadFileResult.setBufferedImage(src);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } finally {
+                        IOUtils.closeQuietly(is);
+                    }
+
+                }
+
                 uploadFileResult.setStatus(UploadFileStatusEnum.SUCCESS);
             } else {
                 uploadFileResult.setStatus(UploadFileStatusEnum.UNCOMPLATE);

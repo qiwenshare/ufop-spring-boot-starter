@@ -23,11 +23,6 @@ public class FastDFSDeleter extends Deleter {
         } catch (FdfsServerException e) {
             log.error(e.getMessage());
         }
-        if (UFOPUtils.isImageFile(UFOPUtils.getFileExtendName(deleteFile.getFileUrl()))) {
-            File cacheFile = UFOPUtils.getCacheFile(deleteFile.getFileUrl());
-            if (cacheFile.exists()) {
-                cacheFile.delete();
-            }
-        }
+        deleteCacheFile(deleteFile);
     }
 }

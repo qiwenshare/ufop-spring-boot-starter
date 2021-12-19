@@ -1,4 +1,4 @@
-package com.qiwenshare.ufop.exception;
+package com.qiwenshare.ufop.exception.operation;
 
 public class UploadException extends RuntimeException{
     public UploadException(Throwable cause) {

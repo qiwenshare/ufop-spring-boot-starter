@@ -169,7 +169,7 @@ public class UFOPUtils {
             String url = ResourceUtils.getURL("classpath:").getPath();
             absolutePath = urlDecode(new File(url).getAbsolutePath()) + File.separator;
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            throw new UFOPException(e);
         }
 
         return absolutePath;

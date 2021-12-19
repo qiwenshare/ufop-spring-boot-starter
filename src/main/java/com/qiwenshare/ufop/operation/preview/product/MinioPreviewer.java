@@ -37,13 +37,13 @@ public class MinioPreviewer extends Previewer {
     }
 
     @Override
-    public InputStream getInputStream(String fileUrl) {
+    protected InputStream getInputStream(PreviewFile previewFile) {
         InputStream inputStream = null;
         try {
             // 使用MinIO服务的URL，端口，Access key和Secret key创建一个MinioClient对象
             MinioClient minioClient = new MinioClient(getMinioConfig().getEndpoint(), getMinioConfig().getAccessKey(), getMinioConfig().getSecretKey());
-            minioClient.statObject(minioConfig.getBucketName(), fileUrl);
-            inputStream = minioClient.getObject(minioConfig.getBucketName(), fileUrl);
+            minioClient.statObject(minioConfig.getBucketName(), previewFile.getFileUrl());
+            inputStream = minioClient.getObject(minioConfig.getBucketName(), previewFile.getFileUrl());
 
         } catch (MinioException e) {
             System.out.println("Error occurred: " + e);

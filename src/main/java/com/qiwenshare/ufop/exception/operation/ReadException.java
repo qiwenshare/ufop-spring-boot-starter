@@ -1,4 +1,4 @@
-package com.qiwenshare.ufop.exception;
+package com.qiwenshare.ufop.exception.operation;
 
 public class ReadException extends RuntimeException{
     public ReadException(Throwable cause) {

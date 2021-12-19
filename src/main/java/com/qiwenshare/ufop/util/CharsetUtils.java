@@ -1,10 +1,13 @@
 package com.qiwenshare.ufop.util;
 
+import com.qiwenshare.ufop.exception.UFOPException;
+
 import java.io.*;
 import java.util.Arrays;
 
 public class CharsetUtils {
-    public static byte[] convertCharset(byte[] bytes, String extendName) {
+
+    public static byte[] convertTxtCharsetToGBK(byte[] bytes, String extendName) {
 
         if(Arrays.asList(UFOPUtils.TXT_FILE).contains(extendName)) {
             ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
@@ -12,7 +15,21 @@ public class CharsetUtils {
                 String str = new String(bytes, getFileCharsetName(byteArrayInputStream));
                 return str.getBytes("GBK");
             } catch (IOException e) {
-                e.printStackTrace();
+                throw new UFOPException(e);
+            }
+        }
+        return bytes;
+    }
+
+    public static byte[] convertTxtCharsetToUTF8(byte[] bytes, String extendName) {
+
+        if(Arrays.asList(UFOPUtils.TXT_FILE).contains(extendName)) {
+            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
+            try {
+                String str = new String(bytes, getFileCharsetName(byteArrayInputStream));
+                return str.getBytes("UTF-8");
+            } catch (IOException e) {
+                throw new UFOPException(e);
             }
         }
         return bytes;
@@ -77,17 +94,9 @@ public class CharsetUtils {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        System.out.println("--文件-> ["  + "] 采用的字符集为: [" + charset + "]");
+
         return charset;
 
     }
 
-//    public static void main(String[] args) {
-//
-//        try {
-//            System.out.println(getFileCharsetName("C:\\Users\\MACHAOP\\Downloads\\ShareController.java"));
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
 }

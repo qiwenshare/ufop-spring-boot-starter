@@ -1,14 +1,11 @@
 package com.qiwenshare.ufop.operation.delete.product;
 
 import com.aliyun.oss.OSS;
-import com.aliyun.oss.OSSClientBuilder;
-import com.qiwenshare.ufop.autoconfiguration.UFOPAutoConfiguration;
 import com.qiwenshare.ufop.config.AliyunConfig;
 import com.qiwenshare.ufop.operation.delete.Deleter;
 import com.qiwenshare.ufop.operation.delete.domain.DeleteFile;
 import com.qiwenshare.ufop.util.AliyunUtils;
 import com.qiwenshare.ufop.util.UFOPUtils;
-import org.springframework.stereotype.Component;
 
 
 public class AliyunOSSDeleter extends Deleter {
@@ -29,6 +26,6 @@ public class AliyunOSSDeleter extends Deleter {
         } finally {
             ossClient.shutdown();
         }
-
+        deleteCacheFile(deleteFile);
     }
 }

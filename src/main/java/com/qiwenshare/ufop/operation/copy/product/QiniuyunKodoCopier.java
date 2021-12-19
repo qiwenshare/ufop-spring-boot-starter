@@ -19,6 +19,7 @@ import io.minio.MinioClient;
 import io.minio.PutObjectOptions;
 import io.minio.errors.*;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -56,28 +57,31 @@ public class QiniuyunKodoCopier extends Copier {
         String upToken = auth.uploadToken(qiniuyunConfig.getKodo().getBucketName());
 
         String localTempDir = UFOPUtils.getStaticPath() + "temp";
+
+
         try {
             //设置断点续传文件进度保存目录
             FileRecorder fileRecorder = new FileRecorder(localTempDir);
             UploadManager uploadManager = new UploadManager(cfg, fileRecorder);
+            Response response = uploadManager.put(inputStream, fileUrl, upToken, null, null);
+            //解析上传成功的结果
+            DefaultPutRet putRet = new Gson().fromJson(response.bodyString(), DefaultPutRet.class);
+            log.info(putRet.key);
+            log.info(putRet.hash);
+        } catch (QiniuException ex) {
+            Response r = ex.response;
+            System.err.println(r.toString());
             try {
-                Response response = uploadManager.put(inputStream, fileUrl, upToken, null, null);
-                //解析上传成功的结果
-                DefaultPutRet putRet = new Gson().fromJson(response.bodyString(), DefaultPutRet.class);
-                log.info(putRet.key);
-                log.info(putRet.hash);
-            } catch (QiniuException ex) {
-                Response r = ex.response;
-                System.err.println(r.toString());
-                try {
-                    System.err.println(r.bodyString());
-                } catch (QiniuException ex2) {
-                    //ignore
-                }
+                System.err.println(r.bodyString());
+            } catch (QiniuException ex2) {
+                //ignore
             }
-        } catch (IOException ex) {
-            ex.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            IOUtils.closeQuietly(inputStream);
         }
+
 
 
     }

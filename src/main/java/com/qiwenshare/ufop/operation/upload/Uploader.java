@@ -1,6 +1,6 @@
 package com.qiwenshare.ufop.operation.upload;
 
-import com.qiwenshare.ufop.exception.UploadException;
+import com.qiwenshare.ufop.exception.operation.UploadException;
 import com.qiwenshare.ufop.operation.upload.domain.UploadFile;
 import com.qiwenshare.ufop.operation.upload.domain.UploadFileResult;
 import com.qiwenshare.ufop.operation.upload.request.QiwenMultipartFile;
@@ -9,6 +9,7 @@ import com.qiwenshare.ufop.util.concurrent.locks.RedisLock;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.support.StandardMultipartHttpServletRequest;
@@ -161,14 +162,18 @@ public abstract class Uploader {
 
     public synchronized boolean checkUploadStatus(UploadFile param, File confFile) throws IOException {
         RandomAccessFile confAccessFile = new RandomAccessFile(confFile, "rw");
-        //设置文件长度
-        confAccessFile.setLength(param.getTotalChunks());
-        //设置起始偏移量
-        confAccessFile.seek(param.getChunkNumber() - 1);
-        //将指定的一个字节写入文件中 127，
-        confAccessFile.write(Byte.MAX_VALUE);
+        try {
+            //设置文件长度
+            confAccessFile.setLength(param.getTotalChunks());
+            //设置起始偏移量
+            confAccessFile.seek(param.getChunkNumber() - 1);
+            //将指定的一个字节写入文件中 127，
+            confAccessFile.write(Byte.MAX_VALUE);
+
+        } finally {
+            IOUtils.closeQuietly(confAccessFile);
+        }
         byte[] completeStatusList = FileUtils.readFileToByteArray(confFile);
-        confAccessFile.close();//不关闭会造成无法占用
         //创建conf文件文件长度为总分片数，每上传一个分块即向conf文件中写入一个127，那么没上传的位置就是默认的0,已上传的就是127
         for (int i = 0; i < completeStatusList.length; i++) {
             if (completeStatusList[i] != Byte.MAX_VALUE) {

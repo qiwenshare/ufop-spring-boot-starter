@@ -1,13 +1,9 @@
 package com.qiwenshare.ufop.operation.delete.product;
 
-import com.aliyun.oss.OSS;
-import com.aliyun.oss.OSSClientBuilder;
-import com.qiwenshare.ufop.config.AliyunConfig;
 import com.qiwenshare.ufop.config.MinioConfig;
-import com.qiwenshare.ufop.exception.DeleteException;
+import com.qiwenshare.ufop.exception.operation.DeleteException;
 import com.qiwenshare.ufop.operation.delete.Deleter;
 import com.qiwenshare.ufop.operation.delete.domain.DeleteFile;
-import com.qiwenshare.ufop.util.UFOPUtils;
 import io.minio.MinioClient;
 import io.minio.errors.*;
 import lombok.extern.slf4j.Slf4j;
@@ -15,8 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-
-import static jdk.nashorn.internal.runtime.regexp.joni.Config.log;
 
 
 @Slf4j
@@ -41,18 +35,15 @@ public class MinioDeleter extends Deleter {
             log.info("successfully removed mybucket/myobject");
         } catch (MinioException e) {
             log.error("Error: " + e);
-            throw new DeleteException(e);
+            throw new DeleteException("Minio删除文件失败", e);
         } catch (IOException e) {
-            e.printStackTrace();
-            throw new DeleteException(e);
+            throw new DeleteException("Minio删除文件失败", e);
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-            throw new DeleteException(e);
+            throw new DeleteException("Minio删除文件失败", e);
         } catch (InvalidKeyException e) {
-            e.printStackTrace();
-            throw new DeleteException(e);
+            throw new DeleteException("Minio删除文件失败", e);
         }
-
+        deleteCacheFile(deleteFile);
 
     }
 }

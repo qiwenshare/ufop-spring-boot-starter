@@ -15,7 +15,9 @@ import java.io.*;
 @Data
 public abstract class Previewer {
 
-    private ThumbImage thumbImage;
+    public ThumbImage thumbImage;
+
+    protected abstract InputStream getInputStream(PreviewFile previewFile);
 
     public void imageThumbnailPreview(HttpServletResponse httpServletResponse, PreviewFile previewFile) {
         String fileUrl = previewFile.getFileUrl();
@@ -30,17 +32,25 @@ public abstract class Previewer {
 
         if (saveFile.exists()) {
             FileInputStream fis = null;
+            OutputStream outputStream = null;
             try {
                 fis = new FileInputStream(saveFile);
-            } catch (FileNotFoundException e) {
+                outputStream = httpServletResponse.getOutputStream();
+                IOUtils.copy(fis, outputStream);
+            } catch (IOException e) {
                 e.printStackTrace();
+            } finally {
+                IOUtils.closeQuietly(fis);
+                IOUtils.closeQuietly(outputStream);
             }
-            com.qiwenshare.ufop.util.IOUtils.writeInputStreamToResponse(fis, httpServletResponse);
 
         } else {
-            InputStream inputstream = getInputStream(previewFile.getFileUrl());
+            InputStream inputstream = null;
+            OutputStream outputStream = null;
             InputStream in = null;
             try {
+                inputstream = getInputStream(previewFile);
+                outputStream = httpServletResponse.getOutputStream();
                 int thumbImageWidth = thumbImage.getWidth();
                 int thumbImageHeight = thumbImage.getHeight();
                 int width = thumbImageWidth == 0 ? 150 : thumbImageWidth;
@@ -51,46 +61,45 @@ public abstract class Previewer {
                 } else {
                     in = ImageOperation.thumbnailsImage(inputstream, saveFile, width, height);
                 }
+                IOUtils.copy(in, outputStream);
             } catch (IOException e) {
                 e.printStackTrace();
+            } finally {
+                IOUtils.closeQuietly(in);
+                IOUtils.closeQuietly(inputstream);
+                IOUtils.closeQuietly(outputStream);
+                if (previewFile.getOssClient() != null) {
+                    previewFile.getOssClient().shutdown();
+                }
             }
-            com.qiwenshare.ufop.util.IOUtils.writeInputStreamToResponse(in, httpServletResponse);
+
 
         }
     }
 
     public void imageOriginalPreview(HttpServletResponse httpServletResponse, PreviewFile previewFile) {
 
-        InputStream inputStream = getInputStream(previewFile.getFileUrl());
+        InputStream inputStream = null;
 
         OutputStream outputStream = null;
 
         try {
+            inputStream = getInputStream(previewFile);
             outputStream = httpServletResponse.getOutputStream();
             byte[] bytes = IOUtils.toByteArray(inputStream);
-            bytes = CharsetUtils.convertCharset(bytes, UFOPUtils.getFileExtendName(previewFile.getFileUrl()));
+            bytes = CharsetUtils.convertTxtCharsetToUTF8(bytes, UFOPUtils.getFileExtendName(previewFile.getFileUrl()));
             outputStream.write(bytes);
 
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            if (inputStream != null) {
-                try {
-                    inputStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+            IOUtils.closeQuietly(inputStream);
+            IOUtils.closeQuietly(outputStream);
+            if (previewFile.getOssClient() != null) {
+                previewFile.getOssClient().shutdown();
             }
-            if (outputStream != null) {
-                try {
-                    outputStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
         }
     }
 
-    protected abstract InputStream getInputStream(String fileUrl);
+
 }

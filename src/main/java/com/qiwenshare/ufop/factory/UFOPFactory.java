@@ -66,112 +66,117 @@ public class UFOPFactory {
     public Uploader getUploader() {
 
         int type = Integer.parseInt(storageType);
-
+        Uploader uploader = null;
         if (StorageTypeEnum.LOCAL.getCode() == type) {
-            return new LocalStorageUploader();
+            uploader = new LocalStorageUploader();
         } else if (StorageTypeEnum.ALIYUN_OSS.getCode() == type) {
-            return aliyunOSSUploader;
+            uploader = aliyunOSSUploader;
         } else if (StorageTypeEnum.FAST_DFS.getCode() == type) {
-            return fastDFSUploader;
+            uploader = fastDFSUploader;
         } else if (StorageTypeEnum.MINIO.getCode() == type) {
-            return minioUploader;
+            uploader = minioUploader;
         } else if (StorageTypeEnum.QINIUYUN_KODO.getCode() == type) {
-            return qiniuyunKodoUploader;
+            uploader = qiniuyunKodoUploader;
         }
-        return null;
+        return uploader;
     }
 
 
     public Downloader getDownloader(int storageType) {
+        Downloader downloader = null;
         if (StorageTypeEnum.LOCAL.getCode() == storageType) {
-            return new LocalStorageDownloader();
+            downloader = new LocalStorageDownloader();
         } else if (StorageTypeEnum.ALIYUN_OSS.getCode() == storageType) {
-            return new AliyunOSSDownloader(aliyunConfig);
+            downloader = new AliyunOSSDownloader(aliyunConfig);
         } else if (StorageTypeEnum.FAST_DFS.getCode() == storageType) {
-            return fastDFSDownloader;
+            downloader = fastDFSDownloader;
         } else if (StorageTypeEnum.MINIO.getCode() == storageType) {
-            return new MinioDownloader(minioConfig);
+            downloader = new MinioDownloader(minioConfig);
         } else if (StorageTypeEnum.QINIUYUN_KODO.getCode() == storageType) {
-            return new QiniuyunKodoDownloader(qiniuyunConfig);
+            downloader = new QiniuyunKodoDownloader(qiniuyunConfig);
         }
-        return null;
+        return downloader;
     }
 
 
     public Deleter getDeleter(int storageType) {
+        Deleter deleter = null;
         if (StorageTypeEnum.LOCAL.getCode() == storageType) {
-            return new LocalStorageDeleter();
+            deleter = new LocalStorageDeleter();
         } else if (StorageTypeEnum.ALIYUN_OSS.getCode() == storageType) {
-            return new AliyunOSSDeleter(aliyunConfig);
+            deleter = new AliyunOSSDeleter(aliyunConfig);
         } else if (StorageTypeEnum.FAST_DFS.getCode() == storageType) {
-            return fastDFSDeleter;
+            deleter = fastDFSDeleter;
         } else if (StorageTypeEnum.MINIO.getCode() == storageType) {
-            return new MinioDeleter(minioConfig);
+            deleter = new MinioDeleter(minioConfig);
         } else if (StorageTypeEnum.QINIUYUN_KODO.getCode() == storageType) {
-            return new QiniuyunKodoDeleter(qiniuyunConfig);
+            deleter = new QiniuyunKodoDeleter(qiniuyunConfig);
         }
-        return null;
+        return deleter;
     }
 
     public Reader getReader(int storageType) {
+        Reader reader = null;
         if (StorageTypeEnum.LOCAL.getCode() == storageType) {
-            return new LocalStorageReader();
+            reader = new LocalStorageReader();
         } else if (StorageTypeEnum.ALIYUN_OSS.getCode() == storageType) {
-            return new AliyunOSSReader(aliyunConfig);
+            reader = new AliyunOSSReader(aliyunConfig);
         } else if (StorageTypeEnum.FAST_DFS.getCode() == storageType) {
-            return fastDFSReader;
+            reader = fastDFSReader;
         } else if (StorageTypeEnum.MINIO.getCode() == storageType) {
-            return new MinioReader(minioConfig);
+            reader = new MinioReader(minioConfig);
         } else if (StorageTypeEnum.QINIUYUN_KODO.getCode() == storageType) {
-            return new QiniuyunKodoReader(qiniuyunConfig);
+            reader = new QiniuyunKodoReader(qiniuyunConfig);
         }
-        return null;
+        return reader;
     }
 
     public Writer getWriter(int storageType) {
+        Writer writer = null;
         if (StorageTypeEnum.LOCAL.getCode() == storageType) {
-            return new LocalStorageWriter();
+            writer = new LocalStorageWriter();
         } else if (StorageTypeEnum.ALIYUN_OSS.getCode() == storageType) {
-            return new AliyunOSSWriter(aliyunConfig);
+            writer = new AliyunOSSWriter(aliyunConfig);
         } else if (StorageTypeEnum.FAST_DFS.getCode() == storageType) {
-            return fastDFSWriter;
+            writer = fastDFSWriter;
         } else if (StorageTypeEnum.MINIO.getCode() == storageType) {
-            return new MinioWriter(minioConfig);
+            writer = new MinioWriter(minioConfig);
         } else if (StorageTypeEnum.QINIUYUN_KODO.getCode() == storageType) {
-            return new QiniuyunKodoWriter(qiniuyunConfig);
+            writer = new QiniuyunKodoWriter(qiniuyunConfig);
         }
-        return null;
+        return writer;
     }
 
     public Previewer getPreviewer(int storageType) {
+        Previewer previewer = null;
         if (StorageTypeEnum.LOCAL.getCode() == storageType) {
-            return new LocalStoragePreviewer(thumbImage);
+            previewer = new LocalStoragePreviewer(thumbImage);
         } else if (StorageTypeEnum.ALIYUN_OSS.getCode() == storageType) {
-            return new AliyunOSSPreviewer(aliyunConfig, thumbImage);
+            previewer = new AliyunOSSPreviewer(aliyunConfig, thumbImage);
         } else if (StorageTypeEnum.FAST_DFS.getCode() == storageType) {
-            return fastDFSPreviewer;
+            previewer = fastDFSPreviewer;
         } else if (StorageTypeEnum.MINIO.getCode() == storageType) {
-            return new MinioPreviewer(minioConfig, thumbImage);
+            previewer = new MinioPreviewer(minioConfig, thumbImage);
         } else if (StorageTypeEnum.QINIUYUN_KODO.getCode() == storageType) {
-            return new QiniuyunKodoPreviewer(qiniuyunConfig, thumbImage);
+            previewer = new QiniuyunKodoPreviewer(qiniuyunConfig, thumbImage);
         }
-        return null;
+        return previewer;
     }
 
     public Copier getCopier() {
         int type = Integer.parseInt(storageType);
-
+        Copier copier = null;
         if (StorageTypeEnum.LOCAL.getCode() == type) {
-            return new LocalStorageCopier();
+            copier = new LocalStorageCopier();
         } else if (StorageTypeEnum.ALIYUN_OSS.getCode() == type) {
-            return new AliyunOSSCopier(aliyunConfig);
+            copier = new AliyunOSSCopier(aliyunConfig);
         } else if (StorageTypeEnum.FAST_DFS.getCode() == type) {
-            return fastDFSCopier;
+            copier = fastDFSCopier;
         } else if (StorageTypeEnum.MINIO.getCode() == type) {
-            return new MinioCopier(minioConfig);
+            copier = new MinioCopier(minioConfig);
         } else if (StorageTypeEnum.QINIUYUN_KODO.getCode() == type) {
-            return new QiniuyunKodoCopier(qiniuyunConfig);
+            copier = new QiniuyunKodoCopier(qiniuyunConfig);
         }
-        return null;
+        return copier;
     }
 }

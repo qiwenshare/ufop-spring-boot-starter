@@ -1,5 +1,6 @@
 package com.qiwenshare.ufop.operation.delete.product;
 
+import com.qiwenshare.ufop.exception.operation.DeleteException;
 import com.qiwenshare.ufop.operation.delete.Deleter;
 import com.qiwenshare.ufop.operation.delete.domain.DeleteFile;
 import com.qiwenshare.ufop.util.UFOPUtils;
@@ -13,15 +14,12 @@ public class LocalStorageDeleter extends Deleter {
     public void delete(DeleteFile deleteFile) {
         File localSaveFile = UFOPUtils.getLocalSaveFile(deleteFile.getFileUrl());
         if (localSaveFile.exists()) {
-            localSaveFile.delete();
-        }
-
-        String extendName = UFOPUtils.getFileExtendName(deleteFile.getFileUrl());
-        if (UFOPUtils.isImageFile(extendName)) {
-            File cacheFile = UFOPUtils.getCacheFile(deleteFile.getFileUrl());
-            if (cacheFile.exists()) {
-                cacheFile.delete();
+            boolean result = localSaveFile.delete();
+            if (!result) {
+                new DeleteException("删除本地文件失败");
             }
         }
+
+        deleteCacheFile(deleteFile);
     }
 }

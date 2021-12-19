@@ -4,7 +4,7 @@ public enum UploadFileStatusEnum {
 
     FAIL(0, "上传失败"),
     SUCCESS(1, "上传成功"),
-    UNCOMPLATE(3, "未完成");
+    UNCOMPLATE(2, "未完成");
 
     private int code;
     private String message;
@@ -18,15 +18,8 @@ public enum UploadFileStatusEnum {
         return code;
     }
 
-    public void setCode(int code) {
-        this.code = code;
-    }
-
     public String getMessage() {
         return message;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
-    }
 }

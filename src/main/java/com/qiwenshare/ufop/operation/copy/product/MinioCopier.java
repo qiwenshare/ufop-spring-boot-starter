@@ -4,12 +4,14 @@ import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
 import com.qiwenshare.ufop.config.AliyunConfig;
 import com.qiwenshare.ufop.config.MinioConfig;
+import com.qiwenshare.ufop.exception.operation.CopyException;
 import com.qiwenshare.ufop.operation.copy.Copier;
 import com.qiwenshare.ufop.operation.copy.domain.CopyFile;
 import com.qiwenshare.ufop.util.UFOPUtils;
 import io.minio.MinioClient;
 import io.minio.PutObjectOptions;
 import io.minio.errors.*;
+import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -45,30 +47,10 @@ public class MinioCopier extends Copier {
             // 使用putObject上传一个文件到存储桶中。
             minioClient.putObject(minioConfig.getBucketName(), fileUrl, inputStream, putObjectOptions);
 
-        } catch (InvalidEndpointException e) {
-            e.printStackTrace();
-        } catch (InvalidPortException e) {
-            e.printStackTrace();
-        } catch (RegionConflictException e) {
-            e.printStackTrace();
-        } catch (InvalidBucketNameException e) {
-            e.printStackTrace();
-        } catch (InsufficientDataException e) {
-            e.printStackTrace();
-        } catch (ErrorResponseException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (InvalidKeyException e) {
-            e.printStackTrace();
-        } catch (InvalidResponseException e) {
-            e.printStackTrace();
-        } catch (XmlParserException e) {
-            e.printStackTrace();
-        } catch (InternalException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            throw new CopyException("创建文件出现异常", e);
+        } finally {
+            IOUtils.closeQuietly(inputStream);
         }
 
         return fileUrl;

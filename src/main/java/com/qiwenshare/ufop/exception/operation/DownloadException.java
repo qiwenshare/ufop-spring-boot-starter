@@ -1,4 +1,4 @@
-package com.qiwenshare.ufop.exception;
+package com.qiwenshare.ufop.exception.operation;
 
 public class DownloadException extends RuntimeException{
     public DownloadException(Throwable cause) {

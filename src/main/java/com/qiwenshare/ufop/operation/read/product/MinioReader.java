@@ -1,12 +1,7 @@
 package com.qiwenshare.ufop.operation.read.product;
 
-import com.aliyun.oss.OSS;
-import com.aliyun.oss.OSSClientBuilder;
-import com.aliyun.oss.model.OSSObject;
-import com.qiwenshare.ufop.config.AliyunConfig;
 import com.qiwenshare.ufop.config.MinioConfig;
-import com.qiwenshare.ufop.domain.AliyunOSS;
-import com.qiwenshare.ufop.exception.ReadException;
+import com.qiwenshare.ufop.exception.operation.ReadException;
 import com.qiwenshare.ufop.operation.read.Reader;
 import com.qiwenshare.ufop.operation.read.domain.ReadFile;
 import com.qiwenshare.ufop.util.ReadFileUtils;

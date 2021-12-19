@@ -3,13 +3,10 @@ package com.qiwenshare.ufop.operation.upload.product;
 
 import com.alibaba.fastjson.JSON;
 import com.aliyun.oss.OSS;
-import com.aliyun.oss.OSSClientBuilder;
 import com.aliyun.oss.model.*;
-import com.qiwenshare.ufop.autoconfiguration.UFOPAutoConfiguration;
 import com.qiwenshare.ufop.config.AliyunConfig;
 import com.qiwenshare.ufop.constant.StorageTypeEnum;
 import com.qiwenshare.ufop.constant.UploadFileStatusEnum;
-import com.qiwenshare.ufop.exception.UploadException;
 import com.qiwenshare.ufop.operation.upload.Uploader;
 import com.qiwenshare.ufop.operation.upload.domain.UploadFile;
 import com.qiwenshare.ufop.operation.upload.domain.UploadFileInfo;
@@ -17,16 +14,16 @@ import com.qiwenshare.ufop.operation.upload.domain.UploadFileResult;
 import com.qiwenshare.ufop.operation.upload.request.QiwenMultipartFile;
 import com.qiwenshare.ufop.util.AliyunUtils;
 import com.qiwenshare.ufop.util.RedisUtil;
-import lombok.Data;
+import com.qiwenshare.ufop.util.UFOPUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.io.IOUtils;
 import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.support.StandardMultipartHttpServletRequest;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 
 @Slf4j
@@ -117,7 +114,23 @@ public class AliyunOSSUploader extends Uploader {
             redisUtil.deleteKey("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":current_upload_chunk_number");
             redisUtil.deleteKey("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":partETags");
             redisUtil.deleteKey("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":uploadPartRequest");
+            if (UFOPUtils.isImageFile(uploadFileResult.getExtendName())) {
 
+                OSS ossClient = AliyunUtils.getOSSClient(aliyunConfig);
+                OSSObject ossObject = ossClient.getObject(aliyunConfig.getOss().getBucketName(),
+                        UFOPUtils.getAliyunObjectNameByFileUrl(uploadFileResult.getFileUrl()));
+                InputStream is = ossObject.getObjectContent();
+                BufferedImage src = null;
+                try {
+                    src = ImageIO.read(is);
+                    uploadFileResult.setBufferedImage(src);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } finally {
+                    IOUtils.closeQuietly(is);
+                }
+
+            }
             uploadFileResult.setStatus(UploadFileStatusEnum.SUCCESS);
         } else {
             uploadFileResult.setStatus(UploadFileStatusEnum.UNCOMPLATE);
@@ -165,6 +178,7 @@ public class AliyunOSSUploader extends Uploader {
                         uploadFileInfo.getKey(),
                         uploadFileInfo.getUploadId());
         ossClient.abortMultipartUpload(abortMultipartUploadRequest);
+        ossClient.shutdown();
     }
 
 

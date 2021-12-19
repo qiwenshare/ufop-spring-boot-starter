@@ -1,14 +1,11 @@
 package com.qiwenshare.ufop.util;
 
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.pdfbox.io.RandomAccessBuffer;
 import org.apache.pdfbox.pdfparser.PDFParser;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
-//import org.apache.poi.POIXMLTextExtractor;
-//import org.apache.poi.hslf.extractor.PowerPointExtractor;
-//import org.apache.poi.hslf.extractor.PowerPointExtractor;
-import org.apache.poi.hslf.extractor.PowerPointExtractor;
+import org.apache.poi.hslf.extractor.QuickButCruddyTextExtractor;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hwpf.extractor.WordExtractor;
 import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
@@ -17,17 +14,11 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-//import org.apache.poi.xslf.extractor.XSLFPowerPointExtractor;
-//import org.apache.poi.xslf.extractor.XSLFExtractor;
-//import org.apache.poi.xslf.extractor.XSLFPowerPointExtractor;
-//import org.apache.poi.xslf.extractor.XSLFExtractor;
-import org.apache.poi.xslf.extractor.XSLFPowerPointExtractor;
+import org.apache.poi.xslf.extractor.XSLFExtractor;
+import org.apache.poi.xslf.usermodel.XMLSlideShow;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
-import org.apache.xmlbeans.XmlException;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -39,61 +30,28 @@ import java.io.InputStream;
  * 3. pdf
  * 4. txt
  * 5. ppt(.ppt),pptx(,pptx)
- *
  */
 public class ReadFileUtils {
 
-
-
     /**
      * 根据文件类型返回文件内容
-     * @param fileurl 文件路径
-     * @return 返回结果
-     * @throws IOException IOException
-     */
-    public static String getContentByPath(String fileurl) throws IOException {
-        FileInputStream fileInputStream = new FileInputStream(fileurl);
-        String fileType = UFOPUtils.getFileExtendName(fileurl);
-//        String[] fileTypeArr = filepath.split("\\.");
-//        String fileType = fileTypeArr[fileTypeArr.length - 1];
-        if ("doc".equals(fileType) || "docx".equals(fileType)) {
-            return readWord(fileType, fileInputStream);
-        } else if ("xlsx".equals(fileType) || "xls".equals(fileType)) {
-            return readExcel(fileType, fileInputStream);
-        } else if ("txt".equals(fileType)) {
-            return readTxt(fileurl);
-        } else if ("pdf".equals(fileType)) {
-            return readPdf(fileInputStream);
-        } else if ("ppt".equals(fileType) || "pptx".equals(fileType)) {
-            return readPPT(fileType, fileInputStream);
-        } else {
-            System.out.println("不支持的文件类型！");
-        }
-        return "";
-    }
-
-
-    /**
-     * 根据文件类型返回文件内容
-     * @param fileType 文件类型
+     *
+     * @param fileType    文件类型
      * @param inputStream 输入流
      * @return 结果
      * @throws IOException io异常
      */
     public static String getContentByInputStream(String fileType, InputStream inputStream) throws IOException {
-//        FileInputStream fileInputStream = new FileInputStream(filepath);
-//        String[] fileTypeArr = filepath.split("\\.");
-//        String fileType = fileTypeArr[fileTypeArr.length - 1];
         if ("doc".equals(fileType) || "docx".equals(fileType)) {
-            return readWord(fileType, inputStream);
+            return readWord(inputStream, fileType);
         } else if ("xlsx".equals(fileType) || "xls".equals(fileType)) {
-            return readExcel(fileType, inputStream);
+            return readExcel(inputStream, fileType);
         } else if ("txt".equals(fileType)) {
-//            return readTxt(filepath);
+            return readTxt(inputStream, fileType);
         } else if ("pdf".equals(fileType)) {
             return readPdf(inputStream);
         } else if ("ppt".equals(fileType) || "pptx".equals(fileType)) {
-            return readPPT(fileType, inputStream);
+            return readPPT(inputStream, fileType);
         } else {
             System.out.println("不支持的文件类型！");
         }
@@ -102,16 +60,14 @@ public class ReadFileUtils {
 
     /**
      * 读取pdf内容
+     *
      * @param inputStream 输入流
      * @return 结果
      */
     public static String readPdf(InputStream inputStream) {
-//        FileInputStream fileInputStream = null;
         PDDocument pdDocument = null;
         String content = "";
         try {
-            //创建输入流对象
-//            fileInputStream = new FileInputStream(filePath);
             //创建解析器对象
             PDFParser pdfParser = new PDFParser(new RandomAccessBuffer(inputStream));
             pdfParser.parse();
@@ -123,17 +79,8 @@ public class ReadFileUtils {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            try {
-                //PDDocument对象时使用完后必须要关闭
-                if (null != pdDocument) {
-                    pdDocument.close();
-                }
-                if (null != inputStream) {
-                    inputStream.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            IOUtils.closeQuietly(inputStream);
+            IOUtils.closeQuietly(pdDocument);
         }
         return content;
     }
@@ -141,86 +88,87 @@ public class ReadFileUtils {
     /**
      * 读取Excel中的内容
      *
-     * @param filePath 文件路径
+     * @param extendName 文件路径
      * @return 返回结果
      * @throws IOException IOException
      */
-    private static String readTxt(String filePath) throws IOException {
-        File f = new File(filePath);
-        return FileUtils.readFileToString(f, "GBK");
+    private static String readTxt(InputStream inputStream, String extendName) throws IOException {
+        try {
+            byte[] bytes = IOUtils.toByteArray(inputStream);
+            byte[] result = CharsetUtils.convertTxtCharsetToUTF8(bytes, extendName);
+            return IOUtils.toString(result, "UTF-8");
+        } finally {
+            IOUtils.closeQuietly(inputStream);
+        }
     }
 
     /**
      * 读取Excel中的内容
-     * @param fileType 文件类型
+     *
+     * @param extendName  文件类型
      * @param inputStream 输入流
      * @return 结果
      */
-    private static String readExcel(String fileType, InputStream inputStream) {
-
+    private static String readExcel(InputStream inputStream, String extendName) {
+        Workbook wb = null;
         try {
-//            File excel = new File(filePath);
-//            if (excel.isFile() && excel.exists()) {   //判断文件是否存在
-                Workbook wb;
-                //根据文件后缀（xls/xlsx）进行判断
-                if ("xls".equalsIgnoreCase(fileType)) {
+            //根据文件后缀（xls/xlsx）进行判断
+            if ("xls".equalsIgnoreCase(extendName)) {
 //                    FileInputStream fis = new FileInputStream(excel);   //文件流对象
-                    wb = new HSSFWorkbook(inputStream);
-                } else if ("xlsx".equalsIgnoreCase(fileType)) {
-                    wb = new XSSFWorkbook(inputStream);
-                } else {
-                    System.out.println("文件类型错误!");
-                    return "";
-                }
-                //开始解析,获取页签数
-                StringBuffer sb = new StringBuffer("");
-                for (int i = 0; i < wb.getNumberOfSheets(); i++) {
-                    Sheet sheet = wb.getSheetAt(i);     //读取sheet
-                    sb.append(sheet.getSheetName() + "_");
-                    int firstRowIndex = sheet.getFirstRowNum() + 1;   //第一行是列名，所以不读
-                    int lastRowIndex = sheet.getLastRowNum();
-                    for (int rIndex = firstRowIndex; rIndex <= lastRowIndex; rIndex++) {   //遍历行
-                        Row row = sheet.getRow(rIndex);
-                        if (row != null) {
-                            int firstCellIndex = row.getFirstCellNum();
-                            int lastCellIndex = row.getLastCellNum();
-                            for (int cIndex = firstCellIndex; cIndex < lastCellIndex; cIndex++) {   //遍历列
-                                Cell cell = row.getCell(cIndex);
-                                if (cell != null) {
-                                    sb.append(cell.toString());
-                                }
+                wb = new HSSFWorkbook(inputStream);
+            } else if ("xlsx".equalsIgnoreCase(extendName)) {
+                wb = new XSSFWorkbook(inputStream);
+            } else {
+                System.out.println("文件类型错误!");
+                return "";
+            }
+            //开始解析,获取页签数
+            StringBuffer sb = new StringBuffer("");
+            for (int i = 0; i < wb.getNumberOfSheets(); i++) {
+                Sheet sheet = wb.getSheetAt(i);     //读取sheet
+                sb.append(sheet.getSheetName() + "_");
+                int firstRowIndex = sheet.getFirstRowNum() + 1;   //第一行是列名，所以不读
+                int lastRowIndex = sheet.getLastRowNum();
+                for (int rIndex = firstRowIndex; rIndex <= lastRowIndex; rIndex++) {   //遍历行
+                    Row row = sheet.getRow(rIndex);
+                    if (row != null) {
+                        int firstCellIndex = row.getFirstCellNum();
+                        int lastCellIndex = row.getLastCellNum();
+                        for (int cIndex = firstCellIndex; cIndex < lastCellIndex; cIndex++) {   //遍历列
+                            Cell cell = row.getCell(cIndex);
+                            if (cell != null) {
+                                sb.append(cell.toString());
                             }
                         }
                     }
                 }
-                return sb.toString();
-//            } else {
-//                System.out.println("找不到指定的文件");
-//            }
+            }
+            return sb.toString();
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            IOUtils.closeQuietly(wb);
+            IOUtils.closeQuietly(inputStream);
         }
         return "";
     }
 
     /**
      * 读取word
-     * @param fileType 文件类型
+     *
+     * @param fileType    文件类型
      * @param inputStream 输入流
      * @return 结果
      */
-    public static String readWord(String fileType, InputStream inputStream) {
+    public static String readWord(InputStream inputStream, String fileType) {
         String buffer = "";
         try {
             if ("doc".equalsIgnoreCase(fileType)) {
-//                InputStream is = new FileInputStream(new File(path));
                 WordExtractor ex = new WordExtractor(inputStream);
                 buffer = ex.getText();
                 ex.close();
             } else if ("docx".equalsIgnoreCase(fileType)) {
-//                OPCPackage opcPackage = POIXMLDocument.openPackage(path);
                 XWPFWordExtractor extractor = new XWPFWordExtractor(OPCPackage.open(inputStream));
-//                POIXMLTextExtractor extractor = new XWPFWordExtractor(OPCPackage.open(inputStream));
                 buffer = extractor.getText();
                 extractor.close();
 
@@ -230,29 +178,31 @@ public class ReadFileUtils {
 
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            IOUtils.closeQuietly(inputStream);
         }
 
         return buffer;
     }
 
-    private static String readPPT(String fileType, InputStream inputStream) {
+    private static String readPPT(InputStream inputStream, String fileType) {
+        String buffer = "";
         try {
             if ("ppt".equalsIgnoreCase(fileType)) {
-//                QuickButCruddyTextExtractor extractor = new QuickButCruddyTextExtractor(inputStream);
-                PowerPointExtractor extractor = new PowerPointExtractor(inputStream);
-                return extractor.getText();
+                QuickButCruddyTextExtractor extractor = new QuickButCruddyTextExtractor(inputStream);
+                buffer = extractor.getTextAsString();
+                extractor.close();
             } else if ("pptx".equalsIgnoreCase(fileType)) {
-//                return new XSLFExtractor(new XMLSlideShow(OPCPackage.open(inputStream))).getText();
-                return new XSLFPowerPointExtractor(OPCPackage.open(inputStream)).getText();
+                XSLFExtractor extractor = new XSLFExtractor(new XMLSlideShow(OPCPackage.open(inputStream)));
+                buffer = extractor.getText();
+                extractor.close();
             }
         } catch (IOException e) {
             e.fillInStackTrace();
         } catch (OpenXML4JException e) {
             e.getMessage();
-        } catch (XmlException e) {
-            e.printStackTrace();
         }
 
-        return "";
+        return buffer;
     }
 }

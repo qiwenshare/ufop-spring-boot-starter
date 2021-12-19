@@ -4,6 +4,8 @@ import com.qiwenshare.ufop.constant.StorageTypeEnum;
 import com.qiwenshare.ufop.constant.UploadFileStatusEnum;
 import lombok.Data;
 
+import java.awt.image.BufferedImage;
+
 @Data
 public class UploadFileResult {
     private String fileName;
@@ -12,5 +14,6 @@ public class UploadFileResult {
     private String fileUrl;
     private StorageTypeEnum storageType;
     private UploadFileStatusEnum status;
+    private BufferedImage bufferedImage;
 
 }
