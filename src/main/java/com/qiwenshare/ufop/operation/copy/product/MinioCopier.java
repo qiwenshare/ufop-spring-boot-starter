@@ -1,18 +1,17 @@
 package com.qiwenshare.ufop.operation.copy.product;
 
-import com.aliyun.oss.OSS;
-import com.aliyun.oss.OSSClientBuilder;
-import com.qiwenshare.ufop.config.AliyunConfig;
 import com.qiwenshare.ufop.config.MinioConfig;
-import com.qiwenshare.ufop.exception.operation.CopyException;
 import com.qiwenshare.ufop.operation.copy.Copier;
 import com.qiwenshare.ufop.operation.copy.domain.CopyFile;
 import com.qiwenshare.ufop.util.UFOPUtils;
+import io.minio.BucketExistsArgs;
+import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
-import io.minio.PutObjectOptions;
-import io.minio.errors.*;
+import io.minio.PutObjectArgs;
+import io.minio.errors.MinioException;
 import org.apache.commons.io.IOUtils;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.InvalidKeyException;
@@ -35,20 +34,35 @@ public class MinioCopier extends Copier {
         String uuid = UUID.randomUUID().toString();
         String fileUrl = UFOPUtils.getUploadFileUrl(uuid, copyFile.getExtendName());
 
-        // 使用MinIO服务的URL，端口，Access key和Secret key创建一个MinioClient对象
-        try {
-            MinioClient minioClient = new MinioClient(minioConfig.getEndpoint(), minioConfig.getAccessKey(), minioConfig.getSecretKey());
-            // 检查存储桶是否已经存在
-            boolean isExist = minioClient.bucketExists(minioConfig.getBucketName());
-            if(!isExist) {
-                minioClient.makeBucket(minioConfig.getBucketName());
-            }
-            PutObjectOptions putObjectOptions = new PutObjectOptions(inputStream.available(), 1024 * 1024 * 5);
-            // 使用putObject上传一个文件到存储桶中。
-            minioClient.putObject(minioConfig.getBucketName(), fileUrl, inputStream, putObjectOptions);
 
-        } catch (Exception e) {
-            throw new CopyException("创建文件出现异常", e);
+
+        MinioClient minioClient = null;
+        try {
+            minioClient =
+                    MinioClient.builder().endpoint(minioConfig.getEndpoint())
+                            .credentials(minioConfig.getAccessKey(), minioConfig.getSecretKey()).build();
+            // 检查存储桶是否已经存在
+            boolean isExist = minioClient.bucketExists(BucketExistsArgs.builder().bucket(minioConfig.getBucketName()).build());
+            if(!isExist) {
+                minioClient.makeBucket(MakeBucketArgs.builder().bucket(minioConfig.getBucketName()).build());
+            }
+
+            minioClient.putObject(
+                    PutObjectArgs.builder().bucket(minioConfig.getBucketName()).object(fileUrl).stream(
+                                    inputStream, inputStream.available(), 1024 * 1024 * 5)
+//                            .contentType("video/mp4")
+                            .build());
+
+        } catch (MinioException e) {
+            e.printStackTrace();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (InvalidKeyException e) {
+            e.printStackTrace();
         } finally {
             IOUtils.closeQuietly(inputStream);
         }

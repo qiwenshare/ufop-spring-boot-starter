@@ -5,6 +5,7 @@ import com.qiwenshare.ufop.exception.operation.DeleteException;
 import com.qiwenshare.ufop.operation.delete.Deleter;
 import com.qiwenshare.ufop.operation.delete.domain.DeleteFile;
 import io.minio.MinioClient;
+import io.minio.RemoveObjectArgs;
 import io.minio.errors.*;
 import lombok.extern.slf4j.Slf4j;
 
@@ -28,10 +29,11 @@ public class MinioDeleter extends Deleter {
     public void delete(DeleteFile deleteFile) {
 
         try {
-            // 使用MinIO服务的URL，端口，Access key和Secret key创建一个MinioClient对象
-            MinioClient minioClient = new MinioClient(minioConfig.getEndpoint(), minioConfig.getAccessKey(), minioConfig.getSecretKey());
+            MinioClient minioClient =
+                    MinioClient.builder().endpoint(minioConfig.getEndpoint())
+                            .credentials(minioConfig.getAccessKey(), minioConfig.getSecretKey()).build();
             // 从mybucket中删除myobject。
-            minioClient.removeObject(minioConfig.getBucketName(), deleteFile.getFileUrl());
+            minioClient.removeObject(RemoveObjectArgs.builder().bucket(minioConfig.getBucketName()).object(deleteFile.getFileUrl()).build());
             log.info("successfully removed mybucket/myobject");
         } catch (MinioException e) {
             log.error("Error: " + e);

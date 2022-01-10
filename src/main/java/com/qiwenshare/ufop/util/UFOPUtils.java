@@ -21,8 +21,6 @@ import static com.qiwenshare.ufop.operation.upload.Uploader.ROOT_PATH;
 
 public class UFOPUtils {
 
-    public static Map<String, String> PATH_MAP = new HashMap<>();
-
     public static String LOCAL_STORAGE_PATH;
 
     public static final String[] IMG_FILE = {"bmp", "jpg", "png", "tif", "gif", "jpeg"};
@@ -38,30 +36,6 @@ public class UFOPUtils {
     public static final int SHARE_FILE = 6;
     public static final int RECYCLE_FILE = 7;
 
-    public static List<String> getFileExtendsByType(int fileType) {
-
-        List<String> fileExtends;
-        switch (fileType) {
-            case IMAGE_TYPE:
-                fileExtends = Arrays.asList(IMG_FILE);
-                break;
-            case DOC_TYPE:
-                fileExtends = Arrays.asList(DOC_FILE);
-                break;
-            case VIDEO_TYPE:
-                fileExtends = Arrays.asList(VIDEO_FILE);
-                break;
-            case MUSIC_TYPE:
-                fileExtends = Arrays.asList(MUSIC_FILE);
-                break;
-            default:
-                fileExtends = new ArrayList<>();
-                break;
-
-
-        }
-        return fileExtends;
-    }
 
     /**
      * 判断是否为图片文件
@@ -185,7 +159,7 @@ public class UFOPUtils {
         try {
             decodeUrl = URLDecoder.decode(url, "utf-8");
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            throw new UFOPException("不支持的编码格式", e);
         }
         return  decodeUrl;
     }
@@ -251,6 +225,13 @@ public class UFOPUtils {
 
     public static String getParentPath(String path) {
         return path.substring(0, path.lastIndexOf(FileConstant.pathSeparator));
+    }
+
+    public static void main(String[] args) {
+        String s = "we/werr/r/rrrr/";
+
+        //System.out.println(getParentPath(s));
+        System.out.println(getFileNameNotExtend("/12345/虚拟人物/640.webp"));
     }
 
 }

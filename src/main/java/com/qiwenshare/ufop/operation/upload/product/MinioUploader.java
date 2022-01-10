@@ -10,12 +10,14 @@ import com.qiwenshare.ufop.operation.upload.domain.UploadFileResult;
 import com.qiwenshare.ufop.operation.upload.request.QiwenMultipartFile;
 import com.qiwenshare.ufop.util.RedisUtil;
 import com.qiwenshare.ufop.util.UFOPUtils;
-import io.minio.MinioClient;
-import io.minio.PutObjectOptions;
+import io.minio.*;
 import io.minio.errors.*;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
 
 import javax.annotation.Resource;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -81,6 +83,42 @@ public class MinioUploader extends Uploader {
                 minioUpload(fileUrl, tempFile, uploadFile);
                 uploadFileResult.setFileUrl(fileUrl);
                 tempFile.delete();
+
+                if (UFOPUtils.isImageFile(uploadFileResult.getExtendName())) {
+                    InputStream inputStream = null;
+                    try {
+                        MinioClient minioClient =
+                                MinioClient.builder().endpoint(minioConfig.getEndpoint())
+                                        .credentials(minioConfig.getAccessKey(), minioConfig.getSecretKey()).build();
+
+                        inputStream = minioClient.getObject(GetObjectArgs.builder().bucket(minioConfig.getBucketName()).object(uploadFileResult.getFileUrl()).build());
+
+                        BufferedImage src  = ImageIO.read(inputStream);
+                        uploadFileResult.setBufferedImage(src);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (ServerException e) {
+                        e.printStackTrace();
+                    } catch (InsufficientDataException e) {
+                        e.printStackTrace();
+                    } catch (ErrorResponseException e) {
+                        e.printStackTrace();
+                    } catch (NoSuchAlgorithmException e) {
+                        e.printStackTrace();
+                    } catch (InvalidKeyException e) {
+                        e.printStackTrace();
+                    } catch (InvalidResponseException e) {
+                        e.printStackTrace();
+                    } catch (XmlParserException e) {
+                        e.printStackTrace();
+                    } catch (InternalException e) {
+                        e.printStackTrace();
+                    } finally {
+                        IOUtils.closeQuietly(inputStream);
+                    }
+
+                }
+
                 uploadFileResult.setStatus(UploadFileStatusEnum.SUCCESS);
             } else {
                 uploadFileResult.setStatus(UploadFileStatusEnum.UNCOMPLATE);
@@ -95,31 +133,27 @@ public class MinioUploader extends Uploader {
 
 
     private void minioUpload(String fileUrl, File file,  UploadFile uploadFile) {
-        // 使用MinIO服务的URL，端口，Access key和Secret key创建一个MinioClient对象
-        MinioClient minioClient = null;
+        InputStream inputStream = null;
         try {
-            minioClient = new MinioClient(minioConfig.getEndpoint(), minioConfig.getAccessKey(), minioConfig.getSecretKey());
+            MinioClient minioClient =
+                    MinioClient.builder().endpoint(minioConfig.getEndpoint())
+                            .credentials(minioConfig.getAccessKey(), minioConfig.getSecretKey()).build();
             // 检查存储桶是否已经存在
-            boolean isExist = minioClient.bucketExists(minioConfig.getBucketName());
+            boolean isExist = minioClient.bucketExists(BucketExistsArgs.builder().bucket(minioConfig.getBucketName()).build());
             if(!isExist) {
-                minioClient.makeBucket(minioConfig.getBucketName());
+                minioClient.makeBucket(MakeBucketArgs.builder().bucket(minioConfig.getBucketName()).build());
             }
-            PutObjectOptions putObjectOptions = new PutObjectOptions(uploadFile.getTotalSize(), 1024 * 1024 * 5);
-            InputStream inputStream = new FileInputStream(file);
-            // 使用putObject上传一个文件到存储桶中。
-            minioClient.putObject(minioConfig.getBucketName(), fileUrl, inputStream, putObjectOptions);
 
-        } catch (InvalidEndpointException e) {
+            inputStream = new FileInputStream(file);
+            minioClient.putObject(
+                    PutObjectArgs.builder().bucket(minioConfig.getBucketName()).object(fileUrl).stream(
+                                    inputStream, uploadFile.getTotalSize(), 1024 * 1024 * 5)
+//                            .contentType("video/mp4")
+                            .build());
+
+        } catch (MinioException  e) {
             e.printStackTrace();
-        } catch (InvalidPortException e) {
-            e.printStackTrace();
-        } catch (RegionConflictException e) {
-            e.printStackTrace();
-        } catch (InvalidBucketNameException e) {
-            e.printStackTrace();
-        } catch (InsufficientDataException e) {
-            e.printStackTrace();
-        } catch (ErrorResponseException e) {
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
@@ -127,12 +161,8 @@ public class MinioUploader extends Uploader {
             e.printStackTrace();
         } catch (InvalidKeyException e) {
             e.printStackTrace();
-        } catch (InvalidResponseException e) {
-            e.printStackTrace();
-        } catch (XmlParserException e) {
-            e.printStackTrace();
-        } catch (InternalException e) {
-            e.printStackTrace();
+        } finally {
+            IOUtils.closeQuietly(inputStream);
         }
 
     }

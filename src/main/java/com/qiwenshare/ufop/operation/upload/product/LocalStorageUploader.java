@@ -87,7 +87,6 @@ public class LocalStorageUploader extends Uploader {
                     } finally {
                         IOUtils.closeQuietly(is);
                     }
-
                 }
 
                 uploadFileResult.setStatus(UploadFileStatusEnum.SUCCESS);

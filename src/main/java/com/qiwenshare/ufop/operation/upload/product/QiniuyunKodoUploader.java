@@ -8,6 +8,7 @@ import com.qiniu.storage.UploadManager;
 import com.qiniu.storage.model.DefaultPutRet;
 import com.qiniu.storage.persistent.FileRecorder;
 import com.qiniu.util.Auth;
+import com.qiwenshare.common.util.HttpsUtils;
 import com.qiwenshare.ufop.config.QiniuyunConfig;
 import com.qiwenshare.ufop.constant.StorageTypeEnum;
 import com.qiwenshare.ufop.constant.UploadFileStatusEnum;
@@ -20,11 +21,19 @@ import com.qiwenshare.ufop.operation.upload.request.QiwenMultipartFile;
 import com.qiwenshare.ufop.util.QiniuyunUtils;
 import com.qiwenshare.ufop.util.RedisUtil;
 import com.qiwenshare.ufop.util.UFOPUtils;
+import io.minio.MinioClient;
+import io.minio.errors.MinioException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
 
 import javax.annotation.Resource;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 
 @Slf4j
 public class QiniuyunKodoUploader extends Uploader {
@@ -90,6 +99,25 @@ public class QiniuyunKodoUploader extends Uploader {
                 if (!result) {
                     throw new UFOPException("删除temp文件失败：目录路径："+ tempFile.getPath());
                 }
+
+                if (UFOPUtils.isImageFile(uploadFileResult.getExtendName())) {
+                    Auth auth = Auth.create(qiniuyunConfig.getKodo().getAccessKey(), qiniuyunConfig.getKodo().getSecretKey());
+
+                    String urlString = auth.privateDownloadUrl(qiniuyunConfig.getKodo().getDomain() + "/" + uploadFileResult.getFileUrl());
+
+                    InputStream inputStream = HttpsUtils.doGet(urlString);
+                    BufferedImage src = null;
+                    try {
+                        src = ImageIO.read(inputStream);
+                        uploadFileResult.setBufferedImage(src);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } finally {
+                        IOUtils.closeQuietly(inputStream);
+                    }
+
+                }
+
                 uploadFileResult.setStatus(UploadFileStatusEnum.SUCCESS);
             } else {
                 uploadFileResult.setStatus(UploadFileStatusEnum.UNCOMPLATE);

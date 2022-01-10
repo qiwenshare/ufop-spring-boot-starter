@@ -8,6 +8,7 @@ import com.qiwenshare.ufop.operation.preview.Previewer;
 import com.qiwenshare.ufop.operation.preview.domain.PreviewFile;
 import com.qiwenshare.ufop.util.CharsetUtils;
 import com.qiwenshare.ufop.util.UFOPUtils;
+import io.minio.GetObjectArgs;
 import io.minio.MinioClient;
 import io.minio.errors.MinioException;
 import lombok.Data;
@@ -40,10 +41,13 @@ public class MinioPreviewer extends Previewer {
     protected InputStream getInputStream(PreviewFile previewFile) {
         InputStream inputStream = null;
         try {
-            // 使用MinIO服务的URL，端口，Access key和Secret key创建一个MinioClient对象
-            MinioClient minioClient = new MinioClient(getMinioConfig().getEndpoint(), getMinioConfig().getAccessKey(), getMinioConfig().getSecretKey());
-            minioClient.statObject(minioConfig.getBucketName(), previewFile.getFileUrl());
-            inputStream = minioClient.getObject(minioConfig.getBucketName(), previewFile.getFileUrl());
+
+            MinioClient minioClient =
+                    MinioClient.builder().endpoint(minioConfig.getEndpoint())
+                            .credentials(minioConfig.getAccessKey(), minioConfig.getSecretKey()).build();
+
+            inputStream = minioClient.getObject(GetObjectArgs.builder().bucket(minioConfig.getBucketName()).object(previewFile.getFileUrl()).build());
+
 
         } catch (MinioException e) {
             System.out.println("Error occurred: " + e);

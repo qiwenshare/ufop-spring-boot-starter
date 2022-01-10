@@ -1,21 +1,20 @@
 package com.qiwenshare.ufop.operation.write.product;
 
-import com.aliyun.oss.OSS;
-import com.aliyun.oss.OSSClientBuilder;
-import com.qiwenshare.ufop.config.AliyunConfig;
 import com.qiwenshare.ufop.config.MinioConfig;
 import com.qiwenshare.ufop.operation.write.Writer;
 import com.qiwenshare.ufop.operation.write.domain.WriteFile;
 import com.qiwenshare.ufop.util.UFOPUtils;
+import io.minio.BucketExistsArgs;
+import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
-import io.minio.PutObjectOptions;
-import io.minio.errors.*;
+import io.minio.PutObjectArgs;
+import io.minio.errors.MinioException;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.UUID;
 
 public class MinioWriter extends Writer {
 
@@ -32,29 +31,26 @@ public class MinioWriter extends Writer {
     @Override
     public void write(InputStream inputStream, WriteFile writeFile) {
 
-        // 使用MinIO服务的URL，端口，Access key和Secret key创建一个MinioClient对象
-        try {
-            MinioClient minioClient = new MinioClient(minioConfig.getEndpoint(), minioConfig.getAccessKey(), minioConfig.getSecretKey());
-            // 检查存储桶是否已经存在
-            boolean isExist = minioClient.bucketExists(minioConfig.getBucketName());
-            if(!isExist) {
-                minioClient.makeBucket(minioConfig.getBucketName());
-            }
-            PutObjectOptions putObjectOptions = new PutObjectOptions(inputStream.available(), inputStream.available());
-            // 使用putObject上传一个文件到存储桶中。
-            minioClient.putObject(minioConfig.getBucketName(), UFOPUtils.getAliyunObjectNameByFileUrl(writeFile.getFileUrl()), inputStream, putObjectOptions);
 
-        } catch (InvalidEndpointException e) {
+        try {
+            MinioClient minioClient =
+                    MinioClient.builder().endpoint(minioConfig.getEndpoint())
+                            .credentials(minioConfig.getAccessKey(), minioConfig.getSecretKey()).build();
+            // 检查存储桶是否已经存在
+            boolean isExist = minioClient.bucketExists(BucketExistsArgs.builder().bucket(minioConfig.getBucketName()).build());
+            if(!isExist) {
+                minioClient.makeBucket(MakeBucketArgs.builder().bucket(minioConfig.getBucketName()).build());
+            }
+
+            minioClient.putObject(
+                    PutObjectArgs.builder().bucket(minioConfig.getBucketName()).object(UFOPUtils.getAliyunObjectNameByFileUrl(writeFile.getFileUrl())).stream(
+                                    inputStream, inputStream.available(), -1)
+//                            .contentType("video/mp4")
+                            .build());
+
+        } catch (MinioException e) {
             e.printStackTrace();
-        } catch (InvalidPortException e) {
-            e.printStackTrace();
-        } catch (RegionConflictException e) {
-            e.printStackTrace();
-        } catch (InvalidBucketNameException e) {
-            e.printStackTrace();
-        } catch (InsufficientDataException e) {
-            e.printStackTrace();
-        } catch (ErrorResponseException e) {
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
@@ -62,15 +58,7 @@ public class MinioWriter extends Writer {
             e.printStackTrace();
         } catch (InvalidKeyException e) {
             e.printStackTrace();
-        } catch (InvalidResponseException e) {
-            e.printStackTrace();
-        } catch (XmlParserException e) {
-            e.printStackTrace();
-        } catch (InternalException e) {
-            e.printStackTrace();
         }
     }
-
-
 
 }
