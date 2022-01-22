@@ -1,6 +1,6 @@
 package com.qiwenshare.ufop.autoconfiguration;
 
-import com.qiwenshare.ufop.config.AliyunConfig;
+import com.github.tobato.fastdfs.FdfsClientConfig;
 import com.qiwenshare.ufop.factory.UFOPFactory;
 import com.qiwenshare.ufop.operation.copy.product.FastDFSCopier;
 import com.qiwenshare.ufop.operation.delete.product.FastDFSDeleter;
@@ -20,17 +20,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.EnableMBeanExport;
+import org.springframework.context.annotation.Import;
+import org.springframework.jmx.support.RegistrationPolicy;
 
 
 @Slf4j
 @Configuration
 //@ConditionalOnClass(UFOService.class)
 @EnableConfigurationProperties({UFOPProperties.class})
+@Import(FdfsClientConfig.class)
+@EnableMBeanExport(registration = RegistrationPolicy.IGNORE_EXISTING)
 public class UFOPAutoConfiguration {
 
     @Autowired
     private UFOPProperties ufopProperties;
-
 
     @Bean
     public UFOPFactory ufopFactory() {
@@ -77,7 +81,6 @@ public class UFOPAutoConfiguration {
     public QiniuyunKodoUploader qiniuyunKodoUploader() {
         return new QiniuyunKodoUploader(ufopProperties.getQiniuyun());
     }
-
 
     @Bean
     public RedisLock redisLock() {

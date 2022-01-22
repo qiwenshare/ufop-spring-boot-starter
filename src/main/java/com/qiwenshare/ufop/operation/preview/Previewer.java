@@ -50,18 +50,20 @@ public abstract class Previewer {
             InputStream in = null;
             try {
                 inputstream = getInputStream(previewFile);
-                outputStream = httpServletResponse.getOutputStream();
-                int thumbImageWidth = thumbImage.getWidth();
-                int thumbImageHeight = thumbImage.getHeight();
-                int width = thumbImageWidth == 0 ? 150 : thumbImageWidth;
-                int height = thumbImageHeight == 0 ? 150 : thumbImageHeight;
+                if (inputstream != null) {
+                    outputStream = httpServletResponse.getOutputStream();
+                    int thumbImageWidth = thumbImage.getWidth();
+                    int thumbImageHeight = thumbImage.getHeight();
+                    int width = thumbImageWidth == 0 ? 150 : thumbImageWidth;
+                    int height = thumbImageHeight == 0 ? 150 : thumbImageHeight;
 
-                if (isVideo) {
-                    in = VideoOperation.thumbnailsImage(inputstream, saveFile, width, height);
-                } else {
-                    in = ImageOperation.thumbnailsImage(inputstream, saveFile, width, height);
+                    if (isVideo) {
+                        in = VideoOperation.thumbnailsImage(inputstream, saveFile, width, height);
+                    } else {
+                        in = ImageOperation.thumbnailsImage(inputstream, saveFile, width, height);
+                    }
+                    IOUtils.copy(in, outputStream);
                 }
-                IOUtils.copy(in, outputStream);
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {

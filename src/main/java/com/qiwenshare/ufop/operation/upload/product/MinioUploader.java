@@ -150,7 +150,6 @@ public class MinioUploader extends Uploader {
                                     inputStream, uploadFile.getTotalSize(), 1024 * 1024 * 5)
 //                            .contentType("video/mp4")
                             .build());
-
         } catch (MinioException  e) {
             e.printStackTrace();
         } catch (FileNotFoundException e) {
