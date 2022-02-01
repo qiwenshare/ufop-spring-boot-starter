@@ -10,13 +10,14 @@ UFOP (Unified File Operation Platform) 统一文件操作平台，通过引入�
 2. 阿里云OSS上传，下载，删除，预览，重命名，读文件流，写文件流
 3. FastDFS上传，下载，删除，预览，重命名，读文件流，写文件流
 4. FastDFS+Redis实现集群化部署
+5. 图片支持缩略图预览
+6. 
 
 
 #### 软件架构
 #### 安装教程
 
 #### 使用说明
-
 
 1.  引入pom依赖
 
@@ -25,12 +26,12 @@ UFOP (Unified File Operation Platform) 统一文件操作平台，通过引入�
 <dependency>
     <groupId>com.qiwenshare</groupId>
     <artifactId>ufop-spring-boot-starter</artifactId>
-    <version>1.0.5<version>
+    <version>{new version}<version>
 </dependency>
 ```
 2.  application.properties配置文件说明
 
-配置磁盘存储方式, 0-本地存储， 1-阿里云OSS存储， 2-fastDFS存储
+配置磁盘存储方式, 0-本地存储， 1-阿里云OSS存储， 2-fastDFS存储, 3-minio存储, 4-七牛云KODO对象存储
 
 ```properties
 ufop.storage-type=0
@@ -81,15 +82,6 @@ spring.redis.lettuce.pool.max-idle=30
 spring.redis.lettuce.pool.min-idle=10
 #连接超时时间（毫秒）
 spring.redis.timeout=5000
-```
-
-```java
-@Configuration
-@Import(FdfsClientConfig.class)
-@EnableMBeanExport(registration = RegistrationPolicy.IGNORE_EXISTING)
-public class FdfsConfig {
-
-}
 ```
 
 ```java
