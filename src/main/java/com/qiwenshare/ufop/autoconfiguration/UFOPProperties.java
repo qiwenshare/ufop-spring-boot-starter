@@ -11,6 +11,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "ufop")
 public class UFOPProperties {
 
+    private String bucketName;
     private String storageType;
     private String localStoragePath;
     private AliyunConfig aliyun = new AliyunConfig();

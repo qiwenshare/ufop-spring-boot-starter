@@ -39,6 +39,7 @@ public class UFOPAutoConfiguration {
     @Bean
     public UFOPFactory ufopFactory() {
         UFOPUtils.LOCAL_STORAGE_PATH = ufopProperties.getLocalStoragePath();
+        UFOPUtils.ROOT_PATH = ufopProperties.getBucketName();
         return new UFOPFactory(ufopProperties);
     }
     @Bean

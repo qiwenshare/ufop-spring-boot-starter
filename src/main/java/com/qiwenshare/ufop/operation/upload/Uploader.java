@@ -35,7 +35,7 @@ public abstract class Uploader {
     @Resource
     RedisUtil redisUtil;
 
-    public static final String ROOT_PATH = "upload";
+//    public static final String ROOT_PATH = "upload";
     public static final String FILE_SEPARATOR = "/";
 
     /**

@@ -17,12 +17,12 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static com.qiwenshare.ufop.operation.upload.Uploader.FILE_SEPARATOR;
-import static com.qiwenshare.ufop.operation.upload.Uploader.ROOT_PATH;
+//import static com.qiwenshare.ufop.operation.upload.Uploader.ROOT_PATH;
 
 public class UFOPUtils {
 
     public static String LOCAL_STORAGE_PATH;
-
+    public static String ROOT_PATH;
     public static final String[] IMG_FILE = {"bmp", "jpg", "png", "tif", "gif", "jpeg"};
     public static final String[] DOC_FILE = {"doc", "docx", "ppt", "pptx", "xls", "xlsx", "txt", "hlp", "wps", "rtf", "html", "pdf"};
     public static final String[] VIDEO_FILE = {"avi", "mp4", "mpg", "mov", "swf"};
