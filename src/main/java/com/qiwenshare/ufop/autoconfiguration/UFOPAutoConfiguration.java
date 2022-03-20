@@ -1,5 +1,6 @@
 package com.qiwenshare.ufop.autoconfiguration;
 
+import com.aliyuncs.utils.StringUtils;
 import com.github.tobato.fastdfs.FdfsClientConfig;
 import com.qiwenshare.ufop.factory.UFOPFactory;
 import com.qiwenshare.ufop.operation.copy.product.FastDFSCopier;
@@ -39,7 +40,12 @@ public class UFOPAutoConfiguration {
     @Bean
     public UFOPFactory ufopFactory() {
         UFOPUtils.LOCAL_STORAGE_PATH = ufopProperties.getLocalStoragePath();
-        UFOPUtils.ROOT_PATH = ufopProperties.getBucketName();
+        String bucketName = ufopProperties.getBucketName();
+        if (StringUtils.isNotEmpty(bucketName)) {
+            UFOPUtils.ROOT_PATH = ufopProperties.getBucketName();
+        } else {
+            UFOPUtils.ROOT_PATH = "upload";
+        }
         return new UFOPFactory(ufopProperties);
     }
     @Bean

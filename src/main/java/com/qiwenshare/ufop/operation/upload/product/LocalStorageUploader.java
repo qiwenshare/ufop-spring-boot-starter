@@ -8,6 +8,7 @@ import com.qiwenshare.ufop.operation.upload.domain.UploadFile;
 import com.qiwenshare.ufop.operation.upload.domain.UploadFileResult;
 import com.qiwenshare.ufop.operation.upload.request.QiwenMultipartFile;
 import com.qiwenshare.ufop.util.UFOPUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
@@ -103,7 +104,17 @@ public class LocalStorageUploader extends Uploader {
 
     @Override
     public void cancelUpload(UploadFile uploadFile) {
-        // TODO
+        String fileUrl = FILE_URL_MAP.get(uploadFile.getIdentifier());
+        String tempFileUrl = fileUrl + "_tmp";
+        String confFileUrl = fileUrl.replace("." + UFOPUtils.getFileExtendName(fileUrl), ".conf");
+        File tempFile = new File(tempFileUrl);
+        if (tempFile.exists()) {
+            tempFile.delete();
+        }
+        File confFile = new File(confFileUrl);
+        if (confFile.exists()) {
+            confFile.delete();
+        }
     }
 
     @Override

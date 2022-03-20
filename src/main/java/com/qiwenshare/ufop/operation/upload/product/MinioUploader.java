@@ -40,7 +40,18 @@ public class MinioUploader extends Uploader {
 
     @Override
     public void cancelUpload(UploadFile uploadFile) {
-
+        QiwenMultipartFile qiwenMultipartFile = new QiwenMultipartFile();
+        String fileUrl = qiwenMultipartFile.getFileUrl(uploadFile.getIdentifier());
+        String tempFileUrl = fileUrl + "_tmp";
+        String confFileUrl = fileUrl.replace("." + UFOPUtils.getFileExtendName(fileUrl), ".conf");
+        File tempFile = new File(tempFileUrl);
+        if (tempFile.exists()) {
+            tempFile.delete();
+        }
+        File confFile = new File(confFileUrl);
+        if (confFile.exists()) {
+            confFile.delete();
+        }
     }
 
     @Override

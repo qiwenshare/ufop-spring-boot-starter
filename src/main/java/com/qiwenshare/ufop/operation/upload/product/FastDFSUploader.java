@@ -1,8 +1,10 @@
 package com.qiwenshare.ufop.operation.upload.product;
 
 import com.github.tobato.fastdfs.domain.StorePath;
+import com.github.tobato.fastdfs.exception.FdfsServerException;
 import com.github.tobato.fastdfs.proto.storage.DownloadByteArray;
 import com.github.tobato.fastdfs.service.AppendFileStorageClient;
+import com.github.tobato.fastdfs.service.FastFileStorageClient;
 import com.qiwenshare.ufop.constant.StorageTypeEnum;
 import com.qiwenshare.ufop.constant.UploadFileStatusEnum;
 import com.qiwenshare.ufop.exception.operation.UploadException;
@@ -14,6 +16,7 @@ import com.qiwenshare.ufop.util.RedisUtil;
 import com.qiwenshare.ufop.util.UFOPUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -29,6 +32,8 @@ public class FastDFSUploader extends Uploader {
 
     @Resource
     AppendFileStorageClient defaultAppendFileStorageClient;
+    @Autowired
+    private FastFileStorageClient fastFileStorageClient;
 
     @Resource
     RedisUtil redisUtil;
@@ -124,6 +129,11 @@ public class FastDFSUploader extends Uploader {
 
     @Override
     public void cancelUpload(UploadFile uploadFile) {
-        // TODO
+        String path = redisUtil.getObject("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":storage_path");
+        try {
+            fastFileStorageClient.deleteFile(path.replace("M00", "group1"));
+        } catch (FdfsServerException e) {
+            log.error(e.getMessage());
+        }
     }
 }
