@@ -1,6 +1,5 @@
 package com.qiwenshare.ufop.autoconfiguration;
 
-import com.aliyuncs.utils.StringUtils;
 import com.github.tobato.fastdfs.FdfsClientConfig;
 import com.qiwenshare.ufop.factory.UFOPFactory;
 import com.qiwenshare.ufop.operation.copy.product.FastDFSCopier;
@@ -17,6 +16,7 @@ import com.qiwenshare.ufop.util.RedisUtil;
 import com.qiwenshare.ufop.util.UFOPUtils;
 import com.qiwenshare.ufop.util.concurrent.locks.RedisLock;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
