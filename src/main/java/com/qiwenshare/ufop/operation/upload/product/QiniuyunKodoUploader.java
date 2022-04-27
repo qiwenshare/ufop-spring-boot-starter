@@ -53,18 +53,18 @@ public class QiniuyunKodoUploader extends Uploader {
 
     @Override
     public void cancelUpload(UploadFile uploadFile) {
-        QiwenMultipartFile qiwenMultipartFile = new QiwenMultipartFile();
-        String fileUrl = qiwenMultipartFile.getFileUrl(uploadFile.getIdentifier());
-        String tempFileUrl = fileUrl + "_tmp";
-        String confFileUrl = fileUrl.replace("." + UFOPUtils.getFileExtendName(fileUrl), ".conf");
-        File tempFile = new File(tempFileUrl);
-        if (tempFile.exists()) {
-            tempFile.delete();
-        }
-        File confFile = new File(confFileUrl);
-        if (confFile.exists()) {
-            confFile.delete();
-        }
+//        QiwenMultipartFile qiwenMultipartFile = new QiwenMultipartFile();
+//        String fileUrl = qiwenMultipartFile.getFileUrl(uploadFile.getIdentifier());
+//        String tempFileUrl = fileUrl + "_tmp";
+//        String confFileUrl = fileUrl.replace("." + UFOPUtils.getFileExtendName(fileUrl), ".conf");
+//        File tempFile = new File(tempFileUrl);
+//        if (tempFile.exists()) {
+//            tempFile.delete();
+//        }
+//        File confFile = new File(confFileUrl);
+//        if (confFile.exists()) {
+//            confFile.delete();
+//        }
     }
 
     @Override
@@ -101,7 +101,7 @@ public class QiniuyunKodoUploader extends Uploader {
             if (uploadFile.getTotalChunks() == 1) {
                 uploadFileResult.setFileSize(qiwenMultipartFile.getSize());
             }
-
+            uploadFileResult.setIdentifier(uploadFile.getIdentifier());
             if (isComplete) {
 
                 qiniuUpload(fileUrl, tempFile, uploadFile);

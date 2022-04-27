@@ -96,6 +96,7 @@ public class FastDFSUploader extends Uploader {
             uploadFileResult.setFileSize(qiwenMultipartFile.getSize());
         }
         uploadFileResult.setStorageType(StorageTypeEnum.FAST_DFS);
+        uploadFileResult.setIdentifier(uploadFile.getIdentifier());
 
         if (uploadFile.getChunkNumber() == uploadFile.getTotalChunks()) {
             log.info("分片上传完成");

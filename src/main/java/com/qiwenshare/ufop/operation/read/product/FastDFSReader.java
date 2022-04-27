@@ -8,6 +8,7 @@ import com.qiwenshare.ufop.operation.read.domain.ReadFile;
 import com.qiwenshare.ufop.util.ReadFileUtils;
 import com.qiwenshare.ufop.util.UFOPUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -24,7 +25,7 @@ public class FastDFSReader extends Reader {
     public String read(ReadFile readFile) {
 
         String fileUrl = readFile.getFileUrl();
-        String fileType = UFOPUtils.getFileExtendName(fileUrl);
+        String fileType = FilenameUtils.getExtension(fileUrl);
         try {
             return ReadFileUtils.getContentByInputStream(fileType, getInputStream(readFile.getFileUrl()));
         } catch (IOException e) {

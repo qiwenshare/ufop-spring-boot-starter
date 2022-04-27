@@ -12,6 +12,7 @@ public class UploadFileResult {
     private String extendName;
     private long fileSize;
     private String fileUrl;
+    private String identifier;
     private StorageTypeEnum storageType;
     private UploadFileStatusEnum status;
     private BufferedImage bufferedImage;

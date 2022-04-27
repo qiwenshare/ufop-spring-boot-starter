@@ -10,6 +10,7 @@ import io.minio.GetObjectArgs;
 import io.minio.MinioClient;
 import io.minio.errors.MinioException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FilenameUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,7 +33,7 @@ public class MinioReader extends Reader {
     @Override
     public String read(ReadFile readFile) {
         String fileUrl = readFile.getFileUrl();
-        String fileType = UFOPUtils.getFileExtendName(fileUrl);
+        String fileType = FilenameUtils.getExtension(fileUrl);
         try {
             return ReadFileUtils.getContentByInputStream(fileType, getInputStream(readFile.getFileUrl()));
         } catch (IOException e) {

@@ -35,8 +35,6 @@ public abstract class Uploader {
     @Resource
     RedisUtil redisUtil;
 
-    public static final String FILE_SEPARATOR = "/";
-
     /**
      * 普通上传
      * @param httpServletRequest http的request请求
@@ -75,11 +73,12 @@ public abstract class Uploader {
 
             Iterator<String> iter = request.getFileNames();
             while (iter.hasNext()) {
-                MultipartFile multipartFile = request.getFile(iter.next());
-                QiwenMultipartFile qiwenMultipartFile = new QiwenMultipartFile(multipartFile);
-                UploadFileResult uploadFileResult = doUploadFlow(qiwenMultipartFile, uploadFile);
-                uploadFileResultList.add(uploadFileResult);
-
+                List<MultipartFile> multipartFileList = request.getFiles(iter.next());
+                for (MultipartFile multipartFile : multipartFileList) {
+                    QiwenMultipartFile qiwenMultipartFile = new QiwenMultipartFile(multipartFile);
+                    UploadFileResult uploadFileResult = doUploadFlow(qiwenMultipartFile, uploadFile);
+                    uploadFileResultList.add(uploadFileResult);
+                }
             }
         } catch (Exception e) {
             throw new UploadException(e);

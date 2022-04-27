@@ -135,7 +135,7 @@ public class RedisLock {
                         lockMap.set(map);
                     }
                     map.put(key, new LockVO(1, lockId, expire * 1000 + before, expire * 1000 + after));
-                    log.info("acquire lock {} {} ", key, 1);
+                    log.debug("acquire lock {} {} ", key, 1);
                     return true;
                 }
                 Thread.sleep(DEFAULT_ACQUIRE_RESOLUTION_MILLIS);

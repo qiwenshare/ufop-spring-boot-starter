@@ -1,12 +1,7 @@
 package com.qiwenshare.ufop.util;
 
-import com.qiwenshare.common.constant.FileConstant;
-import com.qiwenshare.ufop.autoconfiguration.UFOPAutoConfiguration;
 import com.qiwenshare.ufop.exception.UFOPException;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.tomcat.util.net.AprEndpoint;
 import org.springframework.util.ResourceUtils;
 
 import java.io.File;
@@ -14,10 +9,7 @@ import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
-import java.util.*;
-
-import static com.qiwenshare.ufop.operation.upload.Uploader.FILE_SEPARATOR;
-//import static com.qiwenshare.ufop.operation.upload.Uploader.ROOT_PATH;
+import java.util.Date;
 
 public class UFOPUtils {
 
@@ -66,33 +58,11 @@ public class UFOPUtils {
         return false;
     }
 
-
-
     public static String pathSplitFormat(String filePath) {
         return filePath.replace("///", "/")
                 .replace("//", "/")
-                .replace("\\\\\\", "\\")
-                .replace("\\\\", "\\");
-    }
-
-    /**
-     * 获取文件扩展名
-     *
-     * @param fileName 文件名
-     * @return 文件扩展名
-     */
-    public static String getFileExtendName(String fileName) {
-        return FilenameUtils.getExtension(fileName);
-    }
-
-    /**
-     * 获取不包含扩展名的文件名
-     *
-     * @param fileName 文件名
-     * @return 文件名（不带扩展名）
-     */
-    public static String getFileNameNotExtend(String fileName) {
-        return FilenameUtils.removeExtension(fileName);
+                .replace("\\\\\\", "/")
+                .replace("\\\\", "/");
     }
 
     public static File getLocalSaveFile(String fileUrl) {
@@ -198,7 +168,7 @@ public class UFOPUtils {
     public static String getUploadFileUrl(String identifier, String extendName) {
 
         SimpleDateFormat formater = new SimpleDateFormat("yyyyMMdd");
-        String path = ROOT_PATH + FILE_SEPARATOR + formater.format(new Date()) + FILE_SEPARATOR;
+        String path = ROOT_PATH + File.separator + formater.format(new Date()) + File.separator;
 
         File dir = new File(UFOPUtils.getStaticPath() + path);
 
@@ -223,15 +193,17 @@ public class UFOPUtils {
         return fileUrl;
     }
 
-    public static String getParentPath(String path) {
-        return path.substring(0, path.lastIndexOf(FileConstant.pathSeparator));
-    }
 
-    public static void main(String[] args) {
-        String s = "we/werr/r/rrrr/";
-
-        //System.out.println(getParentPath(s));
-        System.out.println(getFileNameNotExtend("/12345/虚拟人物/640.webp"));
+    public static String formatPath(String path) {
+        path = UFOPUtils.pathSplitFormat(path);
+        if ("/".equals(path)) {
+            return path;
+        }
+        if (path.endsWith("/")) {
+            int length = path.length();
+            return path.substring(0, length - 1);
+        }
+        return path;
     }
 
 }

@@ -6,7 +6,8 @@ package com.qiwenshare.ufop.constant;
  */
 public enum FilePermissionEnum {
     READ(1, "读取"),
-    READ_WRITE(2, "读取/写入");
+    READ_WRITE(2, "读取/写入"),
+    OWNER(3, "所有者");
 
     private int type;
     private String desc;

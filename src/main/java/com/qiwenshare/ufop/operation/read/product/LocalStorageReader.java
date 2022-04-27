@@ -5,6 +5,7 @@ import com.qiwenshare.ufop.operation.read.Reader;
 import com.qiwenshare.ufop.operation.read.domain.ReadFile;
 import com.qiwenshare.ufop.util.UFOPUtils;
 import com.qiwenshare.ufop.util.ReadFileUtils;
+import org.apache.commons.io.FilenameUtils;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -15,7 +16,7 @@ public class LocalStorageReader extends Reader {
 
         String fileContent;
         try {
-            String extendName = UFOPUtils.getFileExtendName(readFile.getFileUrl());
+            String extendName = FilenameUtils.getExtension(readFile.getFileUrl());
             FileInputStream fileInputStream = new FileInputStream(UFOPUtils.getStaticPath() + readFile.getFileUrl());
             fileContent = ReadFileUtils.getContentByInputStream(extendName, fileInputStream);
         } catch (IOException e) {

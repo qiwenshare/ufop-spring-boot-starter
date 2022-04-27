@@ -3,6 +3,7 @@ package com.qiwenshare.ufop.operation.delete;
 import com.qiwenshare.ufop.operation.delete.domain.DeleteFile;
 import com.qiwenshare.ufop.util.UFOPUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
 
@@ -11,7 +12,7 @@ public abstract class Deleter {
     public abstract void delete(DeleteFile deleteFile);
 
     protected void deleteCacheFile(DeleteFile deleteFile) {
-        if (UFOPUtils.isImageFile(UFOPUtils.getFileExtendName(deleteFile.getFileUrl()))) {
+        if (UFOPUtils.isImageFile(FilenameUtils.getExtension(deleteFile.getFileUrl()))) {
             File cacheFile = UFOPUtils.getCacheFile(deleteFile.getFileUrl());
             if (cacheFile.exists()) {
                 boolean result = cacheFile.delete();

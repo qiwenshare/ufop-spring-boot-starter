@@ -107,7 +107,7 @@ public class AliyunOSSUploader extends Uploader {
             uploadFileResult.setFileSize(qiwenMultipartFile.getSize());
         }
         uploadFileResult.setStorageType(StorageTypeEnum.ALIYUN_OSS);
-
+        uploadFileResult.setIdentifier(uploadFile.getIdentifier());
         if (uploadFile.getChunkNumber() == uploadFile.getTotalChunks()) {
             log.info("分片上传完成");
             completeMultipartUpload(uploadFile);

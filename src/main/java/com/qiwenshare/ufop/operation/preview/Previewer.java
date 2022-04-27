@@ -7,6 +7,7 @@ import com.qiwenshare.ufop.operation.preview.domain.PreviewFile;
 import com.qiwenshare.ufop.util.CharsetUtils;
 import com.qiwenshare.ufop.util.UFOPUtils;
 import lombok.Data;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 
 import javax.servlet.http.HttpServletResponse;
@@ -21,10 +22,10 @@ public abstract class Previewer {
 
     public void imageThumbnailPreview(HttpServletResponse httpServletResponse, PreviewFile previewFile) {
         String fileUrl = previewFile.getFileUrl();
-        boolean isVideo = UFOPUtils.isVideoFile(UFOPUtils.getFileExtendName(fileUrl));
+        boolean isVideo = UFOPUtils.isVideoFile(FilenameUtils.getExtension(fileUrl));
         String thumbnailImgUrl = previewFile.getFileUrl();
         if (isVideo) {
-            thumbnailImgUrl = fileUrl.replace("." + UFOPUtils.getFileExtendName(fileUrl), ".jpg");
+            thumbnailImgUrl = fileUrl.replace("." + FilenameUtils.getExtension(fileUrl), ".jpg");
         }
 
 
@@ -89,7 +90,7 @@ public abstract class Previewer {
             inputStream = getInputStream(previewFile);
             outputStream = httpServletResponse.getOutputStream();
             byte[] bytes = IOUtils.toByteArray(inputStream);
-            bytes = CharsetUtils.convertTxtCharsetToUTF8(bytes, UFOPUtils.getFileExtendName(previewFile.getFileUrl()));
+            bytes = CharsetUtils.convertTxtCharsetToUTF8(bytes, FilenameUtils.getExtension(previewFile.getFileUrl()));
             outputStream.write(bytes);
 
         } catch (IOException e) {

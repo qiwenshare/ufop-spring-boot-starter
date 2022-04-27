@@ -9,6 +9,7 @@ import com.qiwenshare.ufop.operation.upload.domain.UploadFileResult;
 import com.qiwenshare.ufop.operation.upload.request.QiwenMultipartFile;
 import com.qiwenshare.ufop.util.UFOPUtils;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
@@ -70,7 +71,7 @@ public class LocalStorageUploader extends Uploader {
             if (uploadFile.getTotalChunks() == 1) {
                 uploadFileResult.setFileSize(qiwenMultipartFile.getSize());
             }
-
+            uploadFileResult.setIdentifier(uploadFile.getIdentifier());
             if (isComplete) {
                 tempFile.renameTo(file);
                 FILE_URL_MAP.remove(uploadFile.getIdentifier());
@@ -106,7 +107,7 @@ public class LocalStorageUploader extends Uploader {
     public void cancelUpload(UploadFile uploadFile) {
         String fileUrl = FILE_URL_MAP.get(uploadFile.getIdentifier());
         String tempFileUrl = fileUrl + "_tmp";
-        String confFileUrl = fileUrl.replace("." + UFOPUtils.getFileExtendName(fileUrl), ".conf");
+        String confFileUrl = fileUrl.replace("." + FilenameUtils.getExtension(fileUrl), ".conf");
         File tempFile = new File(tempFileUrl);
         if (tempFile.exists()) {
             tempFile.delete();

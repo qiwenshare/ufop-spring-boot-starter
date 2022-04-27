@@ -1,7 +1,8 @@
 package com.qiwenshare.ufop.util;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.pdfbox.io.RandomAccessBuffer;
+import org.apache.pdfbox.io.RandomAccessReadBuffer;
 import org.apache.pdfbox.pdfparser.PDFParser;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
@@ -19,8 +20,7 @@ import org.apache.poi.xslf.usermodel.XMLSlideShow;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 
 /**
  * @author wangshuaijun
@@ -69,10 +69,10 @@ public class ReadFileUtils {
         String content = "";
         try {
             //创建解析器对象
-            PDFParser pdfParser = new PDFParser(new RandomAccessBuffer(inputStream));
-            pdfParser.parse();
+            PDFParser pdfParser = new PDFParser(new RandomAccessReadBuffer(inputStream));
+            pdDocument = pdfParser.parse();
             //pdf文档
-            pdDocument = pdfParser.getPDDocument();
+//            pdDocument = pdfParser.getPDDocument();
             //pdf文本操作对象,使用该对象可以获取所读取pdf的一些信息
             PDFTextStripper pdfTextStripper = new PDFTextStripper();
             content = pdfTextStripper.getText(pdDocument);
