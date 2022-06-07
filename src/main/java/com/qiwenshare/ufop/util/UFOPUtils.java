@@ -168,7 +168,7 @@ public class UFOPUtils {
     public static String getUploadFileUrl(String identifier, String extendName) {
 
         SimpleDateFormat formater = new SimpleDateFormat("yyyyMMdd");
-        String path = ROOT_PATH + File.separator + formater.format(new Date()) + File.separator;
+        String path = ROOT_PATH + "/" + formater.format(new Date()) + "/";
 
         File dir = new File(UFOPUtils.getStaticPath() + path);
 
