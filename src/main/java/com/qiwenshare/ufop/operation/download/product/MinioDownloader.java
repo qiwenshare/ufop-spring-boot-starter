@@ -37,7 +37,19 @@ public class MinioDownloader extends Downloader {
                     MinioClient.builder().endpoint(minioConfig.getEndpoint())
                             .credentials(minioConfig.getAccessKey(), minioConfig.getSecretKey()).build();
 
-            inputStream = minioClient.getObject(GetObjectArgs.builder().bucket(minioConfig.getBucketName()).object(downloadFile.getFileUrl()).build());
+            if (downloadFile.getRange() != null) {
+                inputStream = minioClient.getObject(GetObjectArgs.builder()
+                        .bucket(minioConfig.getBucketName())
+                        .object(downloadFile.getFileUrl())
+                        .offset((long) downloadFile.getRange().getStart())
+                        .length((long) downloadFile.getRange().getLength())
+                        .build());
+            } else {
+                inputStream = minioClient.getObject(GetObjectArgs.builder()
+                        .bucket(minioConfig.getBucketName())
+                        .object(downloadFile.getFileUrl())
+                        .build());
+            }
 
 
         } catch (MinioException e) {

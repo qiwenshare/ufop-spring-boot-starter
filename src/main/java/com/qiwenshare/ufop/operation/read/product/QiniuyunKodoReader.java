@@ -43,7 +43,7 @@ public class QiniuyunKodoReader extends Reader {
 
 
 
-        return HttpsUtils.doGet(urlString);
+        return HttpsUtils.doGet(urlString, null);
     }
 
 

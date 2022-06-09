@@ -7,4 +7,5 @@ import lombok.Data;
 public class DownloadFile {
     private String fileUrl;
     private OSS ossClient;
+    private Range range;
 }

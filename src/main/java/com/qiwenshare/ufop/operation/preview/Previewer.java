@@ -1,5 +1,6 @@
 package com.qiwenshare.ufop.operation.preview;
 
+import cn.hutool.core.io.FileTypeUtil;
 import com.qiwenshare.common.operation.ImageOperation;
 import com.qiwenshare.common.operation.VideoOperation;
 import com.qiwenshare.ufop.domain.ThumbImage;
@@ -29,13 +30,13 @@ public abstract class Previewer {
         }
 
 
-        File saveFile = UFOPUtils.getCacheFile(thumbnailImgUrl);
+        File cacheFile = UFOPUtils.getCacheFile(thumbnailImgUrl);
 
-        if (saveFile.exists()) {
+        if (cacheFile.exists()) {
             FileInputStream fis = null;
             OutputStream outputStream = null;
             try {
-                fis = new FileInputStream(saveFile);
+                fis = new FileInputStream(cacheFile);
                 outputStream = httpServletResponse.getOutputStream();
                 IOUtils.copy(fis, outputStream);
             } catch (IOException e) {
@@ -57,11 +58,14 @@ public abstract class Previewer {
                     int thumbImageHeight = thumbImage.getHeight();
                     int width = thumbImageWidth == 0 ? 150 : thumbImageWidth;
                     int height = thumbImageHeight == 0 ? 150 : thumbImageHeight;
-
+                    String type = FileTypeUtil.getType(getInputStream(previewFile));
+                    boolean isImageFile = UFOPUtils.isImageFile(type);
                     if (isVideo) {
-                        in = VideoOperation.thumbnailsImage(inputstream, saveFile, width, height);
+                        in = VideoOperation.thumbnailsImage(inputstream, cacheFile, width, height);
+                    } else if (isImageFile) {
+                        in = ImageOperation.thumbnailsImage(inputstream, cacheFile, width, height);
                     } else {
-                        in = ImageOperation.thumbnailsImage(inputstream, saveFile, width, height);
+                        in = inputstream;
                     }
                     IOUtils.copy(in, outputStream);
                 }

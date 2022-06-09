@@ -6,10 +6,9 @@ import com.qiwenshare.ufop.util.UFOPUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
+import java.io.*;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 
 @Slf4j
 @Component
@@ -19,10 +18,21 @@ public class LocalStorageDownloader extends Downloader {
     public InputStream getInputStream(DownloadFile downloadFile) {
         //设置文件路径
         File file = new File(UFOPUtils.getStaticPath() + downloadFile.getFileUrl());
+
         InputStream inputStream = null;
         try {
-            inputStream = new FileInputStream(file);
+            if (downloadFile.getRange() != null) {
+                RandomAccessFile randowAccessFile = new RandomAccessFile(file, "r");
+                randowAccessFile.seek(downloadFile.getRange().getStart());
+                byte[] bytes = new byte[downloadFile.getRange().getLength()];
+                randowAccessFile.read(bytes);
+                inputStream = new ByteArrayInputStream(bytes);
+            } else {
+                inputStream = new FileInputStream(file);
+            }
         } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return inputStream;

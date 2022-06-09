@@ -99,4 +99,9 @@ public class CharsetUtils {
 
     }
 
+    public static void main(String[] args) {
+        System.out.println(java.nio.charset.Charset.forName("GB2312").newEncoder().canEncode("ÀîÑÅÎ¢"));
+        System.out.println(java.nio.charset.Charset.forName("ISO-8859-1").newEncoder().canEncode("ÀîÑÅÎ¢"));
+    }
+
 }

@@ -116,7 +116,7 @@ public class QiniuyunKodoUploader extends Uploader {
 
                     String urlString = auth.privateDownloadUrl(qiniuyunConfig.getKodo().getDomain() + "/" + uploadFileResult.getFileUrl());
 
-                    InputStream inputStream = HttpsUtils.doGet(urlString);
+                    InputStream inputStream = HttpsUtils.doGet(urlString, null);
                     BufferedImage src = null;
                     try {
                         src = ImageIO.read(inputStream);

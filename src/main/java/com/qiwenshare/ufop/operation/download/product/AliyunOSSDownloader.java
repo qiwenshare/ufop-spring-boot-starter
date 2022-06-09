@@ -1,15 +1,19 @@
 package com.qiwenshare.ufop.operation.download.product;
 
 import com.aliyun.oss.OSS;
+import com.aliyun.oss.model.GetObjectRequest;
 import com.aliyun.oss.model.OSSObject;
 import com.qiwenshare.ufop.config.AliyunConfig;
 import com.qiwenshare.ufop.operation.download.Downloader;
 import com.qiwenshare.ufop.operation.download.domain.DownloadFile;
 import com.qiwenshare.ufop.util.AliyunUtils;
 import com.qiwenshare.ufop.util.UFOPUtils;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
 
-import java.io.InputStream;
+import java.io.*;
 
+@Slf4j
 public class AliyunOSSDownloader extends Downloader {
 
     private AliyunConfig aliyunConfig;
@@ -24,12 +28,25 @@ public class AliyunOSSDownloader extends Downloader {
 
     @Override
     public InputStream getInputStream(DownloadFile downloadFile) {
+
         OSS ossClient = AliyunUtils.getOSSClient(aliyunConfig);
-        OSSObject ossObject = ossClient.getObject(aliyunConfig.getOss().getBucketName(),
-                UFOPUtils.getAliyunObjectNameByFileUrl(downloadFile.getFileUrl()));
+        OSSObject ossObject = null;
+        if (downloadFile.getRange() != null) {
+            GetObjectRequest getObjectRequest = new GetObjectRequest(aliyunConfig.getOss().getBucketName(),
+                    UFOPUtils.getAliyunObjectNameByFileUrl(downloadFile.getFileUrl()));
+            getObjectRequest.setRange(downloadFile.getRange().getStart(),
+                    downloadFile.getRange().getStart() + downloadFile.getRange().getLength());
+            ossObject = ossClient.getObject(getObjectRequest);
+        } else {
+            ossObject = ossClient.getObject(aliyunConfig.getOss().getBucketName(),
+                    UFOPUtils.getAliyunObjectNameByFileUrl(downloadFile.getFileUrl()));
+        }
+
         InputStream inputStream = ossObject.getObjectContent();
+
         downloadFile.setOssClient(ossClient);
         return inputStream;
     }
+
 
 }

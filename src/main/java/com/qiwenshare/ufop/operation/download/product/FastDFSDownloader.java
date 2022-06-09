@@ -83,7 +83,15 @@ public class FastDFSDownloader extends Downloader {
         group = "group1";
         String path = downloadFile.getFileUrl().substring(downloadFile.getFileUrl().indexOf("/") + 1);
         DownloadByteArray downloadByteArray = new DownloadByteArray();
-        byte[] bytes = fastFileStorageClient.downloadFile(group, path, downloadByteArray);
+        byte[] bytes = null;
+        if (downloadFile.getRange() != null) {
+            bytes = fastFileStorageClient.downloadFile(group, path,
+                    downloadFile.getRange().getStart(),
+                    downloadFile.getRange().getLength(),
+                    downloadByteArray);
+        } else {
+            bytes = fastFileStorageClient.downloadFile(group, path, downloadByteArray);
+        }
         InputStream inputStream = new ByteArrayInputStream(bytes);
         return inputStream;
     }
