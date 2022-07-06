@@ -6,6 +6,7 @@ import org.springframework.data.redis.connection.RedisStringCommands;
 import org.springframework.data.redis.connection.ReturnType;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.types.Expiration;
 import org.springframework.stereotype.Component;
 
@@ -35,7 +36,7 @@ public class RedisLock {
 
 
     @Resource
-    RedisTemplate<String, Object> redisTemplate;
+    StringRedisTemplate stringRedisTemplate;
 
     static {
         StringBuilder lua = new StringBuilder();
@@ -169,7 +170,7 @@ public class RedisLock {
         RedisCallback<Boolean> callback = (connection) ->
             connection.eval(UNLOCK_LUA.getBytes(StandardCharsets.UTF_8), ReturnType.BOOLEAN, 1,
                 (key).getBytes(StandardCharsets.UTF_8), vo.lockId.getBytes(StandardCharsets.UTF_8));
-        redisTemplate.execute(callback);
+        stringRedisTemplate.execute(callback);
     }
 
     /**
@@ -187,7 +188,7 @@ public class RedisLock {
                         lockId.getBytes(StandardCharsets.UTF_8),
                         Expiration.seconds(expire),
                         RedisStringCommands.SetOption.SET_IF_ABSENT);
-            return (Boolean) redisTemplate.execute(callback);
+            return (Boolean) stringRedisTemplate.execute(callback);
         } catch (Exception e) {
             log.error("redis lock error.", e);
         }

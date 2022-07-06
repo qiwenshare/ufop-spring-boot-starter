@@ -117,7 +117,7 @@ public abstract class Uploader {
         try {
 
             if (redisUtil.getObject(current_upload_chunk_number) == null) {
-                redisUtil.set(current_upload_chunk_number, 1, 1000 * 60 * 60);
+                redisUtil.set(current_upload_chunk_number, "1", 1000 * 60 * 60);
             }
             int currentUploadChunkNumber = Integer.parseInt(redisUtil.getObject(current_upload_chunk_number));
 
@@ -149,7 +149,7 @@ public abstract class Uploader {
             }
         } catch (Exception e) {
             log.error("第{}块上传失败，自动重试", uploadFile.getChunkNumber());
-            redisUtil.set("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":current_upload_chunk_number", uploadFile.getChunkNumber(), 1000 * 60 * 60);
+            redisUtil.set("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":current_upload_chunk_number", String.valueOf(uploadFile.getChunkNumber()), 1000 * 60 * 60);
             throw new UploadException("更新远程文件出错", e);
         } finally {
 

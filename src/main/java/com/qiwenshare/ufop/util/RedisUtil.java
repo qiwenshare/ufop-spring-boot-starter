@@ -2,6 +2,7 @@ package com.qiwenshare.ufop.util;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -10,29 +11,28 @@ import java.util.concurrent.TimeUnit;
 @Component
 @Slf4j
 public class RedisUtil {
- 
+
     @Resource
-    RedisTemplate<String, Object> redisTemplate;
+    StringRedisTemplate stringRedisTemplate;
 
     /**
      * 将值放入缓存
      * @param key 键
      * @param value 值
      */
-    public void set(String key, Object value) {
-        redisTemplate.opsForValue().set(key, value);
+    public void set(String key, String value) {
+        stringRedisTemplate.opsForValue().set(key, value);
     }
 
     /**
      * 获取对象
      * @param key 键
-     * @param <T> 对象类型
      * @return 返回值
      */
-    public <T> T getObject(String key) {
-        Object o = redisTemplate.opsForValue().get(key);
+    public String getObject(String key) {
+        String o = stringRedisTemplate.opsForValue().get(key);
         if (o != null) {
-            return (T) o;
+            return o;
         }
         return null;
     }
@@ -43,17 +43,17 @@ public class RedisUtil {
      * @param value 值
      * @param time 时间（单位：秒），如果值为负数，则永久
      */
-    public void set(String key, Object value, long time) {
+    public void set(String key, String value, long time) {
         if (time > 0) {
-            redisTemplate.opsForValue().set(key, value, time, TimeUnit.SECONDS);
+            stringRedisTemplate.opsForValue().set(key, value, time, TimeUnit.SECONDS);
         } else {
-            redisTemplate.opsForValue().set(key, value);
+            stringRedisTemplate.opsForValue().set(key, value);
         }
     }
 
 
     public boolean hasKey(String key) {
-        return redisTemplate.hasKey(key);
+        return stringRedisTemplate.hasKey(key);
     }
 
     /**
@@ -61,7 +61,7 @@ public class RedisUtil {
      * @param key key
      */
     public void deleteKey(String key) {
-        redisTemplate.delete(key);
+        stringRedisTemplate.delete(key);
     }
 
     /**
@@ -70,7 +70,7 @@ public class RedisUtil {
      * @return 返回增长之后的值
      */
     public Long getIncr(String key) {
-        Long count = redisTemplate.opsForValue().increment(key, 1);
+        Long count = stringRedisTemplate.opsForValue().increment(key, 1);
         return count;
     }
 
