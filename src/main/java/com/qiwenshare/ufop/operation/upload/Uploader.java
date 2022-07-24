@@ -173,8 +173,8 @@ public abstract class Uploader {
         }
         byte[] completeStatusList = FileUtils.readFileToByteArray(confFile);
         //创建conf文件文件长度为总分片数，每上传一个分块即向conf文件中写入一个127，那么没上传的位置就是默认的0,已上传的就是127
-        for (int i = 0; i < completeStatusList.length; i++) {
-            if (completeStatusList[i] != Byte.MAX_VALUE) {
+        for (byte b : completeStatusList) {
+            if (b != Byte.MAX_VALUE) {
                 return false;
             }
         }
@@ -184,7 +184,7 @@ public abstract class Uploader {
 
     public void writeByteDataToFile(byte[] fileData, File file, UploadFile uploadFile) {
         //第一步 打开将要写入的文件
-        RandomAccessFile raf = null;
+        RandomAccessFile raf;
         try {
             raf = new RandomAccessFile(file, "rw");
             //第二步 打开通道

@@ -21,8 +21,6 @@ import com.qiwenshare.ufop.operation.upload.request.QiwenMultipartFile;
 import com.qiwenshare.ufop.util.QiniuyunUtils;
 import com.qiwenshare.ufop.util.RedisUtil;
 import com.qiwenshare.ufop.util.UFOPUtils;
-import io.minio.MinioClient;
-import io.minio.errors.MinioException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 
@@ -32,8 +30,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 
 @Slf4j
 public class QiniuyunKodoUploader extends Uploader {
@@ -53,18 +49,6 @@ public class QiniuyunKodoUploader extends Uploader {
 
     @Override
     public void cancelUpload(UploadFile uploadFile) {
-//        QiwenMultipartFile qiwenMultipartFile = new QiwenMultipartFile();
-//        String fileUrl = qiwenMultipartFile.getFileUrl(uploadFile.getIdentifier());
-//        String tempFileUrl = fileUrl + "_tmp";
-//        String confFileUrl = fileUrl.replace("." + UFOPUtils.getFileExtendName(fileUrl), ".conf");
-//        File tempFile = new File(tempFileUrl);
-//        if (tempFile.exists()) {
-//            tempFile.delete();
-//        }
-//        File confFile = new File(confFileUrl);
-//        if (confFile.exists()) {
-//            confFile.delete();
-//        }
     }
 
     @Override
@@ -117,7 +101,7 @@ public class QiniuyunKodoUploader extends Uploader {
                     String urlString = auth.privateDownloadUrl(qiniuyunConfig.getKodo().getDomain() + "/" + uploadFileResult.getFileUrl());
 
                     InputStream inputStream = HttpsUtils.doGet(urlString, null);
-                    BufferedImage src = null;
+                    BufferedImage src;
                     try {
                         src = ImageIO.read(inputStream);
                         uploadFileResult.setBufferedImage(src);

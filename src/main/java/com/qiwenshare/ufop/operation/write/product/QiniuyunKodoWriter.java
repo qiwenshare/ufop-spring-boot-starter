@@ -1,7 +1,6 @@
 package com.qiwenshare.ufop.operation.write.product;
 
 import com.google.gson.Gson;
-import com.qiniu.common.QiniuException;
 import com.qiniu.http.Response;
 import com.qiniu.storage.Configuration;
 import com.qiniu.storage.UploadManager;
@@ -55,10 +54,8 @@ public class QiniuyunKodoWriter extends Writer {
             DefaultPutRet putRet = new Gson().fromJson(response.bodyString(), DefaultPutRet.class);
             log.info(putRet.key);
             log.info(putRet.hash);
-        } catch (QiniuException ex) {
+        } catch (IOException ex) {
             throw new WriteException("七牛云写文件失败！", ex);
-        } catch (IOException e) {
-            throw new WriteException("七牛云写文件失败！", e);
         }
 
 

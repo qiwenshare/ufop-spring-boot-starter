@@ -9,7 +9,6 @@ import com.qiwenshare.ufop.operation.download.domain.DownloadFile;
 import com.qiwenshare.ufop.util.AliyunUtils;
 import com.qiwenshare.ufop.util.UFOPUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.IOUtils;
 
 import java.io.*;
 
@@ -30,7 +29,7 @@ public class AliyunOSSDownloader extends Downloader {
     public InputStream getInputStream(DownloadFile downloadFile) {
 
         OSS ossClient = AliyunUtils.getOSSClient(aliyunConfig);
-        OSSObject ossObject = null;
+        OSSObject ossObject;
         if (downloadFile.getRange() != null) {
             GetObjectRequest getObjectRequest = new GetObjectRequest(aliyunConfig.getOss().getBucketName(),
                     UFOPUtils.getAliyunObjectNameByFileUrl(downloadFile.getFileUrl()));

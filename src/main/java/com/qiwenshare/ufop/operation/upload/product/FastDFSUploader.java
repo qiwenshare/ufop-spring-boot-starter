@@ -40,7 +40,7 @@ public class FastDFSUploader extends Uploader {
 
     @Override
     public void doUploadFileChunk(QiwenMultipartFile qiwenMultipartFile, UploadFile uploadFile) throws IOException {
-        StorePath storePath = null;
+        StorePath storePath;
 
         if (uploadFile.getChunkNumber() <= 1) {
             log.info("上传第一块");
@@ -72,7 +72,7 @@ public class FastDFSUploader extends Uploader {
             }
 
             String uploadedSizeStr = redisUtil.getObject("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":uploaded_size");
-            Long alreadySize = Long.parseLong(uploadedSizeStr);
+            long alreadySize = Long.parseLong(uploadedSizeStr);
 
             // 追加方式实际实用如果中途出错多次,可能会出现重复追加情况,这里改成修改模式,即时多次传来重复文件块,依然可以保证文件拼接正确
             defaultAppendFileStorageClient.modifyFile("group1", path, qiwenMultipartFile.getUploadInputStream(),
@@ -110,7 +110,7 @@ public class FastDFSUploader extends Uploader {
                 byte[] bytes = defaultAppendFileStorageClient.downloadFile(group, path1, downloadByteArray);
                 InputStream is = new ByteArrayInputStream(bytes);
 
-                BufferedImage src = null;
+                BufferedImage src;
                 try {
                     src = ImageIO.read(is);
                     uploadFileResult.setBufferedImage(src);

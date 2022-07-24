@@ -25,7 +25,6 @@ import javax.annotation.Resource;
 
 public class UFOPFactory {
     private String storageType;
-    private String localStoragePath;
     private AliyunConfig aliyunConfig;
     private ThumbImage thumbImage;
     private MinioConfig minioConfig;
@@ -56,7 +55,6 @@ public class UFOPFactory {
 
     public UFOPFactory(UFOPProperties ufopProperties) {
         this.storageType = ufopProperties.getStorageType();
-        this.localStoragePath = ufopProperties.getLocalStoragePath();
         this.aliyunConfig = ufopProperties.getAliyun();
         this.thumbImage = ufopProperties.getThumbImage();
         this.minioConfig = ufopProperties.getMinio();

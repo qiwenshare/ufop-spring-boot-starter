@@ -1,6 +1,5 @@
 package com.qiwenshare.ufop.util;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.pdfbox.io.RandomAccessReadBuffer;
 import org.apache.pdfbox.pdfparser.PDFParser;
@@ -123,10 +122,10 @@ public class ReadFileUtils {
                 return "";
             }
             //开始解析,获取页签数
-            StringBuffer sb = new StringBuffer("");
+            StringBuilder sb = new StringBuilder();
             for (int i = 0; i < wb.getNumberOfSheets(); i++) {
                 Sheet sheet = wb.getSheetAt(i);     //读取sheet
-                sb.append(sheet.getSheetName() + "_");
+                sb.append(sheet.getSheetName()).append("_");
                 int firstRowIndex = sheet.getFirstRowNum() + 1;   //第一行是列名，所以不读
                 int lastRowIndex = sheet.getLastRowNum();
                 for (int rIndex = firstRowIndex; rIndex <= lastRowIndex; rIndex++) {   //遍历行

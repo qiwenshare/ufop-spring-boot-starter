@@ -36,7 +36,7 @@ public class MinioCopier extends Copier {
 
 
 
-        MinioClient minioClient = null;
+        MinioClient minioClient;
         try {
             minioClient =
                     MinioClient.builder().endpoint(minioConfig.getEndpoint())
@@ -53,15 +53,7 @@ public class MinioCopier extends Copier {
 //                            .contentType("video/mp4")
                             .build());
 
-        } catch (MinioException e) {
-            e.printStackTrace();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (InvalidKeyException e) {
+        } catch (MinioException | InvalidKeyException | NoSuchAlgorithmException | IOException e) {
             e.printStackTrace();
         } finally {
             IOUtils.closeQuietly(inputStream);

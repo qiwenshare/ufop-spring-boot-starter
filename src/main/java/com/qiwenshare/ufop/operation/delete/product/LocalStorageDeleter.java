@@ -16,7 +16,7 @@ public class LocalStorageDeleter extends Deleter {
         if (localSaveFile.exists()) {
             boolean result = localSaveFile.delete();
             if (!result) {
-                new DeleteException("删除本地文件失败");
+                throw new DeleteException("删除本地文件失败");
             }
         }
 

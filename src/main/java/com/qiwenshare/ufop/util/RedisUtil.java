@@ -1,7 +1,6 @@
 package com.qiwenshare.ufop.util;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
@@ -31,10 +30,7 @@ public class RedisUtil {
      */
     public String getObject(String key) {
         String o = stringRedisTemplate.opsForValue().get(key);
-        if (o != null) {
-            return o;
-        }
-        return null;
+        return o;
     }
 
     /**

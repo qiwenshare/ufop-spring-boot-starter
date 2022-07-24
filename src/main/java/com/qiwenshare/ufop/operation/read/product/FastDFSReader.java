@@ -6,7 +6,6 @@ import com.qiwenshare.ufop.exception.operation.ReadException;
 import com.qiwenshare.ufop.operation.read.Reader;
 import com.qiwenshare.ufop.operation.read.domain.ReadFile;
 import com.qiwenshare.ufop.util.ReadFileUtils;
-import com.qiwenshare.ufop.util.UFOPUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +33,7 @@ public class FastDFSReader extends Reader {
     }
 
     public InputStream getInputStream(String fileUrl) {
-        String group = fileUrl.substring(0, fileUrl.indexOf("/"));
+        String group;
         group = "group1";
         String path = fileUrl.substring(fileUrl.indexOf("/") + 1);
         DownloadByteArray downloadByteArray = new DownloadByteArray();

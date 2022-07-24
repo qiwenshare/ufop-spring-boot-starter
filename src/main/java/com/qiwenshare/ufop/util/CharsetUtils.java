@@ -36,9 +36,7 @@ public class CharsetUtils {
     }
 
 
-
-
-    public static String getFileCharsetName(InputStream inputStream) throws IOException {
+    public static String getFileCharsetName(InputStream inputStream) {
 
         String charset = "GBK";
         byte[] first3Bytes = new byte[3];
@@ -73,7 +71,8 @@ public class CharsetUtils {
                         read = bis.read();
                         if (0x80 <= read && read <= 0xBF) // 双字节 (0xC0 - 0xDF)
                             // (0x80 - 0xBF),也可能在GB编码内
-                            continue;
+                        {
+                        }
                         else
                             break;
                     } else if (0xE0 <= read && read <= 0xEF) { // 也有可能出错，但是几率较小
@@ -82,9 +81,8 @@ public class CharsetUtils {
                             read = bis.read();
                             if (0x80 <= read && read <= 0xBF) {
                                 charset = "UTF-8";
-                                break;
-                            } else
-                                break;
+                            }
+                            break;
                         } else
                             break;
                     }
@@ -103,5 +101,7 @@ public class CharsetUtils {
         System.out.println(java.nio.charset.Charset.forName("GB2312").newEncoder().canEncode("ÀîÑÅÎ¢"));
         System.out.println(java.nio.charset.Charset.forName("ISO-8859-1").newEncoder().canEncode("ÀîÑÅÎ¢"));
     }
+
+
 
 }

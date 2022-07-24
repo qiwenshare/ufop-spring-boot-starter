@@ -48,15 +48,7 @@ public class MinioWriter extends Writer {
 //                            .contentType("video/mp4")
                             .build());
 
-        } catch (MinioException e) {
-            e.printStackTrace();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (InvalidKeyException e) {
+        } catch (MinioException | InvalidKeyException | NoSuchAlgorithmException | IOException e) {
             e.printStackTrace();
         }
     }

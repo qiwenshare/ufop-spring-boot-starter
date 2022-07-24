@@ -1,10 +1,8 @@
 package com.qiwenshare.ufop.operation.download.product;
 
 import com.qiwenshare.ufop.config.MinioConfig;
-import com.qiwenshare.ufop.exception.operation.DownloadException;
 import com.qiwenshare.ufop.operation.download.Downloader;
 import com.qiwenshare.ufop.operation.download.domain.DownloadFile;
-import com.qiwenshare.ufop.operation.preview.domain.PreviewFile;
 import io.minio.GetObjectArgs;
 import io.minio.MinioClient;
 import io.minio.errors.MinioException;

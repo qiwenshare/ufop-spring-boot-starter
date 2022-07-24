@@ -40,22 +40,10 @@ public class MinioUploader extends Uploader {
 
     @Override
     public void cancelUpload(UploadFile uploadFile) {
-//        QiwenMultipartFile qiwenMultipartFile = new QiwenMultipartFile();
-//        String fileUrl = qiwenMultipartFile.getFileUrl(uploadFile.getIdentifier());
-//        String tempFileUrl = fileUrl + "_tmp";
-//        String confFileUrl = fileUrl.replace("." + UFOPUtils.getFileExtendName(fileUrl), ".conf");
-//        File tempFile = new File(tempFileUrl);
-//        if (tempFile.exists()) {
-//            tempFile.delete();
-//        }
-//        File confFile = new File(confFileUrl);
-//        if (confFile.exists()) {
-//            confFile.delete();
-//        }
     }
 
     @Override
-    protected void doUploadFileChunk(QiwenMultipartFile qiwenMultipartFile, UploadFile uploadFile) throws IOException {
+    protected void doUploadFileChunk(QiwenMultipartFile qiwenMultipartFile, UploadFile uploadFile) {
 
     }
 
@@ -106,23 +94,7 @@ public class MinioUploader extends Uploader {
 
                         BufferedImage src  = ImageIO.read(inputStream);
                         uploadFileResult.setBufferedImage(src);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } catch (ServerException e) {
-                        e.printStackTrace();
-                    } catch (InsufficientDataException e) {
-                        e.printStackTrace();
-                    } catch (ErrorResponseException e) {
-                        e.printStackTrace();
-                    } catch (NoSuchAlgorithmException e) {
-                        e.printStackTrace();
-                    } catch (InvalidKeyException e) {
-                        e.printStackTrace();
-                    } catch (InvalidResponseException e) {
-                        e.printStackTrace();
-                    } catch (XmlParserException e) {
-                        e.printStackTrace();
-                    } catch (InternalException e) {
+                    } catch (IOException | InternalException | XmlParserException | InvalidResponseException | InvalidKeyException | NoSuchAlgorithmException | ErrorResponseException | InsufficientDataException | ServerException e) {
                         e.printStackTrace();
                     } finally {
                         IOUtils.closeQuietly(inputStream);
@@ -161,15 +133,7 @@ public class MinioUploader extends Uploader {
                                     inputStream, uploadFile.getTotalSize(), 1024 * 1024 * 5)
 //                            .contentType("video/mp4")
                             .build());
-        } catch (MinioException  e) {
-            e.printStackTrace();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (InvalidKeyException e) {
+        } catch (MinioException | InvalidKeyException | NoSuchAlgorithmException | IOException e) {
             e.printStackTrace();
         } finally {
             IOUtils.closeQuietly(inputStream);
