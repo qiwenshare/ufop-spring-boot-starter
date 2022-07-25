@@ -1,8 +1,6 @@
 package com.qiwenshare.ufop.operation.write.product;
 
 import com.aliyun.oss.OSS;
-import com.aliyun.oss.OSSClientBuilder;
-import com.qiwenshare.ufop.autoconfiguration.UFOPAutoConfiguration;
 import com.qiwenshare.ufop.config.AliyunConfig;
 import com.qiwenshare.ufop.operation.write.Writer;
 import com.qiwenshare.ufop.operation.write.domain.WriteFile;

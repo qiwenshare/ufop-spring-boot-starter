@@ -47,8 +47,7 @@ public class AliyunOSSReader extends Reader {
         OSS ossClient = AliyunUtils.getOSSClient(aliyunConfig);
         OSSObject ossObject = ossClient.getObject(aliyunConfig.getOss().getBucketName(),
                 UFOPUtils.getAliyunObjectNameByFileUrl(fileUrl));
-        InputStream inputStream = ossObject.getObjectContent();
-        return inputStream;
+        return ossObject.getObjectContent();
     }
 
 }

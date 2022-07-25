@@ -9,10 +9,12 @@ import com.qiwenshare.ufop.operation.preview.domain.PreviewFile;
 import com.qiwenshare.ufop.util.AliyunUtils;
 import com.qiwenshare.ufop.util.UFOPUtils;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Slf4j
 public class AliyunOSSPreviewer extends Previewer {

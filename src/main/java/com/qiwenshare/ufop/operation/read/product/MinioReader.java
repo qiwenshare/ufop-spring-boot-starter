@@ -5,7 +5,6 @@ import com.qiwenshare.ufop.exception.operation.ReadException;
 import com.qiwenshare.ufop.operation.read.Reader;
 import com.qiwenshare.ufop.operation.read.domain.ReadFile;
 import com.qiwenshare.ufop.util.ReadFileUtils;
-import com.qiwenshare.ufop.util.UFOPUtils;
 import io.minio.GetObjectArgs;
 import io.minio.MinioClient;
 import io.minio.errors.MinioException;

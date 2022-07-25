@@ -31,7 +31,7 @@ public class QiniuyunKodoDeleter extends Deleter {
         try {
             bucketManager.delete(qiniuyunConfig.getKodo().getBucketName(), deleteFile.getFileUrl());
         } catch (QiniuException ex) {
-            new DeleteException("七牛云删除文件失败", ex);
+            throw new DeleteException("七牛云删除文件失败", ex);
         }
         deleteCacheFile(deleteFile);
 

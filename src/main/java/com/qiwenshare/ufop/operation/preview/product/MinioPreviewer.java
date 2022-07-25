@@ -1,23 +1,16 @@
 package com.qiwenshare.ufop.operation.preview.product;
 
-import com.qiwenshare.common.operation.ImageOperation;
-import com.qiwenshare.common.operation.VideoOperation;
 import com.qiwenshare.ufop.config.MinioConfig;
 import com.qiwenshare.ufop.domain.ThumbImage;
 import com.qiwenshare.ufop.operation.preview.Previewer;
 import com.qiwenshare.ufop.operation.preview.domain.PreviewFile;
-import com.qiwenshare.ufop.util.CharsetUtils;
-import com.qiwenshare.ufop.util.UFOPUtils;
 import io.minio.GetObjectArgs;
 import io.minio.MinioClient;
 import io.minio.errors.MinioException;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.IOUtils;
 
-import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;

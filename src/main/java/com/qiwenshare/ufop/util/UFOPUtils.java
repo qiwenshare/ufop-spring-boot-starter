@@ -108,7 +108,7 @@ public class UFOPUtils {
      * @return 结果
      */
     public static String getProjectRootPath() {
-        String absolutePath = null;
+        String absolutePath;
         try {
             String url = ResourceUtils.getURL("classpath:").getPath();
             absolutePath = urlDecode(new File(url).getAbsolutePath()) + File.separator;
@@ -125,7 +125,7 @@ public class UFOPUtils {
      * @return 结果
      */
     public static String urlDecode(String url){
-        String decodeUrl = null;
+        String decodeUrl;
         try {
             decodeUrl = URLDecoder.decode(url, "utf-8");
         } catch (UnsupportedEncodingException e) {

@@ -11,12 +11,11 @@ UFOP (Unified File Operation Platform) 统一文件操作平台，通过引入�
 3. FastDFS上传，下载，删除，预览，重命名，读文件流，写文件流
 4. FastDFS+Redis实现集群化部署
 5. 图片支持缩略图预览
-6. 
 
 
 #### 软件架构
 #### 安装教程
-
+mvn clean install org.apache.maven.plugins:maven-deploy-plugin:2.8:deploy -DskipTests
 #### 使用说明
 
 1.  引入pom依赖

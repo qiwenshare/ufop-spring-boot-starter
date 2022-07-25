@@ -40,7 +40,7 @@ public class FastDFSUploader extends Uploader {
 
     @Override
     public void doUploadFileChunk(QiwenMultipartFile qiwenMultipartFile, UploadFile uploadFile) throws IOException {
-        StorePath storePath = null;
+        StorePath storePath;
 
         if (uploadFile.getChunkNumber() <= 1) {
             log.info("上传第一块");
@@ -48,11 +48,11 @@ public class FastDFSUploader extends Uploader {
             storePath = defaultAppendFileStorageClient.uploadAppenderFile("group1", qiwenMultipartFile.getUploadInputStream(),
                     qiwenMultipartFile.getSize(), qiwenMultipartFile.getExtendName());
             // 记录第一个分片上传的大小
-            redisUtil.set("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":uploaded_size", qiwenMultipartFile.getSize(), 1000 * 60 * 60);
+            redisUtil.set("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":uploaded_size", String.valueOf(qiwenMultipartFile.getSize()), 1000 * 60 * 60);
 
             log.info("第一块上传完成");
             if (storePath == null) {
-                redisUtil.set("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":current_upload_chunk_number", uploadFile.getChunkNumber(), 1000 * 60 * 60);
+                redisUtil.set("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":current_upload_chunk_number", String.valueOf(uploadFile.getChunkNumber()), 1000 * 60 * 60);
 
                 log.info("获取远程文件路径出错");
                 throw new UploadException("获取远程文件路径出错");
@@ -72,13 +72,13 @@ public class FastDFSUploader extends Uploader {
             }
 
             String uploadedSizeStr = redisUtil.getObject("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":uploaded_size");
-            Long alreadySize = Long.parseLong(uploadedSizeStr);
+            long alreadySize = Long.parseLong(uploadedSizeStr);
 
             // 追加方式实际实用如果中途出错多次,可能会出现重复追加情况,这里改成修改模式,即时多次传来重复文件块,依然可以保证文件拼接正确
             defaultAppendFileStorageClient.modifyFile("group1", path, qiwenMultipartFile.getUploadInputStream(),
                     qiwenMultipartFile.getSize(), alreadySize);
             // 记录分片上传的大小
-            redisUtil.set("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":uploaded_size", alreadySize + qiwenMultipartFile.getSize(), 1000 * 60 * 60);
+            redisUtil.set("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":uploaded_size", String.valueOf(alreadySize + qiwenMultipartFile.getSize()), 1000 * 60 * 60);
 
         }
     }
@@ -110,7 +110,7 @@ public class FastDFSUploader extends Uploader {
                 byte[] bytes = defaultAppendFileStorageClient.downloadFile(group, path1, downloadByteArray);
                 InputStream is = new ByteArrayInputStream(bytes);
 
-                BufferedImage src = null;
+                BufferedImage src;
                 try {
                     src = ImageIO.read(is);
                     uploadFileResult.setBufferedImage(src);

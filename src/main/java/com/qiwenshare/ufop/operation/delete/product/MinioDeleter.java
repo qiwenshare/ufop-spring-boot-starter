@@ -38,11 +38,7 @@ public class MinioDeleter extends Deleter {
         } catch (MinioException e) {
             log.error("Error: " + e);
             throw new DeleteException("Minio删除文件失败", e);
-        } catch (IOException e) {
-            throw new DeleteException("Minio删除文件失败", e);
-        } catch (NoSuchAlgorithmException e) {
-            throw new DeleteException("Minio删除文件失败", e);
-        } catch (InvalidKeyException e) {
+        } catch (IOException | InvalidKeyException | NoSuchAlgorithmException e) {
             throw new DeleteException("Minio删除文件失败", e);
         }
         deleteCacheFile(deleteFile);
