@@ -48,9 +48,7 @@ public abstract class Uploader {
         uploadFile.setTotalChunks(1);
         uploadFile.setIdentifier(UUID.randomUUID().toString());
 
-        List<UploadFileResult> uploadFileResultList = upload(httpServletRequest, uploadFile);
-
-        return uploadFileResultList;
+        return upload(httpServletRequest, uploadFile);
     }
 
     /**

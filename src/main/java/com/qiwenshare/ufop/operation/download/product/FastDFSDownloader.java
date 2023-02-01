@@ -32,7 +32,6 @@ public class FastDFSDownloader extends Downloader {
         } else {
             bytes = fastFileStorageClient.downloadFile(group, path, downloadByteArray);
         }
-        InputStream inputStream = new ByteArrayInputStream(bytes);
-        return inputStream;
+        return new ByteArrayInputStream(bytes);
     }
 }

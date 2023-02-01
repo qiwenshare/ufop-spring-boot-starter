@@ -6,8 +6,8 @@ public enum UploadFileStatusEnum {
     SUCCESS(1, "上传成功"),
     UNCOMPLATE(2, "未完成");
 
-    private int code;
-    private String message;
+    private final int code;
+    private final String message;
 
     UploadFileStatusEnum(int code, String message) {
         this.code = code;

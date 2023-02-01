@@ -7,8 +7,8 @@ public enum StorageTypeEnum {
     FAST_DFS(2, "fastDFS集群存储"),
     MINIO(3, "minio存储"),
     QINIUYUN_KODO(4, "七牛云KODO对象存储");
-    private int code;
-    private String name;
+    private final int code;
+    private final String name;
 
     StorageTypeEnum(int code, String name) {
         this.code = code;

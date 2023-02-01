@@ -34,13 +34,11 @@ public class QiwenMultipartFile {
 
     public String getFileUrl() {
         String uuid = UUID.randomUUID().toString();
-        String fileUrl = UFOPUtils.getUploadFileUrl(uuid, getExtendName());
-        return fileUrl;
+        return UFOPUtils.getUploadFileUrl(uuid, getExtendName());
     }
 
     public String getFileUrl(String identify) {
-        String fileUrl = UFOPUtils.getUploadFileUrl(identify, getExtendName());
-        return fileUrl;
+        return UFOPUtils.getUploadFileUrl(identify, getExtendName());
     }
 
     public InputStream getUploadInputStream() throws IOException {
@@ -52,8 +50,7 @@ public class QiwenMultipartFile {
     }
 
     public long getSize() {
-        long size = getMultipartFile().getSize();
-        return size;
+        return getMultipartFile().getSize();
     }
 
     public MultipartFile getMultipartFile() {

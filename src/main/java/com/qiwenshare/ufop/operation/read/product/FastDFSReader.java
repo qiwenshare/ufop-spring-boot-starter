@@ -38,7 +38,6 @@ public class FastDFSReader extends Reader {
         String path = fileUrl.substring(fileUrl.indexOf("/") + 1);
         DownloadByteArray downloadByteArray = new DownloadByteArray();
         byte[] bytes = fastFileStorageClient.downloadFile(group, path, downloadByteArray);
-        InputStream inputStream = new ByteArrayInputStream(bytes);
-        return inputStream;
+        return new ByteArrayInputStream(bytes);
     }
 }

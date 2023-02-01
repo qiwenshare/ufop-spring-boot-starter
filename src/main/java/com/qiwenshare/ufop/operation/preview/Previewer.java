@@ -63,7 +63,7 @@ public abstract class Previewer {
                     if (isVideo) {
                         in = VideoOperation.thumbnailsImage(inputstream, cacheFile, width, height);
                     } else if (isImageFile) {
-                        in = ImageOperation.thumbnailsImage(inputstream, cacheFile, width, height);
+                        in = ImageOperation.thumbnailsImageForScale(inputstream, cacheFile, 50);
                     } else {
                         in = inputstream;
                     }

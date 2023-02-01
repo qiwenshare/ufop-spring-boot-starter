@@ -38,13 +38,12 @@ public class RedisLock {
     StringRedisTemplate stringRedisTemplate;
 
     static {
-        String lua = "if redis.call(\"get\",KEYS[1]) == ARGV[1] " +
+        UNLOCK_LUA = "if redis.call(\"get\",KEYS[1]) == ARGV[1] " +
                 "then " +
                 "    return redis.call(\"del\",KEYS[1]) " +
                 "else " +
                 "    return 0 " +
                 "end ";
-        UNLOCK_LUA = lua;
     }
 
     private final ThreadLocal<Map<String, LockVO>> lockMap = new ThreadLocal<>();

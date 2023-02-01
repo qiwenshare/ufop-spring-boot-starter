@@ -29,8 +29,7 @@ public class RedisUtil {
      * @return 返回值
      */
     public String getObject(String key) {
-        String o = stringRedisTemplate.opsForValue().get(key);
-        return o;
+        return stringRedisTemplate.opsForValue().get(key);
     }
 
     /**
@@ -66,8 +65,7 @@ public class RedisUtil {
      * @return 返回增长之后的值
      */
     public Long getIncr(String key) {
-        Long count = stringRedisTemplate.opsForValue().increment(key, 1);
-        return count;
+        return stringRedisTemplate.opsForValue().increment(key, 1);
     }
 
 }

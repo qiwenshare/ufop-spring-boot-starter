@@ -11,7 +11,6 @@ import io.minio.PutObjectArgs;
 import io.minio.errors.MinioException;
 import org.apache.commons.io.IOUtils;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.InvalidKeyException;

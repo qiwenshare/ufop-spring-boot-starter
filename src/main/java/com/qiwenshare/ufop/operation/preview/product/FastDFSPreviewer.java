@@ -31,8 +31,7 @@ public class FastDFSPreviewer extends Previewer {
         String path = previewFile.getFileUrl().substring(previewFile.getFileUrl().indexOf("/") + 1);
         DownloadByteArray downloadByteArray = new DownloadByteArray();
         byte[] bytes = fastFileStorageClient.downloadFile(group, path, downloadByteArray);
-        InputStream inputStream = new ByteArrayInputStream(bytes);
-        return inputStream;
+        return new ByteArrayInputStream(bytes);
     }
 
 }
