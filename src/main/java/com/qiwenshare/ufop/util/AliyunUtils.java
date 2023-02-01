@@ -9,7 +9,7 @@ public class AliyunUtils {
     public static OSS getOSSClient(AliyunConfig aliyunConfig) {
         OSS ossClient = new OSSClientBuilder().build(aliyunConfig.getOss().getEndpoint(),
                 aliyunConfig.getOss().getAccessKeyId(),
-                aliyunConfig.getOss().getAccessKeySecret());;
+                aliyunConfig.getOss().getAccessKeySecret());
         return ossClient;
     }
 

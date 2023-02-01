@@ -34,7 +34,7 @@ public class AliyunOSSDownloader extends Downloader {
             GetObjectRequest getObjectRequest = new GetObjectRequest(aliyunConfig.getOss().getBucketName(),
                     UFOPUtils.getAliyunObjectNameByFileUrl(downloadFile.getFileUrl()));
             getObjectRequest.setRange(downloadFile.getRange().getStart(),
-                    downloadFile.getRange().getStart() + downloadFile.getRange().getLength());
+                    downloadFile.getRange().getStart() + downloadFile.getRange().getLength() - 1);
             ossObject = ossClient.getObject(getObjectRequest);
         } else {
             ossObject = ossClient.getObject(aliyunConfig.getOss().getBucketName(),

@@ -3,6 +3,7 @@ package com.qiwenshare.ufop.util;
 import com.qiwenshare.ufop.exception.UFOPException;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 public class CharsetUtils {
@@ -27,7 +28,7 @@ public class CharsetUtils {
             ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
             try {
                 String str = new String(bytes, getFileCharsetName(byteArrayInputStream));
-                return str.getBytes("UTF-8");
+                return str.getBytes(StandardCharsets.UTF_8);
             } catch (IOException e) {
                 throw new UFOPException(e);
             }
@@ -99,7 +100,7 @@ public class CharsetUtils {
 
     public static void main(String[] args) {
         System.out.println(java.nio.charset.Charset.forName("GB2312").newEncoder().canEncode("ÀîÑÅÎ¢"));
-        System.out.println(java.nio.charset.Charset.forName("ISO-8859-1").newEncoder().canEncode("ÀîÑÅÎ¢"));
+        System.out.println(StandardCharsets.ISO_8859_1.newEncoder().canEncode("ÀîÑÅÎ¢"));
     }
 
 

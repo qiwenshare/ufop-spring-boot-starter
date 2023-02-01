@@ -136,7 +136,7 @@ public class ReadFileUtils {
                         for (int cIndex = firstCellIndex; cIndex < lastCellIndex; cIndex++) {   //遍历列
                             Cell cell = row.getCell(cIndex);
                             if (cell != null) {
-                                sb.append(cell.toString());
+                                sb.append(cell);
                             }
                         }
                     }

@@ -37,9 +37,7 @@ public class QiniuyunKodoPreviewer extends Previewer {
 
         String urlString = auth.privateDownloadUrl(qiniuyunConfig.getKodo().getDomain() + "/" + previewFile.getFileUrl());
 
-        InputStream inputStream = HttpsUtils.doGet(urlString, null);
-
-        return inputStream;
+        return HttpsUtils.doGet(urlString, null);
     }
 
 
