@@ -99,8 +99,19 @@ public class CharsetUtils {
     }
 
     public static void main(String[] args) {
-        System.out.println(java.nio.charset.Charset.forName("GB2312").newEncoder().canEncode("ÀîÑÅÎ¢"));
-        System.out.println(StandardCharsets.ISO_8859_1.newEncoder().canEncode("ÀîÑÅÎ¢"));
+        System.out.println(java.nio.charset.Charset.forName("GB2312").newEncoder().canEncode("ÎÄ¼þ¼ÐÑ¹Ëõ"));
+        System.out.println(StandardCharsets.ISO_8859_1.newEncoder().canEncode("ÎÄ¼þ¼ÐÑ¹Ëõ"));
+        System.out.println(StandardCharsets.UTF_8.newEncoder().canEncode("ÎÄ¼þ¼ÐÑ¹Ëõ"));
+        System.out.println(StandardCharsets.US_ASCII.newEncoder().canEncode("ÎÄ¼þ¼ÐÑ¹Ëõ"));
+//        System.out.println(StandardCharsets.ISO_8859_1.newEncoder().canEncode("ÎÄ¼þ¼ÐÑ¹Ëõ"));
+        byte[] e = "ÎÄ¼þ¼ÐÑ¹Ëõ".getBytes(StandardCharsets.ISO_8859_1);
+        try {
+            System.out.println(new String("ÎÄ¼þ¼ÐÑ¹Ëõ".getBytes("GBK"), "UTF-8"));
+        } catch (UnsupportedEncodingException ex) {
+            throw new RuntimeException(ex);
+        }
+
+        System.out.println(getFileCharsetName(new ByteArrayInputStream("ÎÄ¼þ¼ÐÑ¹Ëõ".getBytes())));
     }
 
 

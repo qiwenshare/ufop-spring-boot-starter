@@ -8,6 +8,6 @@ import lombok.Data;
  */
 @Data
 public class Range {
-    private int start;
+    private long start;
     private int length;
 }

@@ -2,18 +2,21 @@ package com.qiwenshare.ufop.operation.preview;
 
 import cn.hutool.core.io.FileTypeUtil;
 import com.qiwenshare.common.operation.ImageOperation;
-import com.qiwenshare.common.operation.VideoOperation;
+//import com.qiwenshare.common.operation.VideoOperation;
 import com.qiwenshare.ufop.domain.ThumbImage;
+import com.qiwenshare.ufop.exception.operation.PreviewException;
 import com.qiwenshare.ufop.operation.preview.domain.PreviewFile;
 import com.qiwenshare.ufop.util.CharsetUtils;
 import com.qiwenshare.ufop.util.UFOPUtils;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 
+@Slf4j
 @Data
 public abstract class Previewer {
 
@@ -47,28 +50,42 @@ public abstract class Previewer {
             }
 
         } else {
-            InputStream inputstream = null;
             OutputStream outputStream = null;
             InputStream in = null;
+            InputStream inputstream = null;
             try {
                 inputstream = getInputStream(previewFile);
-                if (inputstream != null) {
-                    outputStream = httpServletResponse.getOutputStream();
-                    int thumbImageWidth = thumbImage.getWidth();
-                    int thumbImageHeight = thumbImage.getHeight();
-                    int width = thumbImageWidth == 0 ? 150 : thumbImageWidth;
-                    int height = thumbImageHeight == 0 ? 150 : thumbImageHeight;
-                    String type = FileTypeUtil.getType(getInputStream(previewFile));
-                    boolean isImageFile = UFOPUtils.isImageFile(type);
-                    if (isVideo) {
-                        in = VideoOperation.thumbnailsImage(inputstream, cacheFile, width, height);
-                    } else if (isImageFile) {
-                        in = ImageOperation.thumbnailsImageForScale(inputstream, cacheFile, 50);
-                    } else {
-                        in = inputstream;
-                    }
-                    IOUtils.copy(in, outputStream);
+            } catch (PreviewException previewException) {
+                log.error(previewException.getMessage());
+                return;
+            }
+//
+//            try {
+//                if (inputstream.available() <= 0) {
+//                    IOUtils.closeQuietly(inputstream);
+//                    return;
+//                }
+//            } catch (IOException e) {
+//                throw new RuntimeException(e);
+//            }
+            try {
+                outputStream = httpServletResponse.getOutputStream();
+                int thumbImageWidth = thumbImage.getWidth();
+                int thumbImageHeight = thumbImage.getHeight();
+                int width = thumbImageWidth == 0 ? 150 : thumbImageWidth;
+                int height = thumbImageHeight == 0 ? 150 : thumbImageHeight;
+                String type = FileTypeUtil.getType(getInputStream(previewFile));
+                boolean isImageFile = UFOPUtils.isImageFile(type);
+//                    if (isVideo) {
+//                        in = VideoOperation.thumbnailsImage(inputstream, cacheFile, width, height);
+//                    } else
+                if (isImageFile) {
+                    in = ImageOperation.thumbnailsImageForScale(inputstream, cacheFile, 50);
+                } else {
+                    in = inputstream;
                 }
+                IOUtils.copy(in, outputStream);
+
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {

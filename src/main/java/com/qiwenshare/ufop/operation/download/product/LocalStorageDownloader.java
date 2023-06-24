@@ -4,6 +4,7 @@ import com.qiwenshare.ufop.operation.download.Downloader;
 import com.qiwenshare.ufop.operation.download.domain.DownloadFile;
 import com.qiwenshare.ufop.util.UFOPUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
@@ -18,20 +19,25 @@ public class LocalStorageDownloader extends Downloader {
         File file = new File(UFOPUtils.getStaticPath() + downloadFile.getFileUrl());
 
         InputStream inputStream = null;
+        byte[] bytes = new byte[0];
+        RandomAccessFile randowAccessFile = null;
         try {
             if (downloadFile.getRange() != null) {
-                RandomAccessFile randowAccessFile = new RandomAccessFile(file, "r");
+                randowAccessFile = new RandomAccessFile(file, "r");
                 randowAccessFile.seek(downloadFile.getRange().getStart());
-                byte[] bytes = new byte[downloadFile.getRange().getLength()];
+                bytes = new byte[downloadFile.getRange().getLength()];
                 randowAccessFile.read(bytes);
-                inputStream = new ByteArrayInputStream(bytes);
             } else {
                 inputStream = new FileInputStream(file);
+                bytes = IOUtils.toByteArray(inputStream);
             }
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            IOUtils.closeQuietly(inputStream);
+            IOUtils.closeQuietly(randowAccessFile);
         }
-        return inputStream;
+        return new ByteArrayInputStream(bytes);
 
     }
 }
