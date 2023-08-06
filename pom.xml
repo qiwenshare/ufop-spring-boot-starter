@@ -7,6 +7,7 @@
         <groupId>com.qiwenshare</groupId>
         <artifactId>qiwenshare</artifactId>
         <version>1.2.6</version>
+        <relativePath/>
     </parent>
     <artifactId>ufop-spring-boot-starter</artifactId>
     <version>${project.parent.version}</version>
@@ -95,6 +96,10 @@
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-http</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-fileupload</groupId>
