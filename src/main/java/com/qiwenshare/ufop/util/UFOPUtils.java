@@ -81,10 +81,7 @@ public class UFOPUtils {
         File tempFile = new File(tempPath);
         File parentFile = tempFile.getParentFile();
         if (!parentFile.exists()) {
-            boolean result = parentFile.mkdirs();
-            if (!result) {
-                throw new UFOPException("创建temp目录失败：目录路径："+ parentFile.getPath());
-            }
+            parentFile.mkdirs();
         }
 
         return tempFile;
