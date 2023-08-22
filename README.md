@@ -15,7 +15,7 @@ UFOP (Unified File Operation Platform) 统一文件操作平台，通过引入�
 
 #### 软件架构
 #### 安装教程
-mvn clean install org.apache.maven.plugins:maven-deploy-plugin:2.8:deploy -DskipTests
+mvn clean install 
 #### 使用说明
 
 1.  引入pom依赖
@@ -47,8 +47,6 @@ ufop.aliyun.oss.endpoint=
 ufop.aliyun.oss.access-key-id=
 ufop.aliyun.oss.access-key-secret=
 ufop.aliyun.oss.bucket-name=
-#阿里云oss绑定域名
-ufop.aliyun.oss.domain=oss.qiwenshare.com
 ```
 当选择2-FastDFS存储之后，则需要配置FastDFS服务器信息
 
@@ -60,7 +58,10 @@ fdfs.thumb-image.width=150
 fdfs.thumb-image.height=150
 fdfs.tracker-list=127.0.0.1:22122 
 ```
+其他存储方式可在下方链接查看
+https://pan.qiwenshare.com/docs/config/#%E5%AD%98%E5%82%A8%E6%96%B9%E5%BC%8F%E9%85%8D%E7%BD%AE
 
+除了0-本地存储外，其他存储方式需要配置redis信息
 ```properties
 
 # Redis数据库索引（默认为0）
@@ -83,46 +84,7 @@ spring.redis.lettuce.pool.min-idle=10
 spring.redis.timeout=5000
 ```
 
-```java
-@Configuration
-@EnableCaching
-public class RedisConfig extends CachingConfigurerSupport {
 
-    @Bean
-    public KeyGenerator keyGenerator() {
-        return (target, method, params) -> {
-            StringBuilder sb = new StringBuilder();
-            sb.append(target.getClass().getName());
-            sb.append(method.getName());
-            for (Object obj : params) {
-                sb.append(obj.toString());
-            }
-            return sb.toString();
-        };
-    }
-    /**
-     * 设置 redisTemplate 的序列化设置
-     * @param redisConnectionFactory redis连接工厂
-     * @return redisTemplate
-     */
-    @Bean
-    public RedisTemplate<Object, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
-        // 1.创建 redisTemplate 模版
-        RedisTemplate<Object, Object> template = new RedisTemplate<>();
-        // 2.关联 redisConnectionFactory
-        template.setConnectionFactory(redisConnectionFactory);
-        // 3.创建 序列化类
-        GenericToStringSerializer genericToStringSerializer = new GenericToStringSerializer(Object.class);
-        // 6.序列化类，对象映射设置
-        // 7.设置 value 的转化格式和 key 的转化格式
-        template.setValueSerializer(genericToStringSerializer);
-        template.setKeySerializer(new StringRedisSerializer());
-        template.afterPropertiesSet();
-        return template;
-    }
-
-}
-```
 
 当配置完基础信息之后，使用就非常简单了，伪代码如下：
 
