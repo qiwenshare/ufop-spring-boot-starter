@@ -39,7 +39,7 @@ public class MinioDownloader extends Downloader {
                 inputStream = minioClient.getObject(GetObjectArgs.builder()
                         .bucket(minioConfig.getBucketName())
                         .object(downloadFile.getFileUrl())
-                        .offset((long) downloadFile.getRange().getStart())
+                        .offset(downloadFile.getRange().getStart())
                         .length((long) downloadFile.getRange().getLength())
                         .build());
             } else {

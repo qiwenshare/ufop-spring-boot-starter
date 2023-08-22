@@ -31,6 +31,13 @@ import java.io.*;
  * 5. ppt(.ppt),pptx(,pptx)
  */
 public class ReadFileUtils {
+    public static void main(String[] args) {
+        try {
+            System.out.println(getContentByInputStream("pdf", new FileInputStream("C:\\Users\\马超\\OneDrive\\个人资料\\马超   入职材料\\养老参保缴费凭证--马超.pdf")));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     /**
      * 根据文件类型返回文件内容

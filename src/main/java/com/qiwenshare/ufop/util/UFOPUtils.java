@@ -81,10 +81,7 @@ public class UFOPUtils {
         File tempFile = new File(tempPath);
         File parentFile = tempFile.getParentFile();
         if (!parentFile.exists()) {
-            boolean result = parentFile.mkdirs();
-            if (!result) {
-                throw new UFOPException("创建temp目录失败：目录路径："+ parentFile.getPath());
-            }
+            parentFile.mkdirs();
         }
 
         return tempFile;
@@ -95,10 +92,7 @@ public class UFOPUtils {
         File processFile = new File(processPath);
         File parentFile = processFile.getParentFile();
         if (!parentFile.exists()) {
-            boolean result = parentFile.mkdirs();
-            if (!result) {
-                throw new UFOPException("创建process目录失败：目录路径："+ parentFile.getPath());
-            }
+            parentFile.mkdirs();
         }
         return processFile;
     }
@@ -173,12 +167,7 @@ public class UFOPUtils {
         File dir = new File(UFOPUtils.getStaticPath() + path);
 
         if (!dir.exists()) {
-
-            boolean result = dir.mkdirs();
-            if (!result) {
-                throw new UFOPException("创建upload目录失败：目录路径："+ dir.getPath());
-            }
-
+            dir.mkdirs();
         }
 
         path = path + identifier + "." + extendName;
