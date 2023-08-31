@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.qiwenshare</groupId>
         <artifactId>qiwenshare</artifactId>
-        <version>1.2.8</version>
+        <version>1.2.9</version>
         <relativePath/>
     </parent>
     <artifactId>ufop-spring-boot-starter</artifactId>
@@ -106,7 +106,14 @@
             <artifactId>commons-fileupload</artifactId>
         </dependency>
 
-
+<!--        <dependency>-->
+<!--            <groupId>org.bytedeco</groupId>-->
+<!--            <artifactId>javacv</artifactId>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.bytedeco</groupId>-->
+<!--            <artifactId>javacpp</artifactId>-->
+<!--        </dependency>-->
 
     </dependencies>
 
