@@ -146,9 +146,8 @@ public class UFOPUtils {
                 projectRootAbsolutePath = projectRootAbsolutePath.substring(0, index);
             }
 
-            return new File(projectRootAbsolutePath + "static").getPath() + File.separator;
+            return new File(projectRootAbsolutePath + "static").getParent() + File.separator + "data" + File.separator;
         }
-
 
     }
 
