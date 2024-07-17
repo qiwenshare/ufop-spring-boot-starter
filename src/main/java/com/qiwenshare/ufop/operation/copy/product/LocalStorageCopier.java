@@ -19,7 +19,7 @@ public class LocalStorageCopier extends Copier {
     public String copy(InputStream inputStream, CopyFile copyFile) {
         String uuid = UUID.randomUUID().toString();
         String fileUrl = UFOPUtils.getUploadFileUrl(uuid, copyFile.getExtendName());
-        File saveFile = new File(UFOPUtils.getStaticPath() + fileUrl);
+        File saveFile = new File(UFOPUtils.getDataPath() + fileUrl);
         try {
             FileUtils.copyInputStreamToFile(inputStream, saveFile);
         } catch (IOException e) {

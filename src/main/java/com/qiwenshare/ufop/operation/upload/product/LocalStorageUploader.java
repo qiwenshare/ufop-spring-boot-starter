@@ -37,9 +37,9 @@ public class LocalStorageUploader extends Uploader {
             String tempFileUrl = fileUrl + "_tmp";
             String confFileUrl = fileUrl.replace("." + qiwenMultipartFile.getExtendName(), ".conf");
 
-            File file = new File(UFOPUtils.getStaticPath() + fileUrl);
-            File tempFile = new File(UFOPUtils.getStaticPath() + tempFileUrl);
-            File confFile = new File(UFOPUtils.getStaticPath() + confFileUrl);
+            File file = new File(UFOPUtils.getDataPath() + fileUrl);
+            File tempFile = new File(UFOPUtils.getDataPath() + tempFileUrl);
+            File confFile = new File(UFOPUtils.getDataPath() + confFileUrl);
 
             //第一步 打开将要写入的文件
             RandomAccessFile raf = new RandomAccessFile(tempFile, "rw");
@@ -75,20 +75,7 @@ public class LocalStorageUploader extends Uploader {
                 tempFile.renameTo(file);
                 FILE_URL_MAP.remove(uploadFile.getIdentifier());
 
-                if (UFOPUtils.isImageFile(uploadFileResult.getExtendName())) {
 
-                    InputStream is = null;
-                    try {
-                        is = new FileInputStream(UFOPUtils.getLocalSaveFile(fileUrl));
-
-                        BufferedImage src = ImageIO.read(is);
-                        uploadFileResult.setBufferedImage(src);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } finally {
-                        IOUtils.closeQuietly(is);
-                    }
-                }
 
                 uploadFileResult.setStatus(UploadFileStatusEnum.SUCCESS);
             } else {

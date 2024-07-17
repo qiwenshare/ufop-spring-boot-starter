@@ -1,13 +1,13 @@
-package com.qiwenshare.ufop.util.concurrent.locks;
+package com.qiwenshare.ufop.lock.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.qiwenshare.ufop.lock.LockService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.connection.RedisStringCommands;
 import org.springframework.data.redis.connection.ReturnType;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.types.Expiration;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.nio.charset.StandardCharsets;
@@ -16,13 +16,9 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-/**
- * redis锁
- */
-@Component
-public class RedisLock {
-
-    private static final Logger log = LoggerFactory.getLogger(RedisLock.class);
+@Service
+@Slf4j
+public class LockServiceRedisImpl implements LockService {
 
     /**
      * 默认轮休获取锁间隔时间， 单位：毫秒
@@ -165,8 +161,8 @@ public class RedisLock {
         }
         map.remove(key);
         RedisCallback<Boolean> callback = (connection) ->
-            connection.eval(UNLOCK_LUA.getBytes(StandardCharsets.UTF_8), ReturnType.BOOLEAN, 1,
-                (key).getBytes(StandardCharsets.UTF_8), vo.lockId.getBytes(StandardCharsets.UTF_8));
+                connection.eval(UNLOCK_LUA.getBytes(StandardCharsets.UTF_8), ReturnType.BOOLEAN, 1,
+                        (key).getBytes(StandardCharsets.UTF_8), vo.lockId.getBytes(StandardCharsets.UTF_8));
         stringRedisTemplate.execute(callback);
     }
 
@@ -180,11 +176,11 @@ public class RedisLock {
     private boolean tryLock(String key, long expire, String lockId) {
         try{
             RedisCallback<Boolean> callback = (connection) ->
-                connection.set(
-                        (key).getBytes(StandardCharsets.UTF_8),
-                        lockId.getBytes(StandardCharsets.UTF_8),
-                        Expiration.seconds(expire),
-                        RedisStringCommands.SetOption.SET_IF_ABSENT);
+                    connection.set(
+                            (key).getBytes(StandardCharsets.UTF_8),
+                            lockId.getBytes(StandardCharsets.UTF_8),
+                            Expiration.seconds(expire),
+                            RedisStringCommands.SetOption.SET_IF_ABSENT);
             return stringRedisTemplate.execute(callback);
         } catch (Exception e) {
             log.error("redis lock error.", e);
@@ -234,6 +230,4 @@ public class RedisLock {
         log.debug("acquire lock {} {} ", key, after);
         return true;
     }
-
 }
-

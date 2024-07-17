@@ -2,10 +2,12 @@ package com.qiwenshare.ufop.operation.upload.product;
 
 
 import com.alibaba.fastjson2.JSON;
-import com.aliyun.oss.OSS;
-import com.aliyun.oss.model.*;
+
+import com.qcloud.cos.COSClient;
+import com.qcloud.cos.model.*;
 import com.qiwenshare.ufop.cache.CacheService;
 import com.qiwenshare.ufop.config.AliyunConfig;
+import com.qiwenshare.ufop.config.TencentConfig;
 import com.qiwenshare.ufop.constant.StorageTypeEnum;
 import com.qiwenshare.ufop.constant.UploadFileStatusEnum;
 import com.qiwenshare.ufop.operation.upload.Uploader;
@@ -14,6 +16,7 @@ import com.qiwenshare.ufop.operation.upload.domain.UploadFileInfo;
 import com.qiwenshare.ufop.operation.upload.domain.UploadFileResult;
 import com.qiwenshare.ufop.operation.upload.request.QiwenMultipartFile;
 import com.qiwenshare.ufop.util.AliyunUtils;
+import com.qiwenshare.ufop.util.TencentUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -25,36 +28,36 @@ import java.util.List;
 
 @Slf4j
 @Component
-public class AliyunOSSUploader extends Uploader {
+public class TencentCOSUploader extends Uploader {
 
     @Resource
     CacheService cacheService;
 
-    private AliyunConfig aliyunConfig;
+    private TencentConfig tencentConfig;
 
-    public AliyunOSSUploader(){
+    public TencentCOSUploader(){
 
     }
 
-    public AliyunOSSUploader(AliyunConfig aliyunConfig) {
-        this.aliyunConfig = aliyunConfig;
+    public TencentCOSUploader(TencentConfig tencentConfig) {
+        this.tencentConfig = tencentConfig;
     }
 
     @Override
     protected void doUploadFileChunk(QiwenMultipartFile qiwenMultipartFile, UploadFile uploadFile) throws IOException {
 
-        OSS ossClient = AliyunUtils.getOSSClient(aliyunConfig);
+        COSClient cosClient = TencentUtils.getCOSClient(tencentConfig);
         try {
             UploadFileInfo uploadFileInfo = JSON.parseObject(cacheService.getObject("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":uploadPartRequest"), UploadFileInfo.class);
             String fileUrl = qiwenMultipartFile.getFileUrl();
             if (uploadFileInfo == null) {
 
-                InitiateMultipartUploadRequest request = new InitiateMultipartUploadRequest(aliyunConfig.getOss().getBucketName(), fileUrl);
-                InitiateMultipartUploadResult upresult = ossClient.initiateMultipartUpload(request);
+                InitiateMultipartUploadRequest request = new InitiateMultipartUploadRequest(tencentConfig.getCos().getBucketName(), fileUrl);
+                InitiateMultipartUploadResult upresult = cosClient.initiateMultipartUpload(request);
                 String uploadId = upresult.getUploadId();
 
                 uploadFileInfo = new UploadFileInfo();
-                uploadFileInfo.setBucketName(aliyunConfig.getOss().getBucketName());
+                uploadFileInfo.setBucketName(tencentConfig.getCos().getBucketName());
                 uploadFileInfo.setKey(fileUrl);
                 uploadFileInfo.setUploadId(uploadId);
 
@@ -71,7 +74,7 @@ public class AliyunOSSUploader extends Uploader {
             uploadPartRequest.setPartNumber(uploadFile.getChunkNumber());
             log.debug(JSON.toJSONString(uploadPartRequest));
 
-            UploadPartResult uploadPartResult = ossClient.uploadPart(uploadPartRequest);
+            UploadPartResult uploadPartResult = cosClient.uploadPart(uploadPartRequest);
 
             log.debug("上传结果：" + JSON.toJSONString(uploadPartResult));
 
@@ -85,7 +88,7 @@ public class AliyunOSSUploader extends Uploader {
                 cacheService.set("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":partETags", JSON.toJSONString(partETags));
             }
         } finally {
-            ossClient.shutdown();
+            cosClient.shutdown();
         }
 
 
@@ -134,14 +137,14 @@ public class AliyunOSSUploader extends Uploader {
         UploadFileInfo uploadFileInfo = JSON.parseObject(cacheService.getObject("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":uploadPartRequest"), UploadFileInfo.class);
 
         CompleteMultipartUploadRequest completeMultipartUploadRequest =
-                new CompleteMultipartUploadRequest(aliyunConfig.getOss().getBucketName(),
+                new CompleteMultipartUploadRequest(tencentConfig.getCos().getBucketName(),
                         uploadFileInfo.getKey(),
                         uploadFileInfo.getUploadId(),
                         partETags);
-        OSS ossClient = AliyunUtils.getOSSClient(aliyunConfig);
+        COSClient cosClient = TencentUtils.getCOSClient(tencentConfig);
         // 完成上传。
-        ossClient.completeMultipartUpload(completeMultipartUploadRequest);
-        ossClient.shutdown();
+        cosClient.completeMultipartUpload(completeMultipartUploadRequest);
+        cosClient.shutdown();
 
     }
 
@@ -153,13 +156,13 @@ public class AliyunOSSUploader extends Uploader {
 
         UploadFileInfo uploadFileInfo = JSON.parseObject(cacheService.getObject("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":uploadPartRequest"), UploadFileInfo.class);
 
-        OSS ossClient = AliyunUtils.getOSSClient(aliyunConfig);
+        COSClient cosClient = TencentUtils.getCOSClient(tencentConfig);
         AbortMultipartUploadRequest abortMultipartUploadRequest =
-                new AbortMultipartUploadRequest(aliyunConfig.getOss().getBucketName(),
+                new AbortMultipartUploadRequest(tencentConfig.getCos().getBucketName(),
                         uploadFileInfo.getKey(),
                         uploadFileInfo.getUploadId());
-        ossClient.abortMultipartUpload(abortMultipartUploadRequest);
-        ossClient.shutdown();
+        cosClient.abortMultipartUpload(abortMultipartUploadRequest);
+        cosClient.shutdown();
     }
 
 

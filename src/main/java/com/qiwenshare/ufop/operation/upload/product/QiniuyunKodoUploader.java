@@ -8,7 +8,7 @@ import com.qiniu.storage.UploadManager;
 import com.qiniu.storage.model.DefaultPutRet;
 import com.qiniu.storage.persistent.FileRecorder;
 import com.qiniu.util.Auth;
-import com.qiwenshare.common.util.HttpsUtils;
+import com.qiwenshare.ufop.cache.CacheService;
 import com.qiwenshare.ufop.config.QiniuyunConfig;
 import com.qiwenshare.ufop.constant.StorageTypeEnum;
 import com.qiwenshare.ufop.constant.UploadFileStatusEnum;
@@ -19,17 +19,12 @@ import com.qiwenshare.ufop.operation.upload.domain.UploadFile;
 import com.qiwenshare.ufop.operation.upload.domain.UploadFileResult;
 import com.qiwenshare.ufop.operation.upload.request.QiwenMultipartFile;
 import com.qiwenshare.ufop.util.QiniuyunUtils;
-import com.qiwenshare.ufop.util.RedisUtil;
 import com.qiwenshare.ufop.util.UFOPUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.IOUtils;
 
 import javax.annotation.Resource;
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 
 @Slf4j
 public class QiniuyunKodoUploader extends Uploader {
@@ -37,7 +32,7 @@ public class QiniuyunKodoUploader extends Uploader {
     private QiniuyunConfig qiniuyunConfig;
 
     @Resource
-    RedisUtil redisUtil;
+    CacheService cacheService;
 
     public QiniuyunKodoUploader(){
 
@@ -95,23 +90,7 @@ public class QiniuyunKodoUploader extends Uploader {
                     throw new UFOPException("删除temp文件失败：目录路径："+ tempFile.getPath());
                 }
 
-                if (UFOPUtils.isImageFile(uploadFileResult.getExtendName())) {
-                    Auth auth = Auth.create(qiniuyunConfig.getKodo().getAccessKey(), qiniuyunConfig.getKodo().getSecretKey());
 
-                    String urlString = auth.privateDownloadUrl(qiniuyunConfig.getKodo().getDomain() + "/" + uploadFileResult.getFileUrl());
-
-                    InputStream inputStream = HttpsUtils.doGet(urlString, null);
-                    BufferedImage src;
-                    try {
-                        src = ImageIO.read(inputStream);
-                        uploadFileResult.setBufferedImage(src);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } finally {
-                        IOUtils.closeQuietly(inputStream);
-                    }
-
-                }
 
                 uploadFileResult.setStatus(UploadFileStatusEnum.SUCCESS);
             } else {
@@ -134,7 +113,7 @@ public class QiniuyunKodoUploader extends Uploader {
         Auth auth = Auth.create(qiniuyunConfig.getKodo().getAccessKey(), qiniuyunConfig.getKodo().getSecretKey());
         String upToken = auth.uploadToken(qiniuyunConfig.getKodo().getBucketName());
 
-        String localTempDir = UFOPUtils.getStaticPath() + "temp";
+        String localTempDir = UFOPUtils.getDataPath() + "temp";
         try {
             //设置断点续传文件进度保存目录
             FileRecorder fileRecorder = new FileRecorder(localTempDir);

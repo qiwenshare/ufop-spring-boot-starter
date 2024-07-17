@@ -49,7 +49,7 @@ public class QiniuyunKodoCopier extends Copier {
         Auth auth = Auth.create(qiniuyunConfig.getKodo().getAccessKey(), qiniuyunConfig.getKodo().getSecretKey());
         String upToken = auth.uploadToken(qiniuyunConfig.getKodo().getBucketName());
 
-        String localTempDir = UFOPUtils.getStaticPath() + "temp";
+        String localTempDir = UFOPUtils.getDataPath() + "temp";
 
 
         try {

@@ -19,7 +19,7 @@ public class LocalStorageReader extends Reader {
         FileInputStream fileInputStream = null;
         try {
             String extendName = FilenameUtils.getExtension(readFile.getFileUrl());
-            fileInputStream = new FileInputStream(UFOPUtils.getStaticPath() + readFile.getFileUrl());
+            fileInputStream = new FileInputStream(UFOPUtils.getDataPath() + readFile.getFileUrl());
             fileContent = ReadFileUtils.getContentByInputStream(extendName, fileInputStream);
         } catch (IOException e) {
             throw new ReadException("文件读取出现异常", e);

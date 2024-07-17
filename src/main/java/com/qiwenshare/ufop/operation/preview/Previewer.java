@@ -8,6 +8,7 @@ import com.qiwenshare.ufop.util.CharsetUtils;
 import com.qiwenshare.ufop.util.UFOPUtils;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 
@@ -23,17 +24,18 @@ public abstract class Previewer {
     protected abstract InputStream getInputStream(PreviewFile previewFile);
 
     public void imageThumbnailPreview(HttpServletResponse httpServletResponse, PreviewFile previewFile) {
-        String fileUrl = previewFile.getFileUrl();
+//        String fileUrl = previewFile.getFileUrl();
 
 
-        boolean isVideo = UFOPUtils.isVideoFile(FilenameUtils.getExtension(fileUrl));
+//        boolean isVideo = UFOPUtils.isVideoFile(FilenameUtils.getExtension(fileUrl));
         String thumbnailImgUrl = previewFile.getFileUrl();
-        if (isVideo) {
-            thumbnailImgUrl = fileUrl.replace("." + FilenameUtils.getExtension(fileUrl), ".jpg");
-        }
+//        if (previewFile.isVideoFile()) {
+//            thumbnailImgUrl = fileUrl.replace("." + FilenameUtils.getExtension(fileUrl), ".jpg");
+//        }
 
 
         File cacheFile = UFOPUtils.getCacheFile(thumbnailImgUrl);
+//        File tempFile = UFOPUtils.getTempFile(thumbnailImgUrl);
 
         if (cacheFile.exists()) {
             FileInputStream fis = null;

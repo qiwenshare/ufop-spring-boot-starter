@@ -16,10 +16,11 @@ public class LocalStorageDownloader extends Downloader {
     @Override
     public InputStream getInputStream(DownloadFile downloadFile) {
         //设置文件路径
-        File file = new File(UFOPUtils.getStaticPath() + downloadFile.getFileUrl());
+        File file = new File(UFOPUtils.getDataPath() + downloadFile.getFileUrl());
 
         InputStream inputStream = null;
         byte[] bytes = new byte[0];
+        InputStream newInputStream = null;
         RandomAccessFile randowAccessFile = null;
         try {
             if (downloadFile.getRange() != null) {
@@ -27,9 +28,11 @@ public class LocalStorageDownloader extends Downloader {
                 randowAccessFile.seek(downloadFile.getRange().getStart());
                 bytes = new byte[downloadFile.getRange().getLength()];
                 randowAccessFile.read(bytes);
+                newInputStream = new ByteArrayInputStream(bytes);
             } else {
                 inputStream = new FileInputStream(file);
-                bytes = IOUtils.toByteArray(inputStream);
+
+                newInputStream = IOUtils.toBufferedInputStream(inputStream);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -37,7 +40,7 @@ public class LocalStorageDownloader extends Downloader {
             IOUtils.closeQuietly(inputStream);
             IOUtils.closeQuietly(randowAccessFile);
         }
-        return new ByteArrayInputStream(bytes);
+        return newInputStream;
 
     }
 }

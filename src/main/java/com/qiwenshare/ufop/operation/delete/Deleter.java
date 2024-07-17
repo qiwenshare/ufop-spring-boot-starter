@@ -12,7 +12,7 @@ public abstract class Deleter {
     public abstract void delete(DeleteFile deleteFile);
 
     protected void deleteCacheFile(DeleteFile deleteFile) {
-        if (UFOPUtils.isImageFile(FilenameUtils.getExtension(deleteFile.getFileUrl()))) {
+//        if (UFOPUtils.isImageFile(FilenameUtils.getExtension(deleteFile.getFileUrl()))) {
             File cacheFile = UFOPUtils.getCacheFile(deleteFile.getFileUrl());
             if (cacheFile.exists()) {
                 boolean result = cacheFile.delete();
@@ -20,6 +20,6 @@ public abstract class Deleter {
                     log.error("删除本地缓存文件失败！");
                 }
             }
-        }
+//        }
     }
 }

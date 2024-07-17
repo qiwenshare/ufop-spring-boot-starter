@@ -15,11 +15,8 @@ public class UFOPUtils {
 
     public static String LOCAL_STORAGE_PATH;
     public static String ROOT_PATH;
-    public static final String[] IMG_FILE = {"bmp", "jpg", "png", "tif", "gif", "jpeg"};
-    public static final String[] DOC_FILE = {"doc", "docx", "ppt", "pptx", "xls", "xlsx", "txt", "hlp", "wps", "rtf", "html", "pdf"};
-    public static final String[] VIDEO_FILE = {"avi", "mp4", "mpg", "mov", "swf"};
-    public static final String[] MUSIC_FILE = {"wav", "aif", "au", "mp3", "ram", "wma", "mmf", "amr", "aac", "flac"};
-    public static final String[] TXT_FILE = {"txt", "html", "java", "xml", "js", "css", "json", "sql"};
+//"txt", "html", "java", "xml", "js", "css", "json", "sql"
+    public static final String[] TXT_FILE = {};
     public static final int IMAGE_TYPE = 1;
     public static final int DOC_TYPE = 2;
     public static final int VIDEO_TYPE = 3;
@@ -29,35 +26,6 @@ public class UFOPUtils {
     public static final int RECYCLE_FILE = 7;
 
 
-    /**
-     * 判断是否为图片文件
-     *
-     * @param extendName 文件扩展名
-     * @return 是否为图片文件
-     */
-    public static boolean isImageFile(String extendName) {
-        for (String extend : IMG_FILE) {
-            if (extendName.equalsIgnoreCase(extend)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * 判断是否为视频文件
-     * @param extendName 扩展名
-     * @return 是否为视频文件
-     */
-    public static boolean isVideoFile(String extendName) {
-        for (String extend : VIDEO_FILE) {
-            if (extendName.equalsIgnoreCase(extend)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public static String pathSplitFormat(String filePath) {
         return filePath.replace("///", "/")
                 .replace("//", "/")
@@ -66,18 +34,18 @@ public class UFOPUtils {
     }
 
     public static File getLocalSaveFile(String fileUrl) {
-        String localSavePath = UFOPUtils.getStaticPath() + fileUrl;
+        String localSavePath = UFOPUtils.getDataPath() + fileUrl;
         return new File(localSavePath);
     }
 
     public static File getCacheFile(String fileUrl) {
-        String cachePath = UFOPUtils.getStaticPath() + "cache" + File.separator + fileUrl;
+        String cachePath = UFOPUtils.getDataPath() + "cache" + File.separator + fileUrl;
 
         return new File(cachePath);
     }
 
     public static File getTempFile(String fileUrl) {
-        String tempPath = UFOPUtils.getStaticPath() + "temp" + File.separator + fileUrl;
+        String tempPath = UFOPUtils.getDataPath() + "temp" + File.separator + fileUrl;
         File tempFile = new File(tempPath);
         File parentFile = tempFile.getParentFile();
         if (!parentFile.exists()) {
@@ -88,7 +56,7 @@ public class UFOPUtils {
     }
 
     public static File getProcessFile(String fileUrl) {
-        String processPath = UFOPUtils.getStaticPath() + "temp" + File.separator + "process" + File.separator + fileUrl;
+        String processPath = UFOPUtils.getDataPath() + "temp" + File.separator + "process" + File.separator + fileUrl;
         File processFile = new File(processPath);
         File parentFile = processFile.getParentFile();
         if (!parentFile.exists()) {
@@ -128,12 +96,8 @@ public class UFOPUtils {
         return  decodeUrl;
     }
 
-    /**
-     * 得到static路径
-     *
-     * @return 结果
-     */
-    public static String getStaticPath() {
+
+    public static String getDataPath() {
         String localStoragePath = LOCAL_STORAGE_PATH;
         if (StringUtils.isNotEmpty(localStoragePath)) {
 
@@ -146,10 +110,44 @@ public class UFOPUtils {
                 projectRootAbsolutePath = projectRootAbsolutePath.substring(0, index);
             }
 
-            return new File(projectRootAbsolutePath + "static").getParent() + File.separator + "data" + File.separator;
+            return new File(projectRootAbsolutePath + "data").getPath() + File.separator;
+        }
+    }
+
+    /**
+     * 得到static路径
+     *
+     * @return 结果
+     */
+    public static String getStaticPath() {
+
+        String projectRootAbsolutePath = getProjectRootPath();
+
+        int index = projectRootAbsolutePath.indexOf("file:");
+        if (index != -1) {
+            projectRootAbsolutePath = projectRootAbsolutePath.substring(0, index);
         }
 
+        return new File(projectRootAbsolutePath + "static").getPath() + File.separator;
     }
+
+    /**
+     * 得到build路径
+     *
+     * @return 结果
+     */
+    public static String getBuildPath() {
+
+        String projectRootAbsolutePath = getProjectRootPath();
+
+        int index = projectRootAbsolutePath.indexOf("file:");
+        if (index != -1) {
+            projectRootAbsolutePath = projectRootAbsolutePath.substring(0, index);
+        }
+
+        return new File(projectRootAbsolutePath + "build").getPath() + File.separator;
+    }
+
 
     /**
      * 获取上传文件路径
@@ -163,7 +161,7 @@ public class UFOPUtils {
         SimpleDateFormat formater = new SimpleDateFormat("yyyyMMdd");
         String path = ROOT_PATH + "/" + formater.format(new Date()) + "/";
 
-        File dir = new File(UFOPUtils.getStaticPath() + path);
+        File dir = new File(UFOPUtils.getDataPath() + path);
 
         if (!dir.exists()) {
             dir.mkdirs();

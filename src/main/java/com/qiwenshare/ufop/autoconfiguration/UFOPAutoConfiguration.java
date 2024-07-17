@@ -1,7 +1,14 @@
 package com.qiwenshare.ufop.autoconfiguration;
 
 import com.github.tobato.fastdfs.FdfsClientConfig;
+import com.qiwenshare.ufop.cache.CacheService;
+import com.qiwenshare.ufop.cache.impl.CacheServiceJDKImpl;
+import com.qiwenshare.ufop.cache.impl.CacheServiceRedisImpl;
+import com.qiwenshare.ufop.config.CacheConfig;
 import com.qiwenshare.ufop.factory.UFOPFactory;
+import com.qiwenshare.ufop.lock.LockService;
+import com.qiwenshare.ufop.lock.impl.LockServiceJDKImpl;
+import com.qiwenshare.ufop.lock.impl.LockServiceRedisImpl;
 import com.qiwenshare.ufop.operation.copy.product.FastDFSCopier;
 import com.qiwenshare.ufop.operation.delete.product.FastDFSDeleter;
 import com.qiwenshare.ufop.operation.download.product.FastDFSDownloader;
@@ -12,9 +19,7 @@ import com.qiwenshare.ufop.operation.upload.product.FastDFSUploader;
 import com.qiwenshare.ufop.operation.upload.product.MinioUploader;
 import com.qiwenshare.ufop.operation.upload.product.QiniuyunKodoUploader;
 import com.qiwenshare.ufop.operation.write.product.FastDFSWriter;
-import com.qiwenshare.ufop.util.RedisUtil;
 import com.qiwenshare.ufop.util.UFOPUtils;
-import com.qiwenshare.ufop.util.concurrent.locks.RedisLock;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,13 +94,37 @@ public class UFOPAutoConfiguration {
         return new QiniuyunKodoUploader(ufopProperties.getQiniuyun());
     }
 
+
     @Bean
-    public RedisLock redisLock() {
-        return new RedisLock();
+    public CacheService cacheService() {
+        CacheConfig cache = ufopProperties.getCache();
+        if (cache != null) {
+            String type = cache.getType();
+            if ("redis".equals(type)) {
+                return new CacheServiceRedisImpl();
+            } else {
+                return new CacheServiceJDKImpl();
+            }
+        } else {
+            return new CacheServiceJDKImpl();
+        }
+
     }
+
     @Bean
-    public RedisUtil redisUtil() {
-        return new RedisUtil();
+    public LockService lockService() {
+        CacheConfig cache = ufopProperties.getCache();
+        if (cache != null) {
+            String type = cache.getType();
+            if ("redis".equals(type)) {
+                return new LockServiceRedisImpl();
+            } else {
+                return new LockServiceJDKImpl();
+            }
+        } else {
+            return new LockServiceJDKImpl();
+        }
+
     }
 
 }

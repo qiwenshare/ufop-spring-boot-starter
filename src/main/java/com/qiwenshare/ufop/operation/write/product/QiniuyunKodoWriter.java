@@ -43,7 +43,7 @@ public class QiniuyunKodoWriter extends Writer {
         Auth auth = Auth.create(qiniuyunConfig.getKodo().getAccessKey(), qiniuyunConfig.getKodo().getSecretKey());
         String upToken = auth.uploadToken(qiniuyunConfig.getKodo().getBucketName(), fileUrl);
 
-        String localTempDir = UFOPUtils.getStaticPath() + "temp";
+        String localTempDir = UFOPUtils.getDataPath() + "temp";
 
         try {
             //设置断点续传文件进度保存目录

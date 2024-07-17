@@ -1,11 +1,11 @@
 package com.qiwenshare.ufop.operation.upload;
 
+import com.qiwenshare.ufop.cache.CacheService;
 import com.qiwenshare.ufop.exception.operation.UploadException;
+import com.qiwenshare.ufop.lock.LockService;
 import com.qiwenshare.ufop.operation.upload.domain.UploadFile;
 import com.qiwenshare.ufop.operation.upload.domain.UploadFileResult;
 import com.qiwenshare.ufop.operation.upload.request.QiwenMultipartFile;
-import com.qiwenshare.ufop.util.RedisUtil;
-import com.qiwenshare.ufop.util.concurrent.locks.RedisLock;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.FileUtils;
@@ -31,9 +31,9 @@ import java.util.concurrent.TimeUnit;
 @Component
 public abstract class Uploader {
     @Resource
-    RedisLock redisLock;
+    LockService lockService;
     @Resource
-    RedisUtil redisUtil;
+    CacheService cacheService;
 
     /**
      * 普通上传
@@ -111,20 +111,20 @@ public abstract class Uploader {
         String key = "QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":lock";
         String current_upload_chunk_number = "QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":current_upload_chunk_number";
 
-        redisLock.lock(key);
+        lockService.lock(key);
         try {
 
-            if (redisUtil.getObject(current_upload_chunk_number) == null) {
-                redisUtil.set(current_upload_chunk_number, "1", 1000 * 60 * 60);
+            if (cacheService.getObject(current_upload_chunk_number) == null) {
+                cacheService.set(current_upload_chunk_number, "1", 1000 * 60 * 60);
             }
-            int currentUploadChunkNumber = Integer.parseInt(redisUtil.getObject(current_upload_chunk_number));
+            int currentUploadChunkNumber = Integer.parseInt(cacheService.getObject(current_upload_chunk_number));
 
             if (uploadFile.getChunkNumber() != currentUploadChunkNumber) {
-                redisLock.unlock(key);
+                lockService.unlock(key);
                 Thread.sleep(100);
-                while (redisLock.tryLock(key, 300, TimeUnit.SECONDS)) {
+                while (lockService.tryLock(key, 300, TimeUnit.SECONDS)) {
 
-                    currentUploadChunkNumber = Integer.parseInt(redisUtil.getObject(current_upload_chunk_number));
+                    currentUploadChunkNumber = Integer.parseInt(cacheService.getObject(current_upload_chunk_number));
 
                     if (uploadFile.getChunkNumber() <= currentUploadChunkNumber) {
                         break;
@@ -134,7 +134,7 @@ public abstract class Uploader {
                             log.error("传入的切片数据异常，当前应上传切片为第{}块，传入的为第{}块。", currentUploadChunkNumber, uploadFile.getChunkNumber());
                             throw new UploadException("传入的切片数据异常");
                         }
-                        redisLock.unlock(key);
+                        lockService.unlock(key);
                     }
                 }
             }
@@ -143,15 +143,15 @@ public abstract class Uploader {
             if (uploadFile.getChunkNumber() == currentUploadChunkNumber) {
                 doUploadFileChunk(qiwenMultipartFile, uploadFile);
                 log.info("文件名{},第{}块上传成功", qiwenMultipartFile.getMultipartFile().getOriginalFilename(), uploadFile.getChunkNumber());
-                this.redisUtil.getIncr("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":current_upload_chunk_number");
+                this.cacheService.getIncr("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":current_upload_chunk_number");
             }
         } catch (Exception e) {
             log.error("第{}块上传失败，自动重试", uploadFile.getChunkNumber());
-            redisUtil.set("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":current_upload_chunk_number", String.valueOf(uploadFile.getChunkNumber()), 1000 * 60 * 60);
+            cacheService.set("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":current_upload_chunk_number", String.valueOf(uploadFile.getChunkNumber()), 1000 * 60 * 60);
             throw new UploadException("更新远程文件出错", e);
         } finally {
 
-            redisLock.unlock(key);
+            lockService.unlock(key);
         }
 
     }

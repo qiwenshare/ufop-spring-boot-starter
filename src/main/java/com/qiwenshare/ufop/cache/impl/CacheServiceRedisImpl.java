@@ -1,15 +1,21 @@
-package com.qiwenshare.ufop.util;
+package com.qiwenshare.ufop.cache.impl;
 
+
+import com.qiwenshare.ufop.cache.CacheService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-@Component
+
+@Service
 @Slf4j
-public class RedisUtil {
+public class CacheServiceRedisImpl implements CacheService {
 
     @Resource
     StringRedisTemplate stringRedisTemplate;
@@ -67,5 +73,4 @@ public class RedisUtil {
     public Long getIncr(String key) {
         return stringRedisTemplate.opsForValue().increment(key, 1);
     }
-
 }
