@@ -4,6 +4,7 @@ import com.qiwenshare.ufop.autoconfiguration.UFOPProperties;
 import com.qiwenshare.ufop.config.AliyunConfig;
 import com.qiwenshare.ufop.config.MinioConfig;
 import com.qiwenshare.ufop.config.QiniuyunConfig;
+import com.qiwenshare.ufop.config.TencentConfig;
 import com.qiwenshare.ufop.constant.StorageTypeEnum;
 import com.qiwenshare.ufop.domain.ThumbImage;
 import com.qiwenshare.ufop.operation.copy.Copier;
@@ -29,6 +30,7 @@ public class UFOPFactory {
     private ThumbImage thumbImage;
     private MinioConfig minioConfig;
     private QiniuyunConfig qiniuyunConfig;
+    private TencentConfig tencentConfig;
     @Resource
     private FastDFSCopier fastDFSCopier;
     @Resource
@@ -49,7 +51,8 @@ public class UFOPFactory {
     private MinioUploader minioUploader;
     @Resource
     private QiniuyunKodoUploader qiniuyunKodoUploader;
-
+    @Resource
+    private TencentCOSUploader tencentCOSUploader;
     public UFOPFactory() {
     }
 
@@ -59,6 +62,7 @@ public class UFOPFactory {
         this.thumbImage = ufopProperties.getThumbImage();
         this.minioConfig = ufopProperties.getMinio();
         this.qiniuyunConfig = ufopProperties.getQiniuyun();
+        this.tencentConfig = ufopProperties.getTencent();
     }
 
     public Uploader getUploader() {
@@ -75,6 +79,8 @@ public class UFOPFactory {
             uploader = minioUploader;
         } else if (StorageTypeEnum.QINIUYUN_KODO.getCode() == type) {
             uploader = qiniuyunKodoUploader;
+        } else if (StorageTypeEnum.TENCENT_COS.getCode() == type) {
+            uploader = tencentCOSUploader;
         }
         return uploader;
     }
@@ -92,6 +98,8 @@ public class UFOPFactory {
             downloader = new MinioDownloader(minioConfig);
         } else if (StorageTypeEnum.QINIUYUN_KODO.getCode() == storageType) {
             downloader = new QiniuyunKodoDownloader(qiniuyunConfig);
+        } else if (StorageTypeEnum.TENCENT_COS.getCode() == storageType) {
+            downloader = new TencentCOSDownloader(tencentConfig);
         }
         return downloader;
     }
@@ -109,6 +117,8 @@ public class UFOPFactory {
             deleter = new MinioDeleter(minioConfig);
         } else if (StorageTypeEnum.QINIUYUN_KODO.getCode() == storageType) {
             deleter = new QiniuyunKodoDeleter(qiniuyunConfig);
+        } else if (StorageTypeEnum.TENCENT_COS.getCode() == storageType) {
+            deleter = new TencentCOSDeleter(tencentConfig);
         }
         return deleter;
     }
@@ -125,6 +135,8 @@ public class UFOPFactory {
             reader = new MinioReader(minioConfig);
         } else if (StorageTypeEnum.QINIUYUN_KODO.getCode() == storageType) {
             reader = new QiniuyunKodoReader(qiniuyunConfig);
+        } else if (StorageTypeEnum.TENCENT_COS.getCode() == storageType) {
+            reader = new TencentCOSReader(tencentConfig);
         }
         return reader;
     }
@@ -141,6 +153,8 @@ public class UFOPFactory {
             writer = new MinioWriter(minioConfig);
         } else if (StorageTypeEnum.QINIUYUN_KODO.getCode() == storageType) {
             writer = new QiniuyunKodoWriter(qiniuyunConfig);
+        } else if (StorageTypeEnum.TENCENT_COS.getCode() == storageType) {
+            writer = new TencentCOSWriter(tencentConfig);
         }
         return writer;
     }
@@ -157,6 +171,8 @@ public class UFOPFactory {
             previewer = new MinioPreviewer(minioConfig, thumbImage);
         } else if (StorageTypeEnum.QINIUYUN_KODO.getCode() == storageType) {
             previewer = new QiniuyunKodoPreviewer(qiniuyunConfig, thumbImage);
+        } else if (StorageTypeEnum.TENCENT_COS.getCode() == storageType) {
+            previewer = new TencentCOSPreviewer(tencentConfig, thumbImage);
         }
         return previewer;
     }
@@ -174,6 +190,8 @@ public class UFOPFactory {
             copier = new MinioCopier(minioConfig);
         } else if (StorageTypeEnum.QINIUYUN_KODO.getCode() == type) {
             copier = new QiniuyunKodoCopier(qiniuyunConfig);
+        } else if (StorageTypeEnum.TENCENT_COS.getCode() == type) {
+            copier = new TencentCOSCopier(tencentConfig);
         }
         return copier;
     }
