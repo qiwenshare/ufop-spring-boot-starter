@@ -106,7 +106,7 @@ public class TencentCOSUploader extends Uploader {
         if (uploadFile.getTotalChunks() == 1) {
             uploadFileResult.setFileSize(qiwenMultipartFile.getSize());
         }
-        uploadFileResult.setStorageType(StorageTypeEnum.ALIYUN_OSS);
+        uploadFileResult.setStorageType(StorageTypeEnum.TENCENT_COS);
         uploadFileResult.setIdentifier(uploadFile.getIdentifier());
         if (uploadFile.getChunkNumber() == uploadFile.getTotalChunks()) {
             log.info("分片上传完成");

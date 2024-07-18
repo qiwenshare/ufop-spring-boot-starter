@@ -1,9 +1,6 @@
 package com.qiwenshare.ufop.autoconfiguration;
 
-import com.qiwenshare.ufop.config.AliyunConfig;
-import com.qiwenshare.ufop.config.CacheConfig;
-import com.qiwenshare.ufop.config.MinioConfig;
-import com.qiwenshare.ufop.config.QiniuyunConfig;
+import com.qiwenshare.ufop.config.*;
 import com.qiwenshare.ufop.domain.ThumbImage;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -20,4 +17,5 @@ public class UFOPProperties {
     private MinioConfig minio = new MinioConfig();
     private QiniuyunConfig qiniuyun = new QiniuyunConfig();
     private CacheConfig cache;
+    private TencentConfig tencent = new TencentConfig();
 }

@@ -77,6 +77,7 @@ public abstract class Uploader {
                     UploadFileResult uploadFileResult = doUploadFlow(qiwenMultipartFile, uploadFile);
                     uploadFileResultList.add(uploadFileResult);
                 }
+                iter.remove();
             }
         } catch (Exception e) {
             throw new UploadException(e);

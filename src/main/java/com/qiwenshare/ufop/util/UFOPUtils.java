@@ -192,4 +192,7 @@ public class UFOPUtils {
         return path;
     }
 
+    public static String getTencentObjectNameByFileUrl(String fileUrl) {
+        return getAliyunObjectNameByFileUrl(fileUrl);
+    }
 }

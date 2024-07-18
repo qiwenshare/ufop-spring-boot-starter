@@ -14,10 +14,7 @@ import com.qiwenshare.ufop.operation.delete.product.FastDFSDeleter;
 import com.qiwenshare.ufop.operation.download.product.FastDFSDownloader;
 import com.qiwenshare.ufop.operation.preview.product.FastDFSPreviewer;
 import com.qiwenshare.ufop.operation.read.product.FastDFSReader;
-import com.qiwenshare.ufop.operation.upload.product.AliyunOSSUploader;
-import com.qiwenshare.ufop.operation.upload.product.FastDFSUploader;
-import com.qiwenshare.ufop.operation.upload.product.MinioUploader;
-import com.qiwenshare.ufop.operation.upload.product.QiniuyunKodoUploader;
+import com.qiwenshare.ufop.operation.upload.product.*;
 import com.qiwenshare.ufop.operation.write.product.FastDFSWriter;
 import com.qiwenshare.ufop.util.UFOPUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -127,4 +124,8 @@ public class UFOPAutoConfiguration {
 
     }
 
+    @Bean
+    public TencentCOSUploader tencentCOSUploader() {
+        return new TencentCOSUploader(ufopProperties.getTencent());
+    }
 }
