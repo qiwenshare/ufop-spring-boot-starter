@@ -18,8 +18,7 @@ public class TencentUtils {
         Region region = new Region(tencentConfig.getCos().getEndpoint());
         ClientConfig clientConfig = new ClientConfig(region);
         clientConfig.setHttpProtocol(HttpProtocol.https);
-        COSClient cosClient = new COSClient(cred, clientConfig);
-        return cosClient;
+        return new COSClient(cred, clientConfig);
     }
 
 }
