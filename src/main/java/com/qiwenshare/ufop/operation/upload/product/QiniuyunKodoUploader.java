@@ -126,11 +126,12 @@ public class QiniuyunKodoUploader extends Uploader {
                 log.info(putRet.hash);
             } catch (QiniuException ex) {
                 Response r = ex.response;
-                System.err.println(r.toString());
-                try {
-                    System.err.println(r.bodyString());
-                } catch (QiniuException ex2) {
-                    //ignore
+                if (r != null) {
+                    try {
+                        log.error(r.bodyString());
+                    } catch (QiniuException ex2) {
+                        //ignore
+                    }
                 }
             }
         } catch (IOException ex) {
