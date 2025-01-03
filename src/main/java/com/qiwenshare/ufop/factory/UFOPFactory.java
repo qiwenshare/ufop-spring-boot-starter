@@ -7,6 +7,7 @@ import com.qiwenshare.ufop.config.QiniuyunConfig;
 import com.qiwenshare.ufop.config.TencentConfig;
 import com.qiwenshare.ufop.constant.StorageTypeEnum;
 import com.qiwenshare.ufop.domain.ThumbImage;
+import com.qiwenshare.ufop.exception.operation.*;
 import com.qiwenshare.ufop.operation.copy.Copier;
 import com.qiwenshare.ufop.operation.copy.product.*;
 import com.qiwenshare.ufop.operation.delete.Deleter;
@@ -21,9 +22,11 @@ import com.qiwenshare.ufop.operation.upload.Uploader;
 import com.qiwenshare.ufop.operation.upload.product.*;
 import com.qiwenshare.ufop.operation.write.Writer;
 import com.qiwenshare.ufop.operation.write.product.*;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Resource;
 
+@Slf4j
 public class UFOPFactory {
     private String storageType;
     private AliyunConfig aliyunConfig;
@@ -82,6 +85,10 @@ public class UFOPFactory {
         } else if (StorageTypeEnum.TENCENT_COS.getCode() == type) {
             uploader = tencentCOSUploader;
         }
+        if (uploader == null) {
+            log.error("上传失败，文件存储类型不支持预览，storageType:{}", storageType);
+            throw new UploadException("上传失败");
+        }
         return uploader;
     }
 
@@ -100,6 +107,10 @@ public class UFOPFactory {
             downloader = new QiniuyunKodoDownloader(qiniuyunConfig);
         } else if (StorageTypeEnum.TENCENT_COS.getCode() == storageType) {
             downloader = new TencentCOSDownloader(tencentConfig);
+        }
+        if (downloader == null) {
+            log.error("下载失败，文件存储类型不支持预览，storageType:{}", storageType);
+            throw new DownloadException("下载失败");
         }
         return downloader;
     }
@@ -120,6 +131,10 @@ public class UFOPFactory {
         } else if (StorageTypeEnum.TENCENT_COS.getCode() == storageType) {
             deleter = new TencentCOSDeleter(tencentConfig);
         }
+        if (deleter == null) {
+            log.error("删除失败，文件存储类型不支持预览，storageType:{}", storageType);
+            throw new DeleteException("删除失败");
+        }
         return deleter;
     }
 
@@ -137,6 +152,10 @@ public class UFOPFactory {
             reader = new QiniuyunKodoReader(qiniuyunConfig);
         } else if (StorageTypeEnum.TENCENT_COS.getCode() == storageType) {
             reader = new TencentCOSReader(tencentConfig);
+        }
+        if (reader == null) {
+            log.error("读取失败，文件存储类型不支持预览，storageType:{}", storageType);
+            throw new ReadException("读取失败");
         }
         return reader;
     }
@@ -156,6 +175,10 @@ public class UFOPFactory {
         } else if (StorageTypeEnum.TENCENT_COS.getCode() == storageType) {
             writer = new TencentCOSWriter(tencentConfig);
         }
+        if (writer == null) {
+            log.error("写入失败，文件存储类型不支持预览，storageType:{}", storageType);
+            throw new WriteException("写入失败");
+        }
         return writer;
     }
 
@@ -173,6 +196,10 @@ public class UFOPFactory {
             previewer = new QiniuyunKodoPreviewer(qiniuyunConfig, thumbImage);
         } else if (StorageTypeEnum.TENCENT_COS.getCode() == storageType) {
             previewer = new TencentCOSPreviewer(tencentConfig, thumbImage);
+        }
+        if (previewer == null) {
+            log.error("预览失败，文件存储类型不支持预览，storageType:{}", storageType);
+            throw new PreviewException("预览失败");
         }
         return previewer;
     }
@@ -192,6 +219,10 @@ public class UFOPFactory {
             copier = new QiniuyunKodoCopier(qiniuyunConfig);
         } else if (StorageTypeEnum.TENCENT_COS.getCode() == type) {
             copier = new TencentCOSCopier(tencentConfig);
+        }
+        if (copier == null) {
+            log.error("拷贝失败，文件存储类型不支持预览，storageType:{}", storageType);
+            throw new CopyException("拷贝失败");
         }
         return copier;
     }

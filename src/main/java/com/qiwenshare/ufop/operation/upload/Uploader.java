@@ -113,6 +113,7 @@ public abstract class Uploader {
         String current_upload_chunk_number = "QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":current_upload_chunk_number";
 
         lockService.lock(key);
+
         try {
 
             if (cacheService.getObject(current_upload_chunk_number) == null) {
@@ -136,6 +137,7 @@ public abstract class Uploader {
                             throw new UploadException("传入的切片数据异常");
                         }
                         lockService.unlock(key);
+
                     }
                 }
             }

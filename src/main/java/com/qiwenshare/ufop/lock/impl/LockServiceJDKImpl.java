@@ -40,7 +40,9 @@ public class LockServiceJDKImpl implements LockService {
         }
         // 其他线程非法持有不允许释放
         if (!lock.isHeldByCurrentThread()) {
-            throw new IllegalStateException("当前线程尚未持有，key:" + key + "的锁，不允许释放");
+            log.error("当前线程尚未持有，key:" + key + "的锁，不允许释放");
+            return;
+//            throw new IllegalStateException("当前线程尚未持有，key:" + key + "的锁，不允许释放");
         }
 
         lock.unlock();
@@ -58,9 +60,9 @@ public class LockServiceJDKImpl implements LockService {
         if (lock == null) {
             throw new IllegalArgumentException("key " + key + "尚未加锁");
         }
-        if (!lock.isHeldByCurrentThread()) {
-            throw new IllegalStateException("当前线程尚未持有，key:" + key + "的锁，不允许释放");
-        }
+//        if (!lock.isHeldByCurrentThread()) {
+//            throw new IllegalStateException("当前线程尚未持有，key:" + key + "的锁，不允许释放");
+//        }
         return lock.tryLock();
     }
 
@@ -76,9 +78,9 @@ public class LockServiceJDKImpl implements LockService {
         if (lock == null) {
             throw new IllegalArgumentException("key " + key + "尚未加锁");
         }
-        if (!lock.isHeldByCurrentThread()) {
-            throw new IllegalStateException("当前线程尚未持有，key:" + key + "的锁，不允许释放");
-        }
+//        if (!lock.isHeldByCurrentThread()) {
+//            throw new IllegalStateException("当前线程尚未持有，key:" + key + "的锁，不允许释放");
+//        }
         try {
             return lock.tryLock( time, unit);
         } catch (InterruptedException e) {
