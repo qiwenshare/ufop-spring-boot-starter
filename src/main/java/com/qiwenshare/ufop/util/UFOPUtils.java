@@ -2,6 +2,7 @@ package com.qiwenshare.ufop.util;
 
 import com.qiwenshare.ufop.exception.UFOPException;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.util.ResourceUtils;
 
 import java.io.File;
@@ -173,10 +174,7 @@ public class UFOPUtils {
     }
 
     public static String getAliyunObjectNameByFileUrl(String fileUrl) {
-        if (fileUrl.startsWith("/") || fileUrl.startsWith("\\")) {
-            fileUrl = fileUrl.substring(1);
-        }
-        return fileUrl;
+        return getObjectName(fileUrl);
     }
 
 
@@ -193,6 +191,14 @@ public class UFOPUtils {
     }
 
     public static String getTencentObjectNameByFileUrl(String fileUrl) {
-        return getAliyunObjectNameByFileUrl(fileUrl);
+        return getObjectName(fileUrl);
+    }
+
+    @NotNull
+    private static String getObjectName(String fileUrl) {
+        if (fileUrl.startsWith("/") || fileUrl.startsWith("\\")) {
+            fileUrl = fileUrl.substring(1);
+        }
+        return fileUrl;
     }
 }
