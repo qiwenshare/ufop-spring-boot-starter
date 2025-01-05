@@ -20,6 +20,7 @@ import com.qiwenshare.ufop.util.UFOPUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,7 +30,8 @@ import org.springframework.jmx.support.RegistrationPolicy;
 
 
 @Slf4j
-@Configuration
+//@Configuration
+@AutoConfiguration
 //@ConditionalOnClass(UFOService.class)
 @EnableConfigurationProperties({UFOPProperties.class})
 @Import(FdfsClientConfig.class)

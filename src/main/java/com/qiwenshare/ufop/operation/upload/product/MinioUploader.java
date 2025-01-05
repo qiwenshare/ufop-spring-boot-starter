@@ -22,7 +22,7 @@ import io.minio.errors.XmlParserException;
 import io.minio.messages.Part;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;

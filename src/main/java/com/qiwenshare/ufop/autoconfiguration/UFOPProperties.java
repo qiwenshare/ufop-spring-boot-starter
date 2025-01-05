@@ -18,4 +18,6 @@ public class UFOPProperties {
     private QiniuyunConfig qiniuyun = new QiniuyunConfig();
     private CacheConfig cache;
     private TencentConfig tencent = new TencentConfig();
+
+
 }

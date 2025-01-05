@@ -7,15 +7,15 @@ import com.qiwenshare.ufop.operation.upload.domain.UploadFile;
 import com.qiwenshare.ufop.operation.upload.domain.UploadFileResult;
 import com.qiwenshare.ufop.operation.upload.request.QiwenMultipartFile;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.fileupload2.jakarta.servlet6.JakartaServletFileUpload;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.support.StandardMultipartHttpServletRequest;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -62,7 +62,7 @@ public abstract class Uploader {
         List<UploadFileResult> uploadFileResultList = new ArrayList<>();
         StandardMultipartHttpServletRequest request = (StandardMultipartHttpServletRequest) httpServletRequest;
 
-        boolean isMultipart = ServletFileUpload.isMultipartContent(request);
+        boolean isMultipart = JakartaServletFileUpload.isMultipartContent(request);
         if (!isMultipart) {
             throw new UploadException("未包含文件上传域");
         }
