@@ -19,9 +19,33 @@
 
     <repositories>
         <repository>
-            <id>com.e-iceblue</id>
-            <url>http://repo.e-iceblue.cn/repository/maven-public/</url>
+            <id>public2</id>
+            <url>https://maven.aliyun.com/repository/public</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
         </repository>
+        <repository>
+            <id>public3</id>
+            <url>https://repository.aspose.com/repo</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+
+        <!--        <repository>-->
+        <!--            <id>public</id>-->
+        <!--            <url>https://maven.aliyun.com/repository/public</url>-->
+        <!--            <snapshots>-->
+        <!--                <enabled>false</enabled>-->
+        <!--            </snapshots>-->
+        <!--        </repository>-->
     </repositories>
     <dependencies>
         <dependency>
