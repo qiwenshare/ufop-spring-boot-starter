@@ -12,8 +12,11 @@ import com.qiwenshare.ufop.lock.impl.LockServiceRedisImpl;
 import com.qiwenshare.ufop.operation.copy.product.FastDFSCopier;
 import com.qiwenshare.ufop.operation.delete.product.FastDFSDeleter;
 import com.qiwenshare.ufop.operation.download.product.FastDFSDownloader;
+import com.qiwenshare.ufop.operation.download.product.LocalStorageDownloader;
 import com.qiwenshare.ufop.operation.preview.product.FastDFSPreviewer;
+import com.qiwenshare.ufop.operation.preview.product.LocalStoragePreviewer;
 import com.qiwenshare.ufop.operation.read.product.FastDFSReader;
+import com.qiwenshare.ufop.operation.read.product.LocalStorageReader;
 import com.qiwenshare.ufop.operation.upload.product.*;
 import com.qiwenshare.ufop.operation.write.product.FastDFSWriter;
 import com.qiwenshare.ufop.util.UFOPUtils;
@@ -23,7 +26,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableMBeanExport;
 import org.springframework.context.annotation.Import;
 import org.springframework.jmx.support.RegistrationPolicy;
@@ -77,6 +79,10 @@ public class UFOPAutoConfiguration {
         return new FastDFSWriter();
     }
     @Bean
+    public LocalStoragePreviewer localStoragePreviewer() {
+        return new LocalStoragePreviewer(ufopProperties.getThumbImage());
+    }
+    @Bean
     public FastDFSPreviewer fastDFSPreviewer() {
         return new FastDFSPreviewer(ufopProperties.getThumbImage());
     }
@@ -89,8 +95,20 @@ public class UFOPAutoConfiguration {
         return new MinioUploader(ufopProperties.getMinio());
     }
     @Bean
+    public LocalStorageDownloader localStorageDownloader() {
+        return new LocalStorageDownloader();
+    }
+    @Bean
+    public LocalStorageReader localStorageReader() {
+        return new LocalStorageReader();
+    }
+    @Bean
     public QiniuyunKodoUploader qiniuyunKodoUploader() {
         return new QiniuyunKodoUploader(ufopProperties.getQiniuyun());
+    }
+    @Bean
+    private LocalStorageUploader localStorageUploader() {
+        return new LocalStorageUploader();
     }
 
 
@@ -130,4 +148,6 @@ public class UFOPAutoConfiguration {
     public TencentCOSUploader tencentCOSUploader() {
         return new TencentCOSUploader(ufopProperties.getTencent());
     }
+
+
 }

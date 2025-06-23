@@ -1,13 +1,22 @@
 package com.qiwenshare.ufop.operation.upload.product;
 
+import com.alibaba.fastjson2.JSON;
+import com.aliyun.oss.OSS;
+import com.aliyun.oss.model.*;
+import com.qiwenshare.ufop.cache.CacheService;
 import com.qiwenshare.ufop.constant.StorageTypeEnum;
 import com.qiwenshare.ufop.constant.UploadFileStatusEnum;
 import com.qiwenshare.ufop.exception.operation.UploadException;
 import com.qiwenshare.ufop.operation.upload.Uploader;
 import com.qiwenshare.ufop.operation.upload.domain.UploadFile;
+import com.qiwenshare.ufop.operation.upload.domain.UploadFileInfo;
 import com.qiwenshare.ufop.operation.upload.domain.UploadFileResult;
 import com.qiwenshare.ufop.operation.upload.request.QiwenMultipartFile;
+import com.qiwenshare.ufop.util.AliyunUtils;
 import com.qiwenshare.ufop.util.UFOPUtils;
+import io.minio.CreateMultipartUploadResponse;
+import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -18,75 +27,24 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
+@Slf4j
 @Component
 public class LocalStorageUploader extends Uploader {
+    @Resource
+    CacheService cacheService;
+    private static final ConcurrentMap<String, String> FILE_URL_MAP = new ConcurrentHashMap<>();
 
-    public static Map<String, String> FILE_URL_MAP = new HashMap<>();
-
-    protected UploadFileResult doUploadFlow(QiwenMultipartFile qiwenMultipartFile, UploadFile uploadFile) {
-        UploadFileResult uploadFileResult = new UploadFileResult();
-        try {
-            String fileUrl = UFOPUtils.getUploadFileUrl(uploadFile.getIdentifier(), qiwenMultipartFile.getExtendName());
-            if (StringUtils.isNotEmpty(FILE_URL_MAP.get(uploadFile.getIdentifier()))) {
-                fileUrl = FILE_URL_MAP.get(uploadFile.getIdentifier());
-            } else {
-                FILE_URL_MAP.put(uploadFile.getIdentifier(), fileUrl);
-            }
-            String tempFileUrl = fileUrl + "_tmp";
-            String confFileUrl = fileUrl.replace("." + qiwenMultipartFile.getExtendName(), ".conf");
-
-            File file = new File(UFOPUtils.getDataPath() + fileUrl);
-            File tempFile = new File(UFOPUtils.getDataPath() + tempFileUrl);
-            File confFile = new File(UFOPUtils.getDataPath() + confFileUrl);
-
-            //第一步 打开将要写入的文件
-            RandomAccessFile raf = new RandomAccessFile(tempFile, "rw");
-            //第二步 打开通道
-            try {
-                FileChannel fileChannel = raf.getChannel();
-                //第三步 计算偏移量
-                long position = (uploadFile.getChunkNumber() - 1) * uploadFile.getChunkSize();
-                //第四步 获取分片数据
-                byte[] fileData = qiwenMultipartFile.getUploadBytes();
-                //第五步 写入数据
-                fileChannel.position(position);
-                fileChannel.write(ByteBuffer.wrap(fileData));
-                fileChannel.force(true);
-                fileChannel.close();
-            } finally {
-                IOUtils.closeQuietly(raf);
-            }
-
-            //判断是否完成文件的传输并进行校验与重命名
-            boolean isComplete = checkUploadStatus(uploadFile, confFile);
-            uploadFileResult.setFileUrl(fileUrl);
-            uploadFileResult.setFileName(qiwenMultipartFile.getFileName());
-            uploadFileResult.setExtendName(qiwenMultipartFile.getExtendName());
-            uploadFileResult.setFileSize(uploadFile.getTotalSize());
-            uploadFileResult.setStorageType(StorageTypeEnum.LOCAL);
-
-            if (uploadFile.getTotalChunks() == 1) {
-                uploadFileResult.setFileSize(qiwenMultipartFile.getSize());
-            }
-            uploadFileResult.setIdentifier(uploadFile.getIdentifier());
-            if (isComplete) {
-                tempFile.renameTo(file);
-                FILE_URL_MAP.remove(uploadFile.getIdentifier());
-
-
-
-                uploadFileResult.setStatus(UploadFileStatusEnum.SUCCESS);
-            } else {
-                uploadFileResult.setStatus(UploadFileStatusEnum.UNCOMPLATE);
-            }
-        } catch (IOException e) {
-            throw new UploadException(e);
+    private void completeUpload(File tempFile, File destFile) throws IOException {
+        if (!tempFile.renameTo(destFile)) {
+            // Fallback to Files.move if renameTo fails (e.g., across filesystems)
+            Files.move(tempFile.toPath(), destFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
         }
-
-
-        return uploadFileResult;
     }
 
     @Override
@@ -107,11 +65,75 @@ public class LocalStorageUploader extends Uploader {
     @Override
     protected void doUploadFileChunk(QiwenMultipartFile qiwenMultipartFile, UploadFile uploadFile) {
 
+        try {
+            UploadFileInfo uploadFileInfo = JSON.parseObject(cacheService.getObject("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":uploadPartRequest"), UploadFileInfo.class);
+
+            if (uploadFileInfo == null) {
+                String fileUrl = qiwenMultipartFile.getFileUrl();
+                uploadFileInfo = new UploadFileInfo();
+                uploadFileInfo.setKey(fileUrl);
+                cacheService.set("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":uploadPartRequest", JSON.toJSONString(uploadFileInfo));
+            }
+
+
+            File tempFile = new File(UFOPUtils.getDataPath() + uploadFileInfo.getKey());
+            //第一步 打开将要写入的文件
+            RandomAccessFile raf = new RandomAccessFile(tempFile, "rw");
+            //第二步 打开通道
+            try {
+                FileChannel fileChannel = raf.getChannel();
+                //第三步 计算偏移量
+                long position = (uploadFile.getChunkNumber() - 1) * uploadFile.getChunkSize();
+                //第四步 获取分片数据
+                byte[] fileData = qiwenMultipartFile.getUploadBytes();
+                //第五步 写入数据
+                fileChannel.position(position);
+                fileChannel.write(ByteBuffer.wrap(fileData));
+                fileChannel.force(true);
+                fileChannel.close();
+            } finally {
+                IOUtils.closeQuietly(raf);
+            }
+
+
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     protected UploadFileResult organizationalResults(QiwenMultipartFile qiwenMultipartFile, UploadFile uploadFile) {
-        return null;
+        UploadFileResult uploadFileResult = new UploadFileResult();
+        UploadFileInfo uploadFileInfo = JSON.parseObject(cacheService.getObject("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":uploadPartRequest"), UploadFileInfo.class);
+
+        uploadFileResult.setFileUrl(uploadFileInfo.getKey());
+        uploadFileResult.setFileName(qiwenMultipartFile.getFileName());
+        uploadFileResult.setExtendName(qiwenMultipartFile.getExtendName());
+        uploadFileResult.setFileSize(uploadFile.getTotalSize());
+        if (uploadFile.getTotalChunks() == 1) {
+            uploadFileResult.setFileSize(qiwenMultipartFile.getSize());
+        }
+        uploadFileResult.setStorageType(StorageTypeEnum.LOCAL);
+        uploadFileResult.setIdentifier(uploadFile.getIdentifier());
+
+        if (uploadFile.getChunkNumber() == uploadFile.getTotalChunks()) {
+            String fileUrl = uploadFileInfo.getKey();
+            log.info("分片上传完成， 路径: {}", fileUrl);
+
+            uploadFileResult.setStatus(UploadFileStatusEnum.SUCCESS);
+
+            cacheService.deleteKey("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":current_upload_chunk_number");
+            cacheService.deleteKey("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":partETags");
+            cacheService.deleteKey("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":uploadPartRequest");
+
+
+        } else {
+            uploadFileResult.setStatus(UploadFileStatusEnum.UNCOMPLATE);
+
+        }
+        return uploadFileResult;
     }
 
 }

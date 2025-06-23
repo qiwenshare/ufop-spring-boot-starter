@@ -47,6 +47,8 @@ public class UFOPFactory {
     @Resource
     private FastDFSPreviewer fastDFSPreviewer;
     @Resource
+    private LocalStoragePreviewer localStoragePreviewer;
+    @Resource
     private FastDFSWriter fastDFSWriter;
     @Resource
     private AliyunOSSUploader aliyunOSSUploader;
@@ -56,6 +58,12 @@ public class UFOPFactory {
     private QiniuyunKodoUploader qiniuyunKodoUploader;
     @Resource
     private TencentCOSUploader tencentCOSUploader;
+    @Resource
+    private LocalStorageUploader localStorageUploader;
+    @Resource
+    private LocalStorageDownloader localStorageDownloader;
+    @Resource
+    private LocalStorageReader localStorageReader;
     public UFOPFactory() {
     }
 
@@ -73,7 +81,7 @@ public class UFOPFactory {
         int type = Integer.parseInt(storageType);
         Uploader uploader = null;
         if (StorageTypeEnum.LOCAL.getCode() == type) {
-            uploader = new LocalStorageUploader();
+            uploader = localStorageUploader;
         } else if (StorageTypeEnum.ALIYUN_OSS.getCode() == type) {
             uploader = aliyunOSSUploader;
         } else if (StorageTypeEnum.FAST_DFS.getCode() == type) {
@@ -96,7 +104,7 @@ public class UFOPFactory {
     public Downloader getDownloader(int storageType) {
         Downloader downloader = null;
         if (StorageTypeEnum.LOCAL.getCode() == storageType) {
-            downloader = new LocalStorageDownloader();
+            downloader = localStorageDownloader;
         } else if (StorageTypeEnum.ALIYUN_OSS.getCode() == storageType) {
             downloader = new AliyunOSSDownloader(aliyunConfig);
         } else if (StorageTypeEnum.FAST_DFS.getCode() == storageType) {
@@ -141,7 +149,7 @@ public class UFOPFactory {
     public Reader getReader(int storageType) {
         Reader reader = null;
         if (StorageTypeEnum.LOCAL.getCode() == storageType) {
-            reader = new LocalStorageReader();
+            reader = localStorageReader;
         } else if (StorageTypeEnum.ALIYUN_OSS.getCode() == storageType) {
             reader = new AliyunOSSReader(aliyunConfig);
         } else if (StorageTypeEnum.FAST_DFS.getCode() == storageType) {
@@ -185,7 +193,7 @@ public class UFOPFactory {
     public Previewer getPreviewer(int storageType) {
         Previewer previewer = null;
         if (StorageTypeEnum.LOCAL.getCode() == storageType) {
-            previewer = new LocalStoragePreviewer(thumbImage);
+            previewer = localStoragePreviewer;
         } else if (StorageTypeEnum.ALIYUN_OSS.getCode() == storageType) {
             previewer = new AliyunOSSPreviewer(aliyunConfig, thumbImage);
         } else if (StorageTypeEnum.FAST_DFS.getCode() == storageType) {

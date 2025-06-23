@@ -11,223 +11,257 @@ import org.springframework.stereotype.Service;
 
 import jakarta.annotation.Resource;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * 基于Redis实现的分布式锁服务
+ * 特点：
+ * 1. 支持阻塞和非阻塞获取锁
+ * 2. 支持锁超时自动释放
+ * 3. 保证解锁操作的原子性
+ * 4. 适合分布式环境使用
+ */
 @Service
 @Slf4j
 public class LockServiceRedisImpl implements LockService {
 
-    /**
-     * 默认轮休获取锁间隔时间， 单位：毫秒
-     */
+    // 默认获取锁的重试间隔(毫秒)
     private static final int DEFAULT_ACQUIRE_RESOLUTION_MILLIS = 100;
+    // 默认锁过期时间(秒)
+    private static final long DEFAULT_LOCK_EXPIRE_SECONDS = TimeUnit.MINUTES.toSeconds(5);
+    // 无超时标志
+    private static final long NO_TIMEOUT = -1;
+    // Redis键前缀，避免与其他业务key冲突
+    private static final String LOCK_PREFIX = "lock:";
 
-    private static final String UNLOCK_LUA;
-
-    private static final long LOCK_EXPIRE_TIME = 60 * 5; //获取锁最大5分钟就会过期
-
+    /**
+     * 解锁Lua脚本
+     * 保证判断锁归属和删除锁的原子性
+     * 逻辑：
+     * 1. 如果锁存在且值匹配，则删除锁
+     * 2. 如果锁不存在，也返回成功
+     * 3. 其他情况返回失败
+     */
+    private static final String UNLOCK_LUA =
+            "local lockKey = KEYS[1]\n" +
+                    "local lockValue = ARGV[1]\n" +
+                    "local currentValue = redis.call('get', lockKey)\n" +
+                    "if currentValue == lockValue then\n" +
+                    "    redis.call('del', lockKey)\n" +
+                    "    return 1\n" +
+                    "elseif currentValue == false then\n" +
+                    "    return 1\n" +
+                    "else\n" +
+                    "    return 0\n" +
+                    "end";
 
     @Resource
-    StringRedisTemplate stringRedisTemplate;
-
-    static {
-        UNLOCK_LUA = "if redis.call(\"get\",KEYS[1]) == ARGV[1] " +
-                "then " +
-                "    return redis.call(\"del\",KEYS[1]) " +
-                "else " +
-                "    return 0 " +
-                "end ";
-    }
-
-    private final ThreadLocal<Map<String, LockVO>> lockMap = new ThreadLocal<>();
+    private StringRedisTemplate stringRedisTemplate;
 
     /**
-     * 获取锁，没有获取到则一直等待
-     * @param key 键
+     * 获取锁（阻塞式）
+     * @param key 锁的业务键
      */
-    public void lock(final String key) {
-
-        try {
-            acquireLock(key, LOCK_EXPIRE_TIME, -1);
-        } catch (Exception e) {
-            throw new RuntimeException("acquire lock exception", e);
-        }
+    @Override
+    public void lock(String key) {
+        acquireLockWithException(key, DEFAULT_LOCK_EXPIRE_SECONDS, NO_TIMEOUT);
     }
 
     /**
      * 释放锁
-     * @param key 键
+     * @param key 锁的业务键
      */
+    @Override
     public void unlock(String key) {
         try {
             release(key);
         } catch (Exception e) {
-            throw new RuntimeException("release lock exception", e);
+            throw new LockOperationException("release lock exception", e);
         }
     }
 
     /**
-     * 尝试获取锁，指定时间内没有获取到，返回false。否则 返回true
-     * @param key 键
-     * @return 返回是否获取成功
+     * 尝试获取锁（非阻塞式）
+     * @param key 锁的业务键
+     * @return 是否获取成功
      */
-    public boolean tryLock(final String key) {
-        try {
-            return acquireLock(key, LOCK_EXPIRE_TIME, -1);
-        } catch (Exception e) {
-            throw new RuntimeException("acquire lock exception", e);
-        }
+    @Override
+    public boolean tryLock(String key) {
+        return acquireLockWithException(key, DEFAULT_LOCK_EXPIRE_SECONDS, NO_TIMEOUT);
     }
 
     /**
-     * 获取锁，指定时间内没有获取到，返回false。否则 返回true
-     * @param key 键
-     * @param time 获取锁等待时间
+     * 尝试获取锁（带超时）
+     * @param key 锁的业务键
+     * @param time 超时时间
      * @param unit 时间单位
-     * @return 返回是否获取成功
+     * @return 是否获取成功
      */
+    @Override
     public boolean tryLock(String key, long time, TimeUnit unit) {
+        return acquireLockWithException(key, DEFAULT_LOCK_EXPIRE_SECONDS, unit.toSeconds(time));
+    }
+
+    /**
+     * 封装获取锁的异常处理
+     * @param key 锁的业务键
+     * @param expire 锁过期时间(秒)
+     * @param waitTime 等待超时时间(秒)
+     * @return 是否获取成功
+     */
+    private boolean acquireLockWithException(String key, long expire, long waitTime) {
         try {
-            return acquireLock(key, LOCK_EXPIRE_TIME, unit.toSeconds(time));
+            return acquireLock(key, expire, waitTime);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new LockOperationException("acquire lock interrupted", e);
         } catch (Exception e) {
-            throw new RuntimeException("acquire lock exception", e);
+            throw new LockOperationException("acquire lock exception", e);
         }
     }
 
     /**
-     * 获取锁
-     * @param key redis key
-     * @param expire 锁过期时间, 单位 秒
-     * @param waitTime 获取锁超时时间, -1代表永不超时, 单位 秒
-     * @return if true success else fail
-     * @throws InterruptedException 阻塞方法收到中断请求
+     * 核心获取锁逻辑
+     * @param key 锁的业务键
+     * @param expire 锁过期时间(秒)
+     * @param waitTime 等待超时时间(秒)
+     * @return 是否获取成功
+     * @throws InterruptedException 线程中断异常
      */
     private boolean acquireLock(String key, long expire, long waitTime) throws InterruptedException {
-        //如果之前获取到了并且没有超时，则返回获取成功
-        boolean acquired = acquired(key);
-        if (acquired) {
-            return true;
+        // 构造完整的Redis键
+        String fullKey = LOCK_PREFIX + key;
+        // 生成唯一锁标识
+        String lockId = UUID.randomUUID().toString();
+        // 重试计数器
+        AtomicInteger retryCount = new AtomicInteger(0);
+
+        // 计算获取锁的绝对超时时间
+        long acquireTimeout = waitTime == NO_TIMEOUT ?
+                Long.MAX_VALUE :
+                System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(waitTime);
+
+        // 在超时时间内循环尝试获取锁
+        while (System.currentTimeMillis() < acquireTimeout) {
+            // 尝试获取Redis锁
+            if (tryRedisLock(fullKey, lockId, expire)) {
+                log.debug("Acquired lock {} successfully", key);
+                return true;
+            }
+
+            // 根据是否设置超时决定等待时间
+            if (waitTime == NO_TIMEOUT) {
+                TimeUnit.MILLISECONDS.sleep(DEFAULT_ACQUIRE_RESOLUTION_MILLIS);
+            } else {
+                long remaining = acquireTimeout - System.currentTimeMillis();
+                if (remaining <= 0) break;
+                // 取剩余时间和默认间隔的较小值
+                TimeUnit.MILLISECONDS.sleep(Math.min(DEFAULT_ACQUIRE_RESOLUTION_MILLIS, remaining));
+            }
+
+            // 每10次重试打印一次日志
+            if (retryCount.incrementAndGet() % 10 == 0) {
+                log.debug("Still waiting for lock {}, retry count: {}", key, retryCount.get());
+            }
         }
-        long acquireTime = waitTime == -1 ? -1 : waitTime * 1000 + System.currentTimeMillis();
-        //同一个进程，对于同一个key锁，只允许先到的去尝试获取。
-        // key.intern() 如果常量池中存在当前字符串, 就会直接返回当前字符串.
-        // 如果常量池中没有此字符串, 会将此字符串放入常量池中后, 再返回
-        synchronized (key.intern()) {
-            String lockId = UUID.randomUUID().toString();
-            do {
-                long before = System.currentTimeMillis();
-                boolean hasLock = tryLock(key, expire, lockId);
-                //获取锁成功
-                if (hasLock) {
-                    long after = System.currentTimeMillis();
-                    Map<String, LockVO> map = lockMap.get();
-                    if (map == null) {
-                        map = new HashMap<>(2);
-                        lockMap.set(map);
-                    }
-                    map.put(key, new LockVO(1, lockId, expire * 1000 + before, expire * 1000 + after));
-                    log.debug("acquire lock {} {} ", key, 1);
-                    return true;
-                }
-                Thread.sleep(DEFAULT_ACQUIRE_RESOLUTION_MILLIS);
-            } while (acquireTime == -1 || acquireTime > System.currentTimeMillis());
-        }
-        log.info("acquire lock {} fail，because timeout ", key);
+
+        log.info("Failed to acquire lock {} after {} retries", key, retryCount.get());
         return false;
+    }
+
+    /**
+     * 尝试获取Redis锁
+     * @param fullKey 完整的Redis键
+     * @param lockId 锁的唯一标识
+     * @param expireSeconds 过期时间(秒)
+     * @return 是否获取成功
+     */
+    private boolean tryRedisLock(String fullKey, String lockId, long expireSeconds) {
+        try {
+            // 使用SET命令的NX选项实现原子性获取锁
+            RedisCallback<Boolean> callback = connection ->
+                    connection.set(
+                            fullKey.getBytes(StandardCharsets.UTF_8),
+                            lockId.getBytes(StandardCharsets.UTF_8),
+                            Expiration.seconds(expireSeconds),
+                            RedisStringCommands.SetOption.SET_IF_ABSENT
+                    );
+            return Boolean.TRUE.equals(stringRedisTemplate.execute(callback));
+        } catch (Exception e) {
+            log.error("Redis lock error for key: {}", fullKey, e);
+            return false;
+        }
     }
 
     /**
      * 释放锁
-     * @param key 键
+     * @param key 锁的业务键
      */
     private void release(String key) {
-        Map<String, LockVO> map = lockMap.get();
-        if (map == null || map.size() == 0 || !map.containsKey(key)) {
+        String fullKey = LOCK_PREFIX + key;
+        // 获取当前锁的值
+        String lockId = getCurrentLockId(fullKey);
+
+        if (lockId == null) {
+            log.debug("No active lock found for key: {}", key);
             return;
         }
-        LockVO vo = map.get(key);
-        if (vo.afterExpireTime < System.currentTimeMillis()) {
-            log.debug("release lock {}, because timeout ", key);
-            map.remove(key);
-            return;
-        }
-        int after = --vo.count;
-        log.debug("release lock {} {} ", key, after);
-        if (after > 0) {
-            return;
-        }
-        map.remove(key);
-        RedisCallback<Boolean> callback = (connection) ->
-                connection.eval(UNLOCK_LUA.getBytes(StandardCharsets.UTF_8), ReturnType.BOOLEAN, 1,
-                        (key).getBytes(StandardCharsets.UTF_8), vo.lockId.getBytes(StandardCharsets.UTF_8));
-        stringRedisTemplate.execute(callback);
+
+        // 执行解锁脚本
+        executeUnlockScript(fullKey, lockId);
     }
 
     /**
-     * 获取锁
-     * @param key 锁的key
-     * @param expire 锁的超时时间 秒
-     * @param lockId 获取锁后，UUID生成的唯一ID
-     * @return 返回成功或失败
+     * 获取当前锁的值
+     * @param fullKey 完整的Redis键
+     * @return 锁的值，获取失败返回null
      */
-    private boolean tryLock(String key, long expire, String lockId) {
-        try{
-            RedisCallback<Boolean> callback = (connection) ->
-                    connection.set(
-                            (key).getBytes(StandardCharsets.UTF_8),
-                            lockId.getBytes(StandardCharsets.UTF_8),
-                            Expiration.seconds(expire),
-                            RedisStringCommands.SetOption.SET_IF_ABSENT);
-            return stringRedisTemplate.execute(callback);
+    private String getCurrentLockId(String fullKey) {
+        try {
+            return stringRedisTemplate.opsForValue().get(fullKey);
         } catch (Exception e) {
-            log.error("redis lock error.", e);
-        }
-        return false;
-    }
-
-    private static class LockVO {
-        /**
-         * 锁重入的次数
-         */
-        private int count;
-
-        /**
-         * 获取锁后，UUID生成的唯一ID
-         */
-        private String lockId;
-        /**
-         * 获取锁之前的时间戳
-         */
-        private long beforeExpireTime;
-        /**
-         * 获取到锁的时间戳
-         */
-        private long afterExpireTime;
-
-        LockVO(int count, String lockId, long beforeExpireTime, long afterExpireTime) {
-            this.count = count;
-            this.lockId = lockId;
-            this.beforeExpireTime = beforeExpireTime;
-            this.afterExpireTime = afterExpireTime;
+            log.error("Failed to get lock value for key: {}", fullKey, e);
+            return null;
         }
     }
 
-    private boolean acquired(String key) {
-        Map<String, LockVO> map = lockMap.get();
-        if (map == null || map.size() == 0 || !map.containsKey(key)) {
-            return false;
-        }
+    /**
+     * 执行解锁Lua脚本
+     * @param fullKey 完整的Redis键
+     * @param lockId 锁的唯一标识
+     */
+    private void executeUnlockScript(String fullKey, String lockId) {
+        try {
+            RedisCallback<Long> callback = connection ->
+                    connection.eval(
+                            UNLOCK_LUA.getBytes(StandardCharsets.UTF_8),
+                            ReturnType.INTEGER,
+                            1,
+                            fullKey.getBytes(StandardCharsets.UTF_8),
+                            lockId.getBytes(StandardCharsets.UTF_8)
+                    );
 
-        LockVO vo = map.get(key);
-        if (vo.beforeExpireTime < System.currentTimeMillis()) {
-            log.debug("lock {} maybe release, because timeout ", key);
-            return false;
+            // 执行脚本并处理结果
+            Long result = stringRedisTemplate.execute(callback);
+            if (result != null && result == 1) {
+                log.debug("Released lock {} successfully", fullKey.substring(LOCK_PREFIX.length()));
+            } else {
+                log.warn("Failed to release lock {}, possibly already expired or released",
+                        fullKey.substring(LOCK_PREFIX.length()));
+            }
+        } catch (Exception e) {
+            log.error("Error while releasing lock: {}", fullKey, e);
         }
-        int after = ++vo.count;
-        log.debug("acquire lock {} {} ", key, after);
-        return true;
+    }
+
+    /**
+     * 锁操作异常
+     */
+    private static class LockOperationException extends RuntimeException {
+        LockOperationException(String message, Throwable cause) {
+            super(message, cause);
+        }
     }
 }

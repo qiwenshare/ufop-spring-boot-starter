@@ -13,7 +13,7 @@ public interface LockService {
     void unlock(String key);
 
     /**
-     * 尝试获取锁，指定时间内没有获取到，返回false。否则 返回true
+     * 尝试获取锁，没有获取到，返回false。否则 返回true
      * @param key 键
      * @return 返回是否获取成功
      */

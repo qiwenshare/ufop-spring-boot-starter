@@ -8,7 +8,6 @@ import com.qiwenshare.ufop.util.CharsetUtils;
 import com.qiwenshare.ufop.util.UFOPUtils;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 
@@ -110,54 +109,4 @@ public abstract class Previewer {
             }
         }
     }
-
-//    public void videoPreview(HttpServletResponse httpServletResponse, PreviewFile previewFile) {
-//        String fileUrl = previewFile.getFileUrl();
-//
-//
-//        String thumbnailImgUrl = fileUrl.replace("." + FilenameUtils.getExtension(fileUrl), ".mp4");
-//
-//        InputStream inputStream = null;
-//
-//        OutputStream outputStream = null;
-//
-//        File cacheFile = UFOPUtils.getCacheFile(thumbnailImgUrl);
-//        try {
-//            if (!cacheFile.exists()) {
-//
-//                inputStream = getInputStream(previewFile);
-//                FFmpegFrameGrabber frameGrabber = new FFmpegFrameGrabber(inputStream);
-//
-//                Frame captured_frame = null;
-//                FFmpegFrameRecorder recorder = null;
-//
-//
-//                frameGrabber.start();
-//                recorder = new FFmpegFrameRecorder(cacheFile, frameGrabber.getImageWidth(), frameGrabber.getImageHeight(), frameGrabber.getAudioChannels());
-//                recorder.setVideoCodec(avcodec.AV_CODEC_ID_H264); //avcodec.AV_CODEC_ID_H264  //AV_CODEC_ID_MPEG4
-//                recorder.setFormat("mp4");
-//                recorder.setFrameRate(frameGrabber.getFrameRate());
-//                //recorder.setSampleFormat(frameGrabber.getSampleFormat()); //
-//                recorder.setSampleRate(frameGrabber.getSampleRate());
-//
-//                recorder.setAudioChannels(frameGrabber.getAudioChannels());
-//                recorder.setFrameRate(frameGrabber.getFrameRate());
-//                recorder.start();
-//                while ((captured_frame = frameGrabber.grabFrame()) != null) {
-//                    try {
-//                        recorder.setTimestamp(frameGrabber.getTimestamp());
-//                        recorder.record(captured_frame);
-//                    } catch (Exception e) {
-//                    }
-//                }
-//                recorder.stop();
-//                recorder.release();
-//                frameGrabber.stop();
-//
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    }
-
 }
