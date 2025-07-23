@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.qiwenshare</groupId>
         <artifactId>qiwenshare</artifactId>
-        <version>1.4.0</version>
+        <version>1.4.1</version>
         <relativePath/>
     </parent>
     <artifactId>ufop-spring-boot-starter</artifactId>
@@ -132,8 +132,8 @@
 
         <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-fileupload2-jakarta-servlet6 -->
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-fileupload2-jakarta-servlet6</artifactId>
+            <groupId>commons-fileupload</groupId>
+            <artifactId>commons-fileupload</artifactId>
         </dependency>
 
 
@@ -147,28 +147,6 @@
 <!--        </dependency>-->
 
     </dependencies>
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-<!--                <version>3.10.0</version>-->
-                <configuration>
-<!--                    <source>23</source>-->
-<!--                    <target>23</target>-->
-<!--                    <release>23</release>-->
-                    <encoding>utf-8</encoding>
-                    <annotationProcessorPaths>
-                        <path>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-<!--                            <version>1.18.34</version>-->
-                        </path>
-                    </annotationProcessorPaths>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 
 
 </project>

@@ -6,7 +6,7 @@ import com.qiwenshare.ufop.operation.write.domain.WriteFile;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import jakarta.annotation.Resource;
+import javax.annotation.Resource;
 import java.io.InputStream;
 
 @Component

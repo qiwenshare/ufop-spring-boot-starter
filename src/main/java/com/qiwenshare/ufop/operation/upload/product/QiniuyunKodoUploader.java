@@ -22,7 +22,7 @@ import com.qiwenshare.ufop.util.QiniuyunUtils;
 import com.qiwenshare.ufop.util.UFOPUtils;
 import lombok.extern.slf4j.Slf4j;
 
-import jakarta.annotation.Resource;
+import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
 

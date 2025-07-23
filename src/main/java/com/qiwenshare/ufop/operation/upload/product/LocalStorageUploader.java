@@ -15,7 +15,7 @@ import com.qiwenshare.ufop.operation.upload.request.QiwenMultipartFile;
 import com.qiwenshare.ufop.util.AliyunUtils;
 import com.qiwenshare.ufop.util.UFOPUtils;
 import io.minio.CreateMultipartUploadResponse;
-import jakarta.annotation.Resource;
+import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;

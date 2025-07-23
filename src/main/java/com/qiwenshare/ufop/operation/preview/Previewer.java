@@ -8,10 +8,11 @@ import com.qiwenshare.ufop.util.CharsetUtils;
 import com.qiwenshare.ufop.util.UFOPUtils;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 
-import jakarta.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 
 @Slf4j
@@ -34,7 +35,7 @@ public abstract class Previewer {
 
 
         File cacheFile = UFOPUtils.getCacheFile(thumbnailImgUrl);
-//        File tempFile = UFOPUtils.getTempFile(thumbnailImgUrl);
+        File tempFile = UFOPUtils.getTempFile(thumbnailImgUrl);
 
         if (cacheFile.exists()) {
             FileInputStream fis = null;
@@ -56,15 +57,31 @@ public abstract class Previewer {
             InputStream inputstream = null;
             try {
                 inputstream = getInputStream(previewFile);
+                if (!tempFile.exists()) {
+                    tempFile.createNewFile();
+                }
+                FileUtils.copyInputStreamToFile(inputstream, tempFile);
             } catch (PreviewException previewException) {
                 log.error(previewException.getMessage());
                 return;
+            } catch (IOException e) {
+                log.error("IO 异常", e);
+            } finally {
+                IOUtils.closeQuietly(inputstream);
             }
 
             try {
                 outputStream = httpServletResponse.getOutputStream();
-                in = ImageOperation.thumbnailsImageForScale(inputstream, cacheFile, 50);
-                IOUtils.copy(in, outputStream);
+                if (!cacheFile.getParentFile().exists()) {
+                    cacheFile.getParentFile().mkdirs();
+                }
+                ImageOperation.thumbnailsImageFile(tempFile, cacheFile, 576, 324);
+                FileInputStream tempStream = new FileInputStream(cacheFile);
+                try {
+                    IOUtils.copy(tempStream, outputStream);
+                } finally {
+                    IOUtils.closeQuietly(tempStream);
+                }
 
             } catch (IOException e) {
                 e.printStackTrace();
