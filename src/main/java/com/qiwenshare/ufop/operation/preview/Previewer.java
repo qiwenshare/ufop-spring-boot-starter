@@ -1,10 +1,10 @@
 package com.qiwenshare.ufop.operation.preview;
 
-import com.qiwenshare.common.operation.ImageOperation;
 import com.qiwenshare.ufop.domain.ThumbImage;
 import com.qiwenshare.ufop.exception.operation.PreviewException;
 import com.qiwenshare.ufop.operation.preview.domain.PreviewFile;
 import com.qiwenshare.ufop.util.CharsetUtils;
+import com.qiwenshare.ufop.util.ImageOperation;
 import com.qiwenshare.ufop.util.UFOPUtils;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;

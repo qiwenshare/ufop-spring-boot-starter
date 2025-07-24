@@ -77,10 +77,10 @@
             <groupId>com.aliyun.oss</groupId>
             <artifactId>aliyun-sdk-oss</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.qiwenshare</groupId>
-            <artifactId>qiwenshare-common</artifactId>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.qiwenshare</groupId>-->
+<!--            <artifactId>qiwenshare-common</artifactId>-->
+<!--        </dependency>-->
 
         <dependency>
             <groupId>org.apache.poi</groupId>
@@ -129,13 +129,66 @@
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-http</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>com.alibaba.fastjson2</groupId>
+            <artifactId>fastjson2</artifactId>
+        </dependency>
         <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-fileupload2-jakarta-servlet6 -->
         <dependency>
             <groupId>commons-fileupload</groupId>
             <artifactId>commons-fileupload</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>org.bytedeco</groupId>
+            <artifactId>javacv-platform</artifactId>
+            <!--            <exclusions>-->
+            <!--                &lt;!&ndash; 排除不必要的平台包 &ndash;&gt;-->
+            <!--                <exclusion>-->
+            <!--                    <groupId>org.bytedeco</groupId>-->
+            <!--                    <artifactId>openblas-platform</artifactId>-->
+            <!--                </exclusion>-->
+            <!--                <exclusion>-->
+            <!--                    <groupId>org.bytedeco</groupId>-->
+            <!--                    <artifactId>flycapture-platform</artifactId>-->
+            <!--                </exclusion>-->
+            <!--                <exclusion>-->
+            <!--                    <groupId>org.bytedeco</groupId>-->
+            <!--                    <artifactId>libdc1394-platform</artifactId>-->
+            <!--                </exclusion>-->
+            <!--                <exclusion>-->
+            <!--                    <groupId>org.bytedeco</groupId>-->
+            <!--                    <artifactId>libfreenect-platform</artifactId>-->
+            <!--                </exclusion>-->
+            <!--                <exclusion>-->
+            <!--                    <groupId>org.bytedeco</groupId>-->
+            <!--                    <artifactId>libfreenect2-platform</artifactId>-->
+            <!--                </exclusion>-->
+            <!--                <exclusion>-->
+            <!--                    <groupId>org.bytedeco</groupId>-->
+            <!--                    <artifactId>librealsense-platform</artifactId>-->
+            <!--                </exclusion>-->
+            <!--                <exclusion>-->
+            <!--                    <groupId>org.bytedeco</groupId>-->
+            <!--                    <artifactId>librealsense2-platform</artifactId>-->
+            <!--                </exclusion>-->
+            <!--                <exclusion>-->
+            <!--                    <groupId>org.bytedeco</groupId>-->
+            <!--                    <artifactId>videoinput-platform</artifactId>-->
+            <!--                </exclusion>-->
+            <!--                <exclusion>-->
+            <!--                    <groupId>org.bytedeco</groupId>-->
+            <!--                    <artifactId>artoolkitplus-platform</artifactId>-->
+            <!--                </exclusion>-->
+            <!--                <exclusion>-->
+            <!--                    <groupId>org.bytedeco</groupId>-->
+            <!--                    <artifactId>leptonica-platform</artifactId>-->
+            <!--                </exclusion>-->
+            <!--                <exclusion>-->
+            <!--                    <groupId>org.bytedeco</groupId>-->
+            <!--                    <artifactId>tesseract-platform</artifactId>-->
+            <!--                </exclusion>-->
+            <!--            </exclusions>-->
+        </dependency>
 
         <!--        <dependency>-->
 <!--            <groupId>org.bytedeco</groupId>-->
