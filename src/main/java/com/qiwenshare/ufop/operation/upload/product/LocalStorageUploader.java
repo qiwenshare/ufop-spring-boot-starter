@@ -1,35 +1,30 @@
 package com.qiwenshare.ufop.operation.upload.product;
 
-import com.alibaba.fastjson2.JSON;
-import com.aliyun.oss.OSS;
-import com.aliyun.oss.model.*;
+
 import com.qiwenshare.ufop.cache.CacheService;
 import com.qiwenshare.ufop.constant.StorageTypeEnum;
 import com.qiwenshare.ufop.constant.UploadFileStatusEnum;
-import com.qiwenshare.ufop.exception.operation.UploadException;
 import com.qiwenshare.ufop.operation.upload.Uploader;
 import com.qiwenshare.ufop.operation.upload.domain.UploadFile;
 import com.qiwenshare.ufop.operation.upload.domain.UploadFileInfo;
 import com.qiwenshare.ufop.operation.upload.domain.UploadFileResult;
 import com.qiwenshare.ufop.operation.upload.request.QiwenMultipartFile;
-import com.qiwenshare.ufop.util.AliyunUtils;
+import com.qiwenshare.ufop.util.JSON;
 import com.qiwenshare.ufop.util.UFOPUtils;
-import io.minio.CreateMultipartUploadResponse;
-import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.*;
+import javax.annotation.Resource;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -66,6 +61,7 @@ public class LocalStorageUploader extends Uploader {
     protected void doUploadFileChunk(QiwenMultipartFile qiwenMultipartFile, UploadFile uploadFile) {
 
         try {
+
             UploadFileInfo uploadFileInfo = JSON.parseObject(cacheService.getObject("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":uploadPartRequest"), UploadFileInfo.class);
 
             if (uploadFileInfo == null) {

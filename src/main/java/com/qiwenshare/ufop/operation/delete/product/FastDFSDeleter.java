@@ -1,9 +1,9 @@
 package com.qiwenshare.ufop.operation.delete.product;
 
-import com.github.tobato.fastdfs.exception.FdfsServerException;
-import com.github.tobato.fastdfs.service.FastFileStorageClient;
 import com.qiwenshare.ufop.operation.delete.Deleter;
 import com.qiwenshare.ufop.operation.delete.domain.DeleteFile;
+import com.qiwenshare.ufop.plugins.fastdfs.exception.FdfsServerException;
+import com.qiwenshare.ufop.plugins.fastdfs.service.FastFileStorageClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

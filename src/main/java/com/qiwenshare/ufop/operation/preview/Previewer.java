@@ -11,6 +11,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
@@ -123,6 +128,17 @@ public abstract class Previewer {
             IOUtils.closeQuietly(outputStream);
             if (previewFile.getOssClient() != null) {
                 previewFile.getOssClient().shutdown();
+            }
+        }
+    }
+
+    public InputStream downloadAsStream(String url) throws IOException {
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            HttpGet httpGet = new HttpGet(url);
+
+            try (CloseableHttpResponse response = httpClient.execute(httpGet)) {
+                byte[] bytes = EntityUtils.toByteArray(response.getEntity());
+                return new ByteArrayInputStream(bytes);
             }
         }
     }

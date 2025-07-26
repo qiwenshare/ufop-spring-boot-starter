@@ -1,9 +1,10 @@
 package com.qiwenshare.ufop.operation.copy.product;
 
-import com.github.tobato.fastdfs.domain.fdfs.StorePath;
-import com.github.tobato.fastdfs.service.AppendFileStorageClient;
+
 import com.qiwenshare.ufop.operation.copy.Copier;
 import com.qiwenshare.ufop.operation.copy.domain.CopyFile;
+import com.qiwenshare.ufop.plugins.fastdfs.domain.fdfs.StorePath;
+import com.qiwenshare.ufop.plugins.fastdfs.service.AppendFileStorageClient;
 import org.apache.commons.io.IOUtils;
 
 import javax.annotation.Resource;

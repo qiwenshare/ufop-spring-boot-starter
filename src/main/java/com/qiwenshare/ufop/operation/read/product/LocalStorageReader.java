@@ -4,7 +4,6 @@ import com.qiwenshare.ufop.exception.operation.ReadException;
 import com.qiwenshare.ufop.operation.read.Reader;
 import com.qiwenshare.ufop.operation.read.domain.ReadFile;
 import com.qiwenshare.ufop.util.UFOPUtils;
-import com.qiwenshare.ufop.util.ReadFileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 
@@ -20,7 +19,8 @@ public class LocalStorageReader extends Reader {
         try {
             String extendName = FilenameUtils.getExtension(readFile.getFileUrl());
             fileInputStream = new FileInputStream(UFOPUtils.getDataPath() + readFile.getFileUrl());
-            fileContent = ReadFileUtils.getContentByInputStream(extendName, fileInputStream);
+            fileContent = IOUtils.toString(fileInputStream);
+//            fileContent = ReadFileUtils.getContentByInputStream(extendName, fileInputStream);
         } catch (IOException e) {
             throw new ReadException("文件读取出现异常", e);
         } finally {

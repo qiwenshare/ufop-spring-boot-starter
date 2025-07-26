@@ -1,8 +1,8 @@
 package com.qiwenshare.ufop.operation.write.product;
 
-import com.github.tobato.fastdfs.service.AppendFileStorageClient;
 import com.qiwenshare.ufop.operation.write.Writer;
 import com.qiwenshare.ufop.operation.write.domain.WriteFile;
+import com.qiwenshare.ufop.plugins.fastdfs.service.AppendFileStorageClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 

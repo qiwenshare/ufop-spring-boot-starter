@@ -1,6 +1,5 @@
 package com.qiwenshare.ufop.operation.download.product;
 
-import cn.hutool.http.HttpUtil;
 import com.qiniu.util.Auth;
 
 import com.qiwenshare.ufop.config.QiniuyunConfig;
@@ -32,7 +31,12 @@ public class QiniuyunKodoDownloader extends Downloader {
 
         String urlString = auth.privateDownloadUrl(qiniuyunConfig.getKodo().getDomain() + "/" + downloadFile.getFileUrl());
 
-        InputStream inputStream = new ByteArrayInputStream(HttpUtil.downloadBytes(urlString));
+        InputStream inputStream = null;
+        try {
+            inputStream = this.downloadAsStream(urlString);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         try {
             if (downloadFile.getRange() != null) {
                 inputStream.skip(downloadFile.getRange().getStart());

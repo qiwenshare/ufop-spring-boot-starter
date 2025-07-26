@@ -1,9 +1,10 @@
 package com.qiwenshare.ufop.operation.download.product;
 
-import com.github.tobato.fastdfs.domain.proto.storage.DownloadByteArray;
-import com.github.tobato.fastdfs.service.FastFileStorageClient;
+
 import com.qiwenshare.ufop.operation.download.Downloader;
 import com.qiwenshare.ufop.operation.download.domain.DownloadFile;
+import com.qiwenshare.ufop.plugins.fastdfs.domain.proto.storage.DownloadByteArray;
+import com.qiwenshare.ufop.plugins.fastdfs.service.FastFileStorageClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

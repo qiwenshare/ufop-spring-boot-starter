@@ -1,9 +1,5 @@
 package com.qiwenshare.ufop.operation.upload.product;
 
-import com.github.tobato.fastdfs.domain.fdfs.StorePath;
-import com.github.tobato.fastdfs.exception.FdfsServerException;
-import com.github.tobato.fastdfs.service.AppendFileStorageClient;
-import com.github.tobato.fastdfs.service.FastFileStorageClient;
 import com.qiwenshare.ufop.cache.CacheService;
 import com.qiwenshare.ufop.constant.StorageTypeEnum;
 import com.qiwenshare.ufop.constant.UploadFileStatusEnum;
@@ -12,6 +8,10 @@ import com.qiwenshare.ufop.operation.upload.Uploader;
 import com.qiwenshare.ufop.operation.upload.domain.UploadFile;
 import com.qiwenshare.ufop.operation.upload.domain.UploadFileResult;
 import com.qiwenshare.ufop.operation.upload.request.QiwenMultipartFile;
+import com.qiwenshare.ufop.plugins.fastdfs.domain.fdfs.StorePath;
+import com.qiwenshare.ufop.plugins.fastdfs.exception.FdfsServerException;
+import com.qiwenshare.ufop.plugins.fastdfs.service.AppendFileStorageClient;
+import com.qiwenshare.ufop.plugins.fastdfs.service.FastFileStorageClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

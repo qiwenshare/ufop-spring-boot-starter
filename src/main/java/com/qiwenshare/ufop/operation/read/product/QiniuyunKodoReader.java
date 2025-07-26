@@ -1,15 +1,13 @@
 package com.qiwenshare.ufop.operation.read.product;
 
-import cn.hutool.http.HttpUtil;
 import com.qiniu.util.Auth;
 import com.qiwenshare.ufop.config.QiniuyunConfig;
 import com.qiwenshare.ufop.exception.operation.ReadException;
 import com.qiwenshare.ufop.operation.read.Reader;
 import com.qiwenshare.ufop.operation.read.domain.ReadFile;
-import com.qiwenshare.ufop.util.ReadFileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 
-import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,7 +29,8 @@ public class QiniuyunKodoReader extends Reader {
         String fileUrl = readFile.getFileUrl();
         String fileType = FilenameUtils.getExtension(fileUrl);
         try {
-            return ReadFileUtils.getContentByInputStream(fileType, getInputStream(readFile.getFileUrl()));
+           return IOUtils.toString(getInputStream(readFile.getFileUrl()));
+//            return ReadFileUtils.getContentByInputStream(fileType, getInputStream(readFile.getFileUrl()));
         } catch (IOException e) {
             throw new ReadException("读取文件失败", e);
         }
@@ -43,8 +42,11 @@ public class QiniuyunKodoReader extends Reader {
         String urlString = auth.privateDownloadUrl(qiniuyunConfig.getKodo().getDomain() + "/" + fileUrl);
 
 
-
-        return new ByteArrayInputStream(HttpUtil.downloadBytes(urlString));
+        try {
+            return this.downloadAsStream(urlString);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 

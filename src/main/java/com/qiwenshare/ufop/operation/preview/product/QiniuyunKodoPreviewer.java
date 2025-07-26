@@ -1,6 +1,5 @@
 package com.qiwenshare.ufop.operation.preview.product;
 
-import cn.hutool.http.HttpUtil;
 import com.qiniu.util.Auth;
 import com.qiwenshare.ufop.config.QiniuyunConfig;
 import com.qiwenshare.ufop.domain.ThumbImage;
@@ -11,6 +10,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 
 @Getter
@@ -38,7 +38,11 @@ public class QiniuyunKodoPreviewer extends Previewer {
 
         String urlString = auth.privateDownloadUrl(qiniuyunConfig.getKodo().getDomain() + "/" + previewFile.getFileUrl());
 
-        return new ByteArrayInputStream(HttpUtil.downloadBytes(urlString));
+        try {
+            return this.downloadAsStream(urlString);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 

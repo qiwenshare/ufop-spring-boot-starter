@@ -1,6 +1,5 @@
 package com.qiwenshare.ufop.autoconfiguration;
 
-import com.github.tobato.fastdfs.FdfsClientConfig;
 import com.qiwenshare.ufop.cache.CacheService;
 import com.qiwenshare.ufop.cache.impl.CacheServiceJDKImpl;
 import com.qiwenshare.ufop.cache.impl.CacheServiceRedisImpl;
@@ -19,6 +18,7 @@ import com.qiwenshare.ufop.operation.read.product.FastDFSReader;
 import com.qiwenshare.ufop.operation.read.product.LocalStorageReader;
 import com.qiwenshare.ufop.operation.upload.product.*;
 import com.qiwenshare.ufop.operation.write.product.FastDFSWriter;
+import com.qiwenshare.ufop.plugins.fastdfs.FdfsClientConfig;
 import com.qiwenshare.ufop.util.UFOPUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;

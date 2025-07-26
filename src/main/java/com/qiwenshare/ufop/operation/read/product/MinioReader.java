@@ -4,12 +4,12 @@ import com.qiwenshare.ufop.config.MinioConfig;
 import com.qiwenshare.ufop.exception.operation.ReadException;
 import com.qiwenshare.ufop.operation.read.Reader;
 import com.qiwenshare.ufop.operation.read.domain.ReadFile;
-import com.qiwenshare.ufop.util.ReadFileUtils;
 import io.minio.GetObjectArgs;
 import io.minio.MinioClient;
 import io.minio.errors.MinioException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,7 +34,8 @@ public class MinioReader extends Reader {
         String fileUrl = readFile.getFileUrl();
         String fileType = FilenameUtils.getExtension(fileUrl);
         try {
-            return ReadFileUtils.getContentByInputStream(fileType, getInputStream(readFile.getFileUrl()));
+            return IOUtils.toString(getInputStream(readFile.getFileUrl()));
+//            return ReadFileUtils.getContentByInputStream(fileType, getInputStream(readFile.getFileUrl()));
         } catch (IOException e) {
             throw new ReadException("读取文件失败", e);
         }

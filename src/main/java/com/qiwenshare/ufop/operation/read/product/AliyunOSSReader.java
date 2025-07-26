@@ -8,8 +8,8 @@ import com.qiwenshare.ufop.operation.read.Reader;
 import com.qiwenshare.ufop.operation.read.domain.ReadFile;
 import com.qiwenshare.ufop.util.AliyunUtils;
 import com.qiwenshare.ufop.util.UFOPUtils;
-import com.qiwenshare.ufop.util.ReadFileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,7 +35,8 @@ public class AliyunOSSReader extends Reader {
                 UFOPUtils.getAliyunObjectNameByFileUrl(fileUrl));
         InputStream inputStream = ossObject.getObjectContent();
         try {
-            return ReadFileUtils.getContentByInputStream(fileType, inputStream);
+            return IOUtils.toString(inputStream);
+//            return ReadFileUtils.getContentByInputStream(fileType, inputStream);
         } catch (IOException e) {
             throw new ReadException("读取文件失败", e);
         } finally {

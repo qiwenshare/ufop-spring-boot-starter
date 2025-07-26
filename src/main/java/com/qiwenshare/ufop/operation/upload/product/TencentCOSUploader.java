@@ -1,12 +1,9 @@
 package com.qiwenshare.ufop.operation.upload.product;
 
 
-import com.alibaba.fastjson2.JSON;
-
 import com.qcloud.cos.COSClient;
 import com.qcloud.cos.model.*;
 import com.qiwenshare.ufop.cache.CacheService;
-import com.qiwenshare.ufop.config.AliyunConfig;
 import com.qiwenshare.ufop.config.TencentConfig;
 import com.qiwenshare.ufop.constant.StorageTypeEnum;
 import com.qiwenshare.ufop.constant.UploadFileStatusEnum;
@@ -15,7 +12,7 @@ import com.qiwenshare.ufop.operation.upload.domain.UploadFile;
 import com.qiwenshare.ufop.operation.upload.domain.UploadFileInfo;
 import com.qiwenshare.ufop.operation.upload.domain.UploadFileResult;
 import com.qiwenshare.ufop.operation.upload.request.QiwenMultipartFile;
-import com.qiwenshare.ufop.util.AliyunUtils;
+import com.qiwenshare.ufop.util.JSON;
 import com.qiwenshare.ufop.util.TencentUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

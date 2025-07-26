@@ -1,8 +1,8 @@
 package com.qiwenshare.ufop.util;
 
-import com.alibaba.fastjson2.JSON;
 import com.qiwenshare.ufop.result.ImageInfo;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 import org.bytedeco.opencv.global.opencv_core;
 import org.bytedeco.opencv.global.opencv_imgcodecs;
 import org.bytedeco.opencv.global.opencv_imgproc;
@@ -16,6 +16,49 @@ import java.io.InputStream;
 
 @Slf4j
 public class ImageOperation {
+
+    /**
+     * 根据比例生成缩略图
+     * @param oriFile 原始图像文件
+     * @param destFile 目标图像文件
+     * @param ratio 缩放比例 (0 < ratio <= 1)
+     * @return 图像信息
+     */
+    public static ImageInfo thumbnailsImageFile(File oriFile, File destFile, double ratio) {
+        // 验证比例参数的有效性
+        if (ratio <= 0 || ratio > 1) {
+            throw new IllegalArgumentException("Ratio must be between 0 and 1 (exclusive)");
+        }
+
+        // 读取原始图像获取尺寸
+        Mat mat = null;
+        try {
+            mat = opencv_imgcodecs.imread(oriFile.getAbsolutePath(), opencv_imgcodecs.IMREAD_UNCHANGED);
+        } catch (Exception e) {
+            log.error("opencv_imgcodecs.imread exception ", e);
+            return new ImageInfo();
+        }
+
+        if (mat == null || mat.empty()) {
+            log.error("Failed to read image: " + oriFile.getAbsolutePath());
+            return new ImageInfo();
+        }
+
+        // 计算新的尺寸
+        int originalWidth = mat.cols();
+        int originalHeight = mat.rows();
+        closeMat(mat); // 及时释放资源
+
+        int destWidth = (int) (originalWidth * ratio);
+        int destHeight = (int) (originalHeight * ratio);
+
+        // 确保最小尺寸为1像素
+        destWidth = Math.max(1, destWidth);
+        destHeight = Math.max(1, destHeight);
+
+        // 调用现有的缩略图生成方法
+        return thumbnailsImageFile(oriFile, destFile, destWidth, destHeight);
+    }
 
 
     public static ImageInfo thumbnailsImageFile(File oriFile, File destFile, int destWidth, int destHeight) {
@@ -37,6 +80,7 @@ public class ImageOperation {
         if (resizeWidth <= 0 || resizeHeight <= 0) {
             log.error("Invalid image dimensions: width={}, height={}", resizeWidth, resizeHeight);
             closeMat(mat);
+
             return imageInfo;
         }
         imageInfo.setImageHeight(resizeHeight);
@@ -65,6 +109,11 @@ public class ImageOperation {
             if ((long) resizeWidth / (long) resizeHeight > 1.83) {
                 if (resizeHeight < destHeight) {
                     closeMat(mat);
+                    try {
+                        FileUtils.copyFile(oriFile, destFile);
+                    } catch (IOException e) {
+                        log.error("生成缩略图失败：", e);
+                    }
                     return imageInfo;
                 }
 
@@ -73,6 +122,11 @@ public class ImageOperation {
             } else {
                 if (resizeWidth < destWidth) {
                     closeMat(mat);
+                    try {
+                        FileUtils.copyFile(oriFile, destFile);
+                    } catch (IOException e) {
+                        log.error("生成缩略图失败：", e);
+                    }
                     return imageInfo;
                 }
 
@@ -87,6 +141,11 @@ public class ImageOperation {
             if ((long) resizeWidth / (long) resizeHeight > 1.83) {
                 if (resizeHeight < destHeight) {
                     closeMat(mat);
+                    try {
+                        FileUtils.copyFile(oriFile, destFile);
+                    } catch (IOException e) {
+                        log.error("生成缩略图失败：", e);
+                    }
                     return imageInfo;
                 }
 
@@ -95,6 +154,11 @@ public class ImageOperation {
             } else {
                 if (resizeWidth < destWidth) {
                     closeMat(mat);
+                    try {
+                        FileUtils.copyFile(oriFile, destFile);
+                    } catch (IOException e) {
+                        log.error("生成缩略图失败：", e);
+                    }
                     return imageInfo;
                 }
 
@@ -125,108 +189,7 @@ public class ImageOperation {
 
 
     public static ImageInfo thumbnailsImageFileToOneK(File oriFile, File destFile) {
-
-        Mat mat = null;
-        try {
-            mat = opencv_imgcodecs.imread(oriFile.getAbsolutePath(), opencv_imgcodecs.IMREAD_UNCHANGED);
-        } catch (Exception e) {
-            log.error("opencv_imgcodecs.imread exception ", e);
-        }
-
-        ImageInfo imageInfo = new ImageInfo();
-        if (mat == null || mat.empty()) {
-            log.error("Failed to read image: " + oriFile.getAbsolutePath());
-            return imageInfo;
-        }
-        int resizeWidth = mat.cols();
-        int resizeHeight = mat.rows();
-        if (resizeWidth <= 0 || resizeHeight <= 0) {
-            log.error("Invalid image dimensions: width={}, height={}", resizeWidth, resizeHeight);
-            closeMat(mat);
-            return imageInfo;
-        }
-        imageInfo.setImageHeight(resizeHeight);
-        imageInfo.setImageWidth(resizeWidth);
-        int channels = mat.channels();
-        int type = mat.type();
-        imageInfo.setChannels(channels);
-        imageInfo.setType(type);
-
-        // 计算像素深度
-        int depth = opencv_core.CV_MAT_DEPTH(mat.type());
-        int bitsPerChannel = parseBitsPerChannel(depth);
-        imageInfo.setBitsPerPixel(bitsPerChannel * mat.channels());
-
-        // 推断格式和 MIME 类型
-        inferFormatAndMimeType(oriFile, imageInfo);
-
-        // 设置默认 DPI（示例值）
-        imageInfo.setPhysicalWidthDpi(72);
-        imageInfo.setPhysicalHeightDpi(72);
-
-
-        if (resizeWidth > resizeHeight) {
-
-
-            if ((long) resizeWidth / (long) resizeHeight > 1.83) {
-                if (resizeHeight < 1080) {
-                    closeMat(mat);
-                    return imageInfo;
-                }
-
-                resizeWidth = (int) (1080 / ((double) resizeHeight / (double) resizeWidth));
-                resizeHeight = 1080;
-            } else {
-                if (resizeWidth < 1920) {
-                    closeMat(mat);
-                    return imageInfo;
-                }
-
-                resizeHeight = (int) ((double) resizeHeight / (double) resizeWidth * 1920);
-                resizeWidth = 1920;
-            }
-        } else {
-            int tmp = resizeHeight;
-            resizeHeight = resizeWidth;
-            resizeWidth = tmp;
-
-            if ((long) resizeWidth / (long) resizeHeight > 1.83) {
-                if (resizeHeight < 1080) {
-                    closeMat(mat);
-                    return imageInfo;
-                }
-
-                resizeWidth = (int) (1080 / ((double) resizeHeight / (double) resizeWidth));
-                resizeHeight = 1080;
-            } else {
-                if (resizeWidth < 1920) {
-                    closeMat(mat);
-                    return imageInfo;
-                }
-
-                resizeHeight = (int) ((double) resizeHeight / (double) resizeWidth * 1920);
-                resizeWidth = 1920;
-            }
-
-            int tmp1 = resizeHeight;
-            resizeHeight = resizeWidth;
-            resizeWidth = tmp1;
-        }
-
-        Size size = new Size(resizeWidth, resizeHeight);
-        Mat resizedImage = new Mat();
-        try {
-            opencv_imgproc.resize(mat, resizedImage, size);
-        } finally {
-            closeMat(mat);
-        }
-        try {
-            opencv_imgcodecs.imwrite(destFile.getAbsolutePath(), resizedImage);
-        } finally {
-            closeMat(resizedImage);
-        }
-        log.info("imageInfo : {}", JSON.toJSONString(imageInfo));
-        return imageInfo;
+        return thumbnailsImageFile(oriFile, destFile, 1920, 1080);
     }
 
 

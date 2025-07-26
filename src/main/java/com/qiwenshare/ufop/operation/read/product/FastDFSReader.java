@@ -1,13 +1,14 @@
 package com.qiwenshare.ufop.operation.read.product;
 
-import com.github.tobato.fastdfs.domain.proto.storage.DownloadByteArray;
-import com.github.tobato.fastdfs.service.FastFileStorageClient;
+
 import com.qiwenshare.ufop.exception.operation.ReadException;
 import com.qiwenshare.ufop.operation.read.Reader;
 import com.qiwenshare.ufop.operation.read.domain.ReadFile;
-import com.qiwenshare.ufop.util.ReadFileUtils;
+import com.qiwenshare.ufop.plugins.fastdfs.domain.proto.storage.DownloadByteArray;
+import com.qiwenshare.ufop.plugins.fastdfs.service.FastFileStorageClient;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -25,8 +26,10 @@ public class FastDFSReader extends Reader {
 
         String fileUrl = readFile.getFileUrl();
         String fileType = FilenameUtils.getExtension(fileUrl);
+        InputStream inputStream = getInputStream(readFile.getFileUrl());
         try {
-            return ReadFileUtils.getContentByInputStream(fileType, getInputStream(readFile.getFileUrl()));
+            return IOUtils.toString(inputStream);
+//            return ReadFileUtils.getContentByInputStream(fileType, getInputStream(readFile.getFileUrl()));
         } catch (IOException e) {
             throw new ReadException("读取文件失败", e);
         }
