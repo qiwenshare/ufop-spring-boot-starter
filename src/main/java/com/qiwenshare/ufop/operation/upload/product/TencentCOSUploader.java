@@ -1,6 +1,7 @@
 package com.qiwenshare.ufop.operation.upload.product;
 
 
+import com.alibaba.fastjson2.JSON;
 import com.qcloud.cos.COSClient;
 import com.qcloud.cos.model.*;
 import com.qiwenshare.ufop.cache.CacheService;
@@ -12,7 +13,6 @@ import com.qiwenshare.ufop.operation.upload.domain.UploadFile;
 import com.qiwenshare.ufop.operation.upload.domain.UploadFileInfo;
 import com.qiwenshare.ufop.operation.upload.domain.UploadFileResult;
 import com.qiwenshare.ufop.operation.upload.request.QiwenMultipartFile;
-import com.qiwenshare.ufop.util.JSON;
 import com.qiwenshare.ufop.util.TencentUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -69,11 +69,9 @@ public class TencentCOSUploader extends Uploader {
             uploadPartRequest.setInputStream(qiwenMultipartFile.getUploadInputStream());
             uploadPartRequest.setPartSize(qiwenMultipartFile.getSize());
             uploadPartRequest.setPartNumber(uploadFile.getChunkNumber());
-            log.debug(JSON.toJSONString(uploadPartRequest));
 
             UploadPartResult uploadPartResult = cosClient.uploadPart(uploadPartRequest);
 
-            log.debug("上传结果：" + JSON.toJSONString(uploadPartResult));
 
             if (cacheService.hasKey("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":partETags")) {
                 List<PartETag> partETags = JSON.parseArray(cacheService.getObject("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":partETags"), PartETag.class);

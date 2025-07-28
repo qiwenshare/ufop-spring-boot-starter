@@ -1,5 +1,6 @@
 package com.qiwenshare.ufop.util;
 
+import com.alibaba.fastjson2.JSON;
 import com.qiwenshare.ufop.result.ImageInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -194,6 +195,9 @@ public class ImageOperation {
 
 
     public static void closeMat(Mat mat) {
+        if (mat == null) {
+            return;
+        }
         try {
             mat.release();
 
