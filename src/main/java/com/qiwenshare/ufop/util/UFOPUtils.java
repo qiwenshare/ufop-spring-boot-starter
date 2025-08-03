@@ -79,6 +79,11 @@ public class UFOPUtils {
             throw new UFOPException(e);
         }
 
+        int index = absolutePath.indexOf("file:");
+        if (index != -1) {
+            absolutePath = absolutePath.substring(0, index);
+        }
+
         return absolutePath;
     }
 
@@ -106,11 +111,6 @@ public class UFOPUtils {
         }else {
             String projectRootAbsolutePath = getProjectRootPath();
 
-            int index = projectRootAbsolutePath.indexOf("file:");
-            if (index != -1) {
-                projectRootAbsolutePath = projectRootAbsolutePath.substring(0, index);
-            }
-
             return new File(projectRootAbsolutePath + "data").getPath() + File.separator;
         }
     }
@@ -124,13 +124,21 @@ public class UFOPUtils {
 
         String projectRootAbsolutePath = getProjectRootPath();
 
-        int index = projectRootAbsolutePath.indexOf("file:");
-        if (index != -1) {
-            projectRootAbsolutePath = projectRootAbsolutePath.substring(0, index);
-        }
-
         return new File(projectRootAbsolutePath + "static").getPath() + File.separator;
     }
+
+    /**
+     * 获取日志路径
+     *
+     * @return 结果
+     */
+    public static String getLogsPath() {
+
+        String projectRootAbsolutePath = getProjectRootPath();
+
+        return new File(projectRootAbsolutePath + "logs").getPath() + File.separator;
+    }
+
 
     /**
      * 得到build路径
@@ -140,11 +148,6 @@ public class UFOPUtils {
     public static String getBuildPath() {
 
         String projectRootAbsolutePath = getProjectRootPath();
-
-        int index = projectRootAbsolutePath.indexOf("file:");
-        if (index != -1) {
-            projectRootAbsolutePath = projectRootAbsolutePath.substring(0, index);
-        }
 
         return new File(projectRootAbsolutePath + "build").getPath() + File.separator;
     }
