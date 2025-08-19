@@ -111,7 +111,11 @@ public class ImageOperation {
                 if (resizeHeight < destHeight) {
                     closeMat(mat);
                     try {
-                        FileUtils.copyFile(oriFile, destFile);
+                        if (!oriFile.getCanonicalPath().equals(destFile.getCanonicalPath())) {
+                            FileUtils.copyFile(oriFile, destFile);
+                        } else {
+                            log.warn("跳过拷贝，源文件和目标文件路径相同: {}", oriFile.getPath());
+                        }
                     } catch (IOException e) {
                         log.error("生成缩略图失败：", e);
                     }
@@ -124,7 +128,11 @@ public class ImageOperation {
                 if (resizeWidth < destWidth) {
                     closeMat(mat);
                     try {
-                        FileUtils.copyFile(oriFile, destFile);
+                        if (!oriFile.getCanonicalPath().equals(destFile.getCanonicalPath())) {
+                            FileUtils.copyFile(oriFile, destFile);
+                        } else {
+                            log.warn("跳过拷贝，源文件和目标文件路径相同: {}", oriFile.getPath());
+                        }
                     } catch (IOException e) {
                         log.error("生成缩略图失败：", e);
                     }
@@ -143,7 +151,11 @@ public class ImageOperation {
                 if (resizeHeight < destHeight) {
                     closeMat(mat);
                     try {
-                        FileUtils.copyFile(oriFile, destFile);
+                        if (!oriFile.getCanonicalPath().equals(destFile.getCanonicalPath())) {
+                            FileUtils.copyFile(oriFile, destFile);
+                        } else {
+                            log.warn("跳过拷贝，源文件和目标文件路径相同: {}", oriFile.getPath());
+                        }
                     } catch (IOException e) {
                         log.error("生成缩略图失败：", e);
                     }
@@ -156,7 +168,11 @@ public class ImageOperation {
                 if (resizeWidth < destWidth) {
                     closeMat(mat);
                     try {
-                        FileUtils.copyFile(oriFile, destFile);
+                        if (!oriFile.getCanonicalPath().equals(destFile.getCanonicalPath())) {
+                            FileUtils.copyFile(oriFile, destFile);
+                        } else {
+                            log.warn("跳过拷贝，源文件和目标文件路径相同: {}", oriFile.getPath());
+                        }
                     } catch (IOException e) {
                         log.error("生成缩略图失败：", e);
                     }
