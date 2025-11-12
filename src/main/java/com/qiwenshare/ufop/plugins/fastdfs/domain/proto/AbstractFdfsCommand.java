@@ -13,7 +13,6 @@ import java.nio.charset.Charset;
 /**
  * 交易命令抽象类
  *
- * @param <T>
  * @author tobato
  */
 public abstract class AbstractFdfsCommand<T> implements FdfsCommand<T> {
@@ -57,14 +56,13 @@ public abstract class AbstractFdfsCommand<T> implements FdfsCommand<T> {
     /**
      * 将报文输出规范为模板方法
      * <p>
-     * <pre>
      * 1.输出报文头
      * 2.输出报文参数
      * 3.输出文件内容
-     * </pre>
      *
-     * @param out
-     * @throws IOException
+     * @param out 输出流
+     * @param charset 字符集
+     * @throws IOException 发送异常
      */
     protected void send(OutputStream out, Charset charset) throws IOException {
         // 报文分为三个部分
@@ -92,9 +90,10 @@ public abstract class AbstractFdfsCommand<T> implements FdfsCommand<T> {
     /**
      * 接收这里只能确切知道报文头，报文内容(参数+文件)只能靠接收对象分析
      *
-     * @param in
-     * @return
-     * @throws IOException
+     * @param in 输入流
+     * @param charset 字符集
+     * @return 响应对象
+     * @throws IOException 接收异常
      */
     protected T receive(InputStream in, Charset charset) throws IOException {
 
@@ -112,10 +111,10 @@ public abstract class AbstractFdfsCommand<T> implements FdfsCommand<T> {
     /**
      * 发送文件
      *
-     * @param ins
-     * @param size
-     * @param ous
-     * @throws IOException
+     * @param ins 输入流
+     * @param size 文件大小
+     * @param ous 输出流
+     * @throws IOException 发送异常
      */
     protected void sendFileContent(InputStream ins, long size, OutputStream ous) throws IOException {
         LOGGER.debug("开始上传文件流大小为{}", size);

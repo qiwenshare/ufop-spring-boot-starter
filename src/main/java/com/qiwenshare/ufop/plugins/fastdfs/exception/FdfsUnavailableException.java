@@ -14,14 +14,15 @@ public class FdfsUnavailableException extends FdfsException {
     private static final long serialVersionUID = 1L;
 
     /**
-     * @param message
+     * @param message 异常信息
      */
     public FdfsUnavailableException(String message) {
         super("无法获取服务端连接资源：" + message);
     }
 
     /**
-     * @param message
+     * @param message 异常信息
+     * @param t 异常对象
      */
     public FdfsUnavailableException(String message, Throwable t) {
         super("无法获取服务端连接资源：" + message, t);

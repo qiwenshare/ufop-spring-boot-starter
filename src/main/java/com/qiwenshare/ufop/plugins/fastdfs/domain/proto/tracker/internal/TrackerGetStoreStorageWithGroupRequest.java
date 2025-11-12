@@ -25,7 +25,7 @@ public class TrackerGetStoreStorageWithGroupRequest extends FdfsRequest {
     /**
      * 获取存储节点
      *
-     * @param groupName
+     * @param groupName 组名
      */
     public TrackerGetStoreStorageWithGroupRequest(String groupName) {
         Validate.notBlank(groupName, "分组不能为空");

@@ -24,7 +24,7 @@ public class TrackerAddressHolder {
     /**
      * 构造函数
      *
-     * @param address
+     * @param address 连接地址
      */
     public TrackerAddressHolder(InetSocketAddress address) {
         super();
@@ -60,7 +60,7 @@ public class TrackerAddressHolder {
      * 是否可以尝试连接
      *
      * @param retryAfterSecend 在n秒后重试
-     * @return
+     * @return 是否可以尝试连接
      */
     public boolean canTryToConnect(int retryAfterSecend) {
         // 如果是有效连接

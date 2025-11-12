@@ -8,10 +8,7 @@ import java.util.*;
 
 /**
  * 表示Tracker服务器位置
- * <p>
- * <pre>
  * 支持负载均衡对IP轮询
- * </pre>
  *
  * @author tobato
  */
@@ -46,7 +43,7 @@ public class TrackerLocator {
      * 初始化Tracker服务器地址
      * 配置方式为 ip:port 如 192.168.1.2:21000
      *
-     * @param trackerList
+     * @param trackerList Tracker服务器地址列表
      */
     public TrackerLocator(List<String> trackerList) {
         super();
@@ -91,7 +88,7 @@ public class TrackerLocator {
     /**
      * 获取Tracker服务器地址
      *
-     * @return trackerAddress
+     * @return trackerAddress  Tracker服务器地址
      */
     public InetSocketAddress getTrackerAddress() {
         TrackerAddressHolder holder;
@@ -108,7 +105,7 @@ public class TrackerLocator {
     /**
      * 获取配置地址列表
      *
-     * @return trackerAddressConfig
+     * @return trackerAddressConfig  Tracker服务器地址配置列表
      */
     private String getTrackerAddressConfigString() {
         StringBuffer config = new StringBuffer();
@@ -123,7 +120,7 @@ public class TrackerLocator {
     /**
      * 设置连接有效
      *
-     * @param address
+     * @param address Tracker服务器地址
      */
     public void setActive(InetSocketAddress address) {
         TrackerAddressHolder holder = trackerAddressMap.get(address);
@@ -133,7 +130,7 @@ public class TrackerLocator {
     /**
      * 设置连接无效
      *
-     * @param address
+     * @param address Tracker服务器地址
      */
     public void setInActive(InetSocketAddress address) {
         TrackerAddressHolder holder = trackerAddressMap.get(address);

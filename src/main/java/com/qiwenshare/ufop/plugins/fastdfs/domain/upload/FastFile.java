@@ -11,7 +11,6 @@ import java.util.Set;
  * 上传普通文件
  *
  * @author tobato
- * @create 2018-12-23 3:06 PM
  */
 public class FastFile {
 
@@ -69,7 +68,7 @@ public class FastFile {
         /**
          * 构造上传文件对象
          *
-         * @return
+         * @return 上传文件对象
          */
         public FastFile build() {
             FastFile file = new FastFile();
@@ -105,10 +104,10 @@ public class FastFile {
     /**
      * 上传文件对象
      *
-     * @param inputStream
-     * @param fileSize
-     * @param fileExtName
-     * @param metaDataSet
+     * @param inputStream 文件输入流
+     * @param fileSize 文件大小
+     * @param fileExtName 文件扩展名
+     * @param metaDataSet 元数据集合
      */
     public FastFile(InputStream inputStream, long fileSize,
                     String fileExtName, Set<MetaData> metaDataSet) {

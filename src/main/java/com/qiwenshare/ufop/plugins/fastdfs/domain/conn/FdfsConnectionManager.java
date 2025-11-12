@@ -11,12 +11,10 @@ import java.net.InetSocketAddress;
 
 /**
  * 连接池管理
- * <pre>
  * 负责借出连接，在连接上执行业务逻辑，然后归还连接
  *
  * FdfsConnectionManager类主要负责StorageConnect连接管理
  * FdfsConnectionManager类扩展的子类{@link TrackerConnectionManager}主要负责TrackerConnection连接管理
- * </pre>
  *
  * @author tobato
  */
@@ -43,7 +41,7 @@ public class FdfsConnectionManager {
     /**
      * 构造函数
      *
-     * @param pool
+     * @param pool  连接池
      */
     public FdfsConnectionManager(FdfsConnectionPool pool) {
         super();
@@ -53,9 +51,10 @@ public class FdfsConnectionManager {
     /**
      * 获取连接并执行交易
      *
-     * @param address
-     * @param command
-     * @return
+     * @param <T>       返回结果类型
+     * @param address   服务端地址
+     * @param command   交易命令
+     * @return          交易结果
      */
     public <T> T executeFdfsCmd(InetSocketAddress address, FdfsCommand<T> command) {
 
@@ -68,10 +67,11 @@ public class FdfsConnectionManager {
 
     /**
      * 执行交易
-     *
-     * @param conn
-     * @param command
-     * @return
+     * @param <T>       返回结果类型
+     * @param address   服务端地址
+     * @param conn      连接
+     * @param command   交易命令
+     * @return          交易结果
      */
     protected <T> T execute(InetSocketAddress address, Connection conn, FdfsCommand<T> command) {
         boolean isException = false;
@@ -104,8 +104,8 @@ public class FdfsConnectionManager {
     /**
      * 出现例外时从连接池移除连接
      *
-     * @param address
-     * @param conn
+     * @param address   服务端地址
+     * @param conn      连接
      */
     private void removeConnect(InetSocketAddress address, Connection conn) {
         try {
@@ -121,8 +121,8 @@ public class FdfsConnectionManager {
     /**
      * 归还连接
      *
-     * @param address
-     * @param conn
+     * @param address   服务端地址
+     * @param conn      连接
      */
     private void returnConnect(InetSocketAddress address, Connection conn) {
         try {
@@ -138,8 +138,8 @@ public class FdfsConnectionManager {
     /**
      * 获取连接
      *
-     * @param address
-     * @return
+     * @param address   服务端地址
+     * @return          连接
      */
     protected Connection getConnection(InetSocketAddress address) {
         Connection conn = null;
@@ -167,7 +167,7 @@ public class FdfsConnectionManager {
     /**
      * 打印连接池情况
      *
-     * @param address
+     * @param address   服务端地址
      */
     public void dumpPoolInfo(InetSocketAddress address) {
 

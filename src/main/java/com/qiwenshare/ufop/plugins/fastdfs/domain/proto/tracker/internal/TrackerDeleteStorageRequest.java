@@ -28,8 +28,8 @@ public class TrackerDeleteStorageRequest extends FdfsRequest {
     /**
      * 获取文件源服务器
      *
-     * @param groupName
-     * @param storageIpAddr
+     * @param groupName  组名
+     * @param storageIpAddr 存储ip
      */
     public TrackerDeleteStorageRequest(String groupName, String storageIpAddr) {
         Validate.notBlank(groupName, "分组不能为空");

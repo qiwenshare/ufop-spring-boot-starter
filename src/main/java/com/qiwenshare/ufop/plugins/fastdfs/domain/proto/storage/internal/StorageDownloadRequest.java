@@ -38,10 +38,10 @@ public class StorageDownloadRequest extends FdfsRequest {
     /**
      * 文件下载请求
      *
-     * @param groupName
-     * @param path
-     * @param fileOffset
-     * @param downloadBytes
+     * @param groupName  组名
+     * @param path       文件路径
+     * @param fileOffset 开始位置
+     * @param downloadBytes 读取文件长度
      */
     public StorageDownloadRequest(String groupName, String path, long fileOffset, long downloadBytes) {
         super();

@@ -39,8 +39,8 @@ public class StorePath {
     /**
      * 存储文件路径
      *
-     * @param group
-     * @param path
+     * @param group 分组名称
+     * @param path  文件路径
      */
     public StorePath(String group, String path) {
         super();
@@ -79,7 +79,7 @@ public class StorePath {
     /**
      * 获取文件全路径
      *
-     * @return
+     * @return 文件全路径
      */
     public String getFullPath() {
         return this.group.concat(SPLIT_GROUP_NAME_AND_FILENAME_SEPERATOR).concat(this.path);
@@ -100,7 +100,7 @@ public class StorePath {
      *
      * @param filePath 有效的路径样式为(group/path) 或者
      *                 (http://ip/group/path),路径地址必须包含group
-     * @return
+     * @return 存储路径对象
      */
     public static StorePath parseFromUrl(String filePath) {
         Validate.notNull(filePath, "解析文件路径不能为空");
@@ -116,8 +116,9 @@ public class StorePath {
     /**
      * 获取Group名称
      *
-     * @param filePath
-     * @return
+     * @param filePath  有效的路径样式为(group/path) 或者
+     *                 (http://ip/group/path),路径地址必须包含group
+     * @return 分组名称
      */
     private static String getGroupName(String filePath) {
         //先分隔开路径

@@ -15,7 +15,8 @@ public class FdfsConnectException extends FdfsUnavailableException {
     private static final long serialVersionUID = 1L;
 
     /**
-     * @param message
+     * @param message 异常信息
+     * @param t 异常对象
      */
     public FdfsConnectException(String message, Throwable t) {
         super(message, t);

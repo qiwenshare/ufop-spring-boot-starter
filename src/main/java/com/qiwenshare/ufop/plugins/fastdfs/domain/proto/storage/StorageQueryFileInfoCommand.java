@@ -15,8 +15,8 @@ public class StorageQueryFileInfoCommand extends AbstractFdfsCommand<FileInfo> {
     /**
      * 文件查询命令
      *
-     * @param groupName
-     * @param path
+     * @param groupName 组名
+     * @param path      路径
      */
     public StorageQueryFileInfoCommand(String groupName, String path) {
         super();

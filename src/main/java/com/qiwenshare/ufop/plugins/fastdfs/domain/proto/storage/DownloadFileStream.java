@@ -9,7 +9,6 @@ import java.io.OutputStream;
 
 /**
  * Web环境下文件下载回调方法,默认按4K循环读取，防止下载时内存溢出
- * <pre>
  *
  * refactor:
  * 将HttpServletResponse调整为OutputStream对象，
@@ -20,7 +19,6 @@ import java.io.OutputStream;
  *  ...
  *  os.close();
  *
- * </pre>
  *
  * @author xulb
  */
@@ -66,7 +64,8 @@ public class DownloadFileStream implements DownloadCallback<BufferedInputStream>
     /**
      * 文件接收处理
      *
-     * @return
+     * @param ins 输入流
+     * @return 输入流
      */
     @Override
     public BufferedInputStream recv(InputStream ins) throws IOException {

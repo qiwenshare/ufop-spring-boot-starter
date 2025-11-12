@@ -11,7 +11,7 @@ import java.nio.charset.Charset;
 /**
  * 文件下载结果
  *
- * @param <T>
+ * @param <T>  回调结果类型
  * @author tobato
  */
 public class StorageDownloadResponse<T> extends FdfsResponse<T> {
@@ -25,6 +25,11 @@ public class StorageDownloadResponse<T> extends FdfsResponse<T> {
 
     /**
      * 解析反馈内容
+     *
+     * @param in       输入流
+     * @param charset  字符集
+     * @return  回调结果
+     * @throws IOException  输入流异常
      */
     @Override
     public T decodeContent(InputStream in, Charset charset) throws IOException {

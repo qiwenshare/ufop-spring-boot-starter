@@ -4,17 +4,14 @@ import org.apache.commons.lang3.Validate;
 
 /**
  * 缩略图配置
- * <pre>
  *     支持三种配置
  *     1. 按默认配置
  *     2. 支持按比例缩放
  *     3. 按长宽缩放
  *     如果配置按比例缩放，则按比例计算
  *     如果没有配置按比例缩放，则按长宽缩放
- * </pre>
  *
  * @author tobato
- * @create 2018-12-23 3:11 PM
  */
 public class ThumbImage {
 
@@ -39,8 +36,8 @@ public class ThumbImage {
     /**
      * 按长宽缩放
      *
-     * @param width
-     * @param height
+     * @param width  缩略图宽度
+     * @param height 缩略图高度
      */
     public ThumbImage(int width, int height) {
         this.width = width;
@@ -50,7 +47,7 @@ public class ThumbImage {
     /**
      * 按比例缩放
      *
-     * @param percent
+     * @param percent 缩放比例
      */
     public ThumbImage(double percent) {
         this.percent = percent;
@@ -81,6 +78,7 @@ public class ThumbImage {
 
     /**
      * 生成前缀如:_150x150
+     * @return 缩略图前缀
      */
     public String getPrefixName() {
         if (isDefaultConfig()) {
@@ -95,7 +93,7 @@ public class ThumbImage {
     /**
      * 按缩放尺寸获取前缀
      *
-     * @return
+     * @return 缩放尺寸前缀
      */
     private String getPrefixNameBySize() {
         StringBuilder buffer = new StringBuilder();
@@ -106,7 +104,7 @@ public class ThumbImage {
     /**
      * 按缩放尺寸获取前缀
      *
-     * @return
+     * @return 缩放比例前缀
      */
     private String getPrefixNameByPercent() {
         StringBuilder buffer = new StringBuilder();
@@ -117,6 +115,8 @@ public class ThumbImage {
 
     /**
      * 根据文件名获取缩略图路径
+     * @param masterFilename 主文件名
+     * @return 缩略图路径
      */
     public String getThumbImagePath(String masterFilename) {
         Validate.notBlank(masterFilename, "主文件不能为空");
@@ -129,8 +129,8 @@ public class ThumbImage {
     /**
      * 设置默认缩放尺寸
      *
-     * @param width
-     * @param height
+     * @param width  缩略图宽度
+     * @param height 缩略图高度
      */
     public void setDefaultSize(int width, int height) {
         this.width = width;

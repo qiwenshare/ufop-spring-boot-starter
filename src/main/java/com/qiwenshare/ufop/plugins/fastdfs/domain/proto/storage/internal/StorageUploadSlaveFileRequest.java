@@ -45,13 +45,11 @@ public class StorageUploadSlaveFileRequest extends FdfsRequest {
     /**
      * 构造函数
      *
-     * @param storeIndex
-     * @param inputStream
-     * @param masterFilename
-     * @param fileExtName
-     * @param prefixName
-     * @param fileSize
-     * @param isAppenderFile
+     * @param inputStream  输入流
+     * @param masterFilename 主文件名
+     * @param fileExtName    文件扩展名
+     * @param prefixName     名称前缀
+     * @param fileSize       文件大小
      */
     public StorageUploadSlaveFileRequest(InputStream inputStream, long fileSize, String masterFilename,
                                          String prefixName, String fileExtName) {

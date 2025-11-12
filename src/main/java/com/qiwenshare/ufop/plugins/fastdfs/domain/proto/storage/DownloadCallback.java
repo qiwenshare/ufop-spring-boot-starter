@@ -6,7 +6,7 @@ import java.io.InputStream;
 /**
  * 文件下载回调接口
  *
- * @param <T>
+ * @param <T>  回调结果类型
  * @author tobato
  */
 public interface DownloadCallback<T> {
@@ -16,9 +16,9 @@ public interface DownloadCallback<T> {
      * <p>
      * 不能关闭ins? TODO验证是否可以关闭
      *
-     * @param ins
-     * @return
-     * @throws IOException
+     * @param ins 输入流
+     * @return  回调结果
+     * @throws IOException 输入流异常
      */
     T recv(InputStream ins) throws IOException;
 

@@ -37,11 +37,11 @@ public class StorageUploadFileRequest extends FdfsRequest {
     /**
      * 构造函数
      *
-     * @param inputStream
-     * @param fileExtName
-     * @param fileSize
-     * @param storeIndex
-     * @param isAppenderFile
+     * @param inputStream  输入流
+     * @param fileExtName  文件扩展名
+     * @param fileSize     文件大小
+     * @param storeIndex   存储节点index
+     * @param isAppenderFile 是否追加文件
      */
     public StorageUploadFileRequest(byte storeIndex, InputStream inputStream, String fileExtName, long fileSize,
                                     boolean isAppenderFile) {

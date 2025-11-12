@@ -9,8 +9,6 @@ import java.io.InputStream;
 
 /**
  * 从文件上传命令
- * <p>
- * <pre>
  * 使用背景
  * 使用FastDFS存储一个图片的多个分辨率的备份时，希望只记录源图的FID，
  * 并能将其它分辨率的图片与源图关联。可以使用从文件方法
@@ -27,7 +25,6 @@ import java.io.InputStream;
  *   FastDFS中的主从文件只是在文件ID上有联系。FastDFS server端没有记录主从文件对应关系，
  *   因此删除主文件，FastDFS不会自动删除从文件。删除主文件后，从文件的级联删除，需要由应用端来实现。
  *
- * </pre>
  *
  * @author tobato
  */

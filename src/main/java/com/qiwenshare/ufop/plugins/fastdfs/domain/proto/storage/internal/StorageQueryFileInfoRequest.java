@@ -28,8 +28,8 @@ public class StorageQueryFileInfoRequest extends FdfsRequest {
     /**
      * 删除文件命令
      *
-     * @param groupName
-     * @param path
+     * @param groupName  组名
+     * @param path       文件路径
      */
     public StorageQueryFileInfoRequest(String groupName, String path) {
         super();

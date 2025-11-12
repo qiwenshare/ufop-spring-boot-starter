@@ -21,7 +21,9 @@ public class DefaultThumbImageConfig implements ThumbImageConfig {
     private static String cachedPrefixName;
 
     /**
-     * 生成前缀如:_150x150
+     * 获得缩略图前缀
+     *
+     * @return 缩略图前缀
      */
     @Override
     public String getPrefixName() {
@@ -35,6 +37,9 @@ public class DefaultThumbImageConfig implements ThumbImageConfig {
 
     /**
      * 根据文件名获取缩略图路径
+     *
+     * @param masterFilename    主文件名
+     * @return                  缩略图路径
      */
     @Override
     public String getThumbImagePath(String masterFilename) {

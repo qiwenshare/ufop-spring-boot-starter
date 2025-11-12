@@ -10,29 +10,29 @@ public interface ThumbImageConfig {
     /**
      * 获得缩略图宽
      *
-     * @return
+     * @return 缩略图宽
      */
     int getWidth();
 
     /**
      * 获得缩略图高
      *
-     * @return
+     * @return 缩略图高
      */
     int getHeight();
 
     /**
      * 获得缩略图前缀
      *
-     * @return
+     * @return 缩略图前缀
      */
     String getPrefixName();
 
     /**
      * 获得缩略图路径
      *
-     * @param masterFilename
-     * @return
+     * @param masterFilename     主文件名
+     * @return 缩略图路径
      */
     String getThumbImagePath(String masterFilename);
 

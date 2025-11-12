@@ -18,11 +18,11 @@ public class StorageUploadFileCommand extends AbstractFdfsCommand<StorePath> {
     /**
      * 文件上传命令
      *
-     * @param storeIndex
-     * @param inputStream
-     * @param fileExtName
-     * @param fileSize
-     * @param isAppenderFile
+     * @param storeIndex  存储索引
+     * @param inputStream 输入流
+     * @param fileExtName 文件扩展名
+     * @param fileSize    文件大小
+     * @param isAppenderFile 是否追加文件
      */
     public StorageUploadFileCommand(byte storeIndex, InputStream inputStream, String fileExtName, long fileSize,
                                     boolean isAppenderFile) {

@@ -25,7 +25,7 @@ public abstract class FdfsRequest {
     /**
      * 获取报文头(包内可见)
      *
-     * @return
+     * @return  报文头
      */
     ProtoHead getHead() {
         return head;
@@ -34,8 +34,8 @@ public abstract class FdfsRequest {
     /**
      * 获取报文头
      *
-     * @param charset
-     * @return
+     * @param charset 字符集
+     * @return  报文头字节数组
      */
     public byte[] getHeadByte(Charset charset) {
         // 设置报文长度
@@ -47,8 +47,8 @@ public abstract class FdfsRequest {
     /**
      * 打包参数
      *
-     * @param charset
-     * @return
+     * @param charset 字符集
+     * @return  参数域字节数组
      */
     public byte[] encodeParam(Charset charset) {
         return FdfsParamMapper.toByte(this, charset);
@@ -57,7 +57,8 @@ public abstract class FdfsRequest {
     /**
      * 获取参数域长度
      *
-     * @return
+     * @param charset 字符集
+     * @return  参数域长度
      */
     protected long getBodyLength(Charset charset) {
         ObjectMetaData objectMetaData = FdfsParamMapper.getObjectMap(this.getClass());

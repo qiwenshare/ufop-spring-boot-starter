@@ -36,10 +36,10 @@ public class TrackerListStoragesResponse extends FdfsResponse<List<StorageState>
     /**
      * 解析Group
      *
-     * @param bs
-     * @param charset
-     * @return
-     * @throws IOException
+     * @param bs 字节数组
+     * @param charset 字符集
+     * @return 存储节点状态列表
+     * @throws IOException 解析异常
      */
     private List<StorageState> decode(byte[] bs, Charset charset) throws IOException {
         // 获取对象转换定义

@@ -32,14 +32,11 @@ public class StorageAppendFileRequest extends FdfsRequest {
     @FdfsColumn(index = 2, dynamicField = DynamicFieldType.allRestByte)
     private String path;
 
+
     /**
-     * 构造函数
-     *
-     * @param inputStream
-     * @param fileExtName
-     * @param fileSize
-     * @param storeIndex
-     * @param isAppenderFile
+     * @param inputStream  输入流
+     * @param fileSize     文件大小
+     * @param path         文件路径
      */
     public StorageAppendFileRequest(InputStream inputStream, long fileSize, String path) {
         super();
@@ -49,8 +46,12 @@ public class StorageAppendFileRequest extends FdfsRequest {
         head = new ProtoHead(CmdConstants.STORAGE_PROTO_CMD_APPEND_FILE);
     }
 
+
     /**
      * 打包参数
+     *
+     * @param charset  字符集
+     * @return  参数域字节数组
      */
     @Override
     public byte[] encodeParam(Charset charset) {

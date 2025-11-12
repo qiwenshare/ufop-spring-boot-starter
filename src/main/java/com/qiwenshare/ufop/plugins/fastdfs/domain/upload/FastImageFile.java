@@ -10,7 +10,6 @@ import java.util.Set;
  * 上传图片文件
  *
  * @author tobato
- * @create 2018-12-23 3:06 PM
  */
 public class FastImageFile extends FastFile {
 
@@ -22,10 +21,10 @@ public class FastImageFile extends FastFile {
     /**
      * 上传图片文件
      *
-     * @param inputStream
-     * @param fileSize
-     * @param fileExtName
-     * @param metaDataSet
+     * @param inputStream 文件输入流
+     * @param fileSize 文件大小
+     * @param fileExtName 文件扩展名
+     * @param metaDataSet 元数据集合
      */
     public FastImageFile(InputStream inputStream, long fileSize, String fileExtName, Set<MetaData> metaDataSet) {
         super(inputStream, fileSize, fileExtName, metaDataSet);
@@ -34,11 +33,11 @@ public class FastImageFile extends FastFile {
     /**
      * 上传图片文件
      *
-     * @param inputStream
-     * @param fileSize
-     * @param fileExtName
-     * @param metaDataSet
-     * @param thumbImage
+     * @param inputStream 文件输入流
+     * @param fileSize 文件大小
+     * @param fileExtName 文件扩展名
+     * @param metaDataSet 元数据集合
+     * @param thumbImage 图片配置
      */
     public FastImageFile(InputStream inputStream, long fileSize, String fileExtName, Set<MetaData> metaDataSet, ThumbImage thumbImage) {
         super(inputStream, fileSize, fileExtName, metaDataSet);
@@ -56,8 +55,8 @@ public class FastImageFile extends FastFile {
     /**
      * 获取缩略图路径
      *
-     * @param masterFilename
-     * @return
+     * @param masterFilename  主文件名
+     * @return  缩略图路径
      */
     public String getThumbImagePath(String masterFilename) {
         return thumbImage.getThumbImagePath(masterFilename);
@@ -98,7 +97,7 @@ public class FastImageFile extends FastFile {
         /**
          * 按默认方式生成缩略图
          *
-         * @return
+         * @return 构造器对象
          */
         public Builder withThumbImage() {
             this.thumbImage = new ThumbImage();
@@ -108,9 +107,9 @@ public class FastImageFile extends FastFile {
         /**
          * 缩略图配置
          *
-         * @param width
-         * @param height
-         * @return
+         * @param width  缩略图宽度
+         * @param height 缩略图高度
+         * @return 构造器对象
          */
         public Builder withThumbImage(int width, int height) {
             this.thumbImage = new ThumbImage(width, height);
@@ -121,7 +120,7 @@ public class FastImageFile extends FastFile {
         /**
          * 构造上传文件对象
          *
-         * @return
+         * @return 上传图片文件对象
          */
         @Override
         public FastImageFile build() {

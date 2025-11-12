@@ -12,10 +12,7 @@ import java.nio.charset.Charset;
 
 /**
  * pooled FdfsSocket factory
- * <p>
- * <pre>
  * 定义了被池化的对象的创建，初始化，激活，钝化以及销毁功能
- * </per>
  *
  * @author tobato
  */
@@ -87,9 +84,9 @@ public class PooledConnectionFactory extends BaseKeyedPooledObjectFactory<InetSo
     /**
      * 从池中移出
      *
-     * @param key
-     * @param p
-     * @throws Exception
+     * @param key   服务端地址
+     * @param p     连接池对象
+     * @throws Exception    销毁连接错误
      */
     @Override
     public void destroyObject(InetSocketAddress key, PooledObject<Connection> p) throws Exception {
@@ -98,9 +95,9 @@ public class PooledConnectionFactory extends BaseKeyedPooledObjectFactory<InetSo
 
     /***
      * 验证池中对象是否可用
-     * @param key
-     * @param p
-     * @return
+     * @param key       服务端地址
+     * @param p         连接池对象
+     * @return          是否可用
      */
     @Override
     public boolean validateObject(InetSocketAddress key, PooledObject<Connection> p) {

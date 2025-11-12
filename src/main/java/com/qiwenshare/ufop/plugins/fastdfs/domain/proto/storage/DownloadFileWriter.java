@@ -33,6 +33,9 @@ public class DownloadFileWriter implements DownloadCallback<String> {
 
     /**
      * 文件接收处理
+     *
+     * @param ins 输入流
+     * @return 文件名称
      */
     @Override
     public String recv(InputStream ins) throws IOException {

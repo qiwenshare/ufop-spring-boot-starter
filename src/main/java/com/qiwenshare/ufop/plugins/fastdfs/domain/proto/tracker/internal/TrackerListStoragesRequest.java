@@ -33,8 +33,8 @@ public class TrackerListStoragesRequest extends FdfsRequest {
     /**
      * 列举存储服务器状态
      *
-     * @param groupName
-     * @param storageIpAddr
+     * @param groupName  组名
+     * @param storageIpAddr 存储ip
      */
     public TrackerListStoragesRequest(String groupName, String storageIpAddr) {
         this();
@@ -46,7 +46,7 @@ public class TrackerListStoragesRequest extends FdfsRequest {
     /**
      * 列举组当中存储节点状态
      *
-     * @param groupName
+     * @param groupName 组名
      */
     public TrackerListStoragesRequest(String groupName) {
         this();

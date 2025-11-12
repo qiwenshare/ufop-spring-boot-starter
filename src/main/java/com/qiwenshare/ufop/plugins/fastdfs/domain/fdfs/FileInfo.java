@@ -40,10 +40,10 @@ public class FileInfo {
     }
 
     /**
-     * @param sourceIpAddr
-     * @param fileSize
-     * @param createTime
-     * @param crc32
+     * @param sourceIpAddr 源IP地址
+     * @param fileSize     文件大小
+     * @param createTime   创建时间
+     * @param crc32        校验码
      */
     public FileInfo(String sourceIpAddr, long fileSize, long createTime, int crc32) {
         super();

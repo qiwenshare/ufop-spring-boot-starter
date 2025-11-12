@@ -46,8 +46,8 @@ class FieldMetaData {
     /**
      * 构造函数
      *
-     * @param mapedfield
-     * @param offsize
+     * @param mapedfield  要映射的属性
+     * @param offsize  偏移量
      */
     public FieldMetaData(Field mapedfield, int offsize) {
         FdfsColumn column = mapedfield.getAnnotation(FdfsColumn.class);
@@ -66,8 +66,8 @@ class FieldMetaData {
     /**
      * 获取Field大小
      *
-     * @param field
-     * @return
+     * @param field  要获取大小的属性
+     * @return  属性大小
      */
     private int getFieldSize(Field field) {//
         if (String.class == field.getType()) {
@@ -91,8 +91,9 @@ class FieldMetaData {
     /**
      * 获取值
      *
-     * @param bs
-     * @return
+     * @param bs  要获取值的byte数组
+     * @param charset  字符集
+     * @return  属性值
      */
     public Object getValue(byte[] bs, Charset charset) {
         if (String.class == field.getType()) {
@@ -137,7 +138,7 @@ class FieldMetaData {
     /**
      * 获取真实属性
      *
-     * @return
+     * @return  真实属性大小
      */
     public int getRealeSize() {
         // 如果是动态属性
@@ -160,11 +161,11 @@ class FieldMetaData {
     /**
      * 将属性值转换为byte
      *
-     * @param charset
-     * @return
-     * @throws NoSuchMethodException
-     * @throws InvocationTargetException
-     * @throws IllegalAccessException
+     * @param charset  字符集
+     * @return  属性值的byte数组
+     * @throws NoSuchMethodException  目标对象属性获取异常
+     * @throws InvocationTargetException  目标对象属性设置异常
+     * @throws IllegalAccessException  目标对象属性访问异常
      */
     public byte[] toByte(Object bean, Charset charset)
             throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
@@ -193,9 +194,9 @@ class FieldMetaData {
     /**
      * 获取动态属性值
      *
-     * @param value
-     * @param charset
-     * @return
+     * @param value  动态属性值
+     * @param charset  字符集
+     * @return  动态属性值的byte数组
      */
     @SuppressWarnings("unchecked")
     private byte[] getDynamicFieldByteValue(Object value, Charset charset) {
@@ -214,11 +215,11 @@ class FieldMetaData {
     /**
      * 获取单元对应值
      *
-     * @param bean
-     * @return
-     * @throws IllegalAccessException
-     * @throws InvocationTargetException
-     * @throws NoSuchMethodException
+     * @param bean  要获取值的对象
+     * @return  单元对应值
+     * @throws IllegalAccessException  目标对象属性访问异常
+     * @throws InvocationTargetException  目标对象属性设置异常
+     * @throws NoSuchMethodException  目标对象属性获取异常
      */
     private Object getFieldValue(Object bean)
             throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
@@ -229,12 +230,12 @@ class FieldMetaData {
     /**
      * 获取动态属性长度
      *
-     * @param bean
-     * @param charset
-     * @return
-     * @throws IllegalAccessException
-     * @throws InvocationTargetException
-     * @throws NoSuchMethodException
+     * @param bean  要获取动态属性长度的对象
+     * @param charset  字符集
+     * @return  动态属性长度
+     * @throws IllegalAccessException  目标对象属性访问异常
+     * @throws InvocationTargetException  目标对象属性设置异常
+     * @throws NoSuchMethodException  目标对象属性获取异常
      */
     @SuppressWarnings("unchecked")
     public int getDynamicFieldByteSize(Object bean, Charset charset)
@@ -259,7 +260,7 @@ class FieldMetaData {
     /**
      * 是否动态属性
      *
-     * @return
+     * @return  是否动态属性
      */
     public boolean isDynamicField() {
         return (!DynamicFieldType.NULL.equals(dynamicFieldType));

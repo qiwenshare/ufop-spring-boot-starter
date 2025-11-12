@@ -94,13 +94,11 @@ public class DefaultFastFileStorageClient extends DefaultGenerateStorageClient i
 
     /**
      * 上传文件
-     * <pre>
      * 可通过fastFile对象配置
      * 1. 上传图像分组
      * 2. 上传元数据metaDataSet
-     * <pre/>
-     * @param fastFile
-     * @return
+     * @param fastFile 上传文件对象
+     * @return 存储路径
      */
     @Override
     public StorePath uploadFile(FastFile fastFile) {
@@ -116,7 +114,6 @@ public class DefaultFastFileStorageClient extends DefaultGenerateStorageClient i
 
     /**
      * 上传图片
-     * <pre>
      * 可通过fastImageFile对象配置
      * 1. 上传图像分组
      * 2. 上传元数据metaDataSet
@@ -124,9 +121,8 @@ public class DefaultFastFileStorageClient extends DefaultGenerateStorageClient i
      *   3.1 根据默认配置生成缩略图
      *   3.2 根据指定尺寸生成缩略图
      *   3.3 根据指定比例生成缩略图
-     * <pre/>
-     * @param fastImageFile
-     * @return
+     * @param fastImageFile 上传图片对象
+     * @return 存储路径
      */
     @Override
     public StorePath uploadImage(FastImageFile fastImageFile) {
@@ -154,8 +150,8 @@ public class DefaultFastFileStorageClient extends DefaultGenerateStorageClient i
     /**
      * 获取存储Group
      *
-     * @param groupName
-     * @return
+     * @param groupName 组名
+     * @return 存储节点
      */
     private StorageNode getStorageNode(String groupName) {
         if (null == groupName) {
@@ -168,8 +164,8 @@ public class DefaultFastFileStorageClient extends DefaultGenerateStorageClient i
     /**
      * 获取byte流
      *
-     * @param inputStream
-     * @return
+     * @param inputStream 输入流
+     * @return byte数组
      */
     private byte[] inputStreamToByte(InputStream inputStream) {
         try {
@@ -183,8 +179,8 @@ public class DefaultFastFileStorageClient extends DefaultGenerateStorageClient i
     /**
      * 检查是否有MetaData
      *
-     * @param metaDataSet
-     * @return
+     * @param metaDataSet 元数据集合
+     * @return 是否有元数据
      */
     private boolean hasMetaData(Set<MetaData> metaDataSet) {
         return null != metaDataSet && !metaDataSet.isEmpty();
@@ -193,8 +189,8 @@ public class DefaultFastFileStorageClient extends DefaultGenerateStorageClient i
     /**
      * 是否是支持的图片文件
      *
-     * @param fileExtName
-     * @return
+     * @param fileExtName 文件扩展名
+     * @return 是否支持
      */
     private boolean isSupportImage(String fileExtName) {
         return SUPPORT_IMAGE_LIST.contains(fileExtName.toUpperCase());
@@ -203,12 +199,12 @@ public class DefaultFastFileStorageClient extends DefaultGenerateStorageClient i
     /**
      * 上传文件和元数据
      *
-     * @param client
-     * @param inputStream
-     * @param fileSize
-     * @param fileExtName
-     * @param metaDataSet
-     * @return
+     * @param client 存储节点
+     * @param inputStream 输入流
+     * @param fileSize 文件大小
+     * @param fileExtName 文件扩展名
+     * @param metaDataSet 元数据集合
+     * @return 存储路径
      */
     private StorePath uploadFileAndMetaData(StorageNode client, InputStream inputStream, long fileSize,
                                             String fileExtName, Set<MetaData> metaDataSet) {

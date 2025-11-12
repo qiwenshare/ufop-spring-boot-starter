@@ -41,9 +41,10 @@ public class DefaultConnection implements Connection {
     /**
      * 创建与服务端连接
      *
-     * @param address
-     * @param soTimeout
-     * @param connectTimeout
+     * @param address   服务端地址
+     * @param soTimeout 超时时间
+     * @param connectTimeout 连接超时时间
+     * @param charset 字符集
      */
     public DefaultConnection(InetSocketAddress address, int soTimeout, int connectTimeout, Charset charset) {
         try {
@@ -117,8 +118,8 @@ public class DefaultConnection implements Connection {
     /**
      * 获取输出流
      *
-     * @return
-     * @throws IOException
+     * @return 输出流
+     * @throws IOException 获取输出流错误
      */
     public OutputStream getOutputStream() throws IOException {
         return socket.getOutputStream();
@@ -127,8 +128,8 @@ public class DefaultConnection implements Connection {
     /**
      * 获取输入流
      *
-     * @return
-     * @throws IOException
+     * @return 输入流
+     * @throws IOException 获取输入流错误
      */
     public InputStream getInputStream() throws IOException {
         return socket.getInputStream();
@@ -137,7 +138,7 @@ public class DefaultConnection implements Connection {
     /**
      * 获取字符集
      *
-     * @return
+     * @return 字符集
      */
     public Charset getCharset() {
         return charset;

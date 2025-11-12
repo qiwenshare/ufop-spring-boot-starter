@@ -10,11 +10,8 @@ import java.nio.charset.Charset;
 
 /**
  * 文件Truncate命令
- * <p>
- * <pre>
- * 使用限制：创建文件时候需要采用<<源追加>>模式,之后才能Truncate
+ * 使用限制：创建文件时候需要采用(源追加)模式,之后才能Truncate
  * size使用也有限制
- * </pre>
  *
  * @author tobato
  */
@@ -39,7 +36,7 @@ public class StorageTruncateRequest extends FdfsRequest {
     /**
      * 文件Truncate命令
      *
-     * @param path
+     * @param path       文件路径
      * @param fileSize 截取文件长度
      */
     public StorageTruncateRequest(String path, long fileSize) {
@@ -51,6 +48,9 @@ public class StorageTruncateRequest extends FdfsRequest {
 
     /**
      * 打包参数
+     *
+     * @param charset  字符集
+     * @return  参数域字节数组
      */
     @Override
     public byte[] encodeParam(Charset charset) {

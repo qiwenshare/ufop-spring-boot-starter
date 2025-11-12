@@ -28,8 +28,8 @@ public class StorageDeleteFileRequest extends FdfsRequest {
     /**
      * 删除文件命令
      *
-     * @param groupName
-     * @param path
+     * @param groupName  组名
+     * @param path       路径名
      */
     public StorageDeleteFileRequest(String groupName, String path) {
         super();

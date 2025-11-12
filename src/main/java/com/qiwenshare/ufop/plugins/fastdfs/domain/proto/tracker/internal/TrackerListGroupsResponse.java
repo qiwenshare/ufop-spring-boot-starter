@@ -20,6 +20,11 @@ public class TrackerListGroupsResponse extends FdfsResponse<List<GroupState>> {
 
     /**
      * 解析反馈内容
+     *
+     * @param in       输入流
+     * @param charset 字符集
+     * @return 分组状态列表
+     * @throws IOException 解析异常
      */
     @Override
     public List<GroupState> decodeContent(InputStream in, Charset charset) throws IOException {
@@ -42,10 +47,10 @@ public class TrackerListGroupsResponse extends FdfsResponse<List<GroupState>> {
     /**
      * 解析Group
      *
-     * @param bs
-     * @param charset
-     * @return
-     * @throws IOException
+     * @param bs 字节数组
+     * @param charset 字符集
+     * @return 分组状态列表
+     * @throws IOException 解析异常
      */
     private List<GroupState> decode(byte[] bs, Charset charset) throws IOException {
         // 获取对象转换定义

@@ -67,10 +67,10 @@ public class BytesUtil {
     /**
      * 将String转换为byte
      *
-     * @return
-     * @throws NoSuchMethodException
-     * @throws InvocationTargetException
-     * @throws IllegalAccessException
+     * @param value  字符串值
+     * @param max    最大长度
+     * @param charset 字符集
+     * @return 字节数组
      */
     public static byte[] objString2Byte(String value, int max, Charset charset) {
         byte[] fullContentBytes = new byte[max];
@@ -95,9 +95,9 @@ public class BytesUtil {
     /**
      * 将String转换为byte
      *
-     * @param value
-     * @param charset
-     * @return
+     * @param value  字符串值
+     * @param charset 字符集
+     * @return 字节数组
      */
     public static byte[] objString2Byte(String value, Charset charset) {
         if (null == value) {

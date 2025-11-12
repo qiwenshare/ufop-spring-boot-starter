@@ -18,17 +18,16 @@ public interface FastFileStorageClient extends GenerateStorageClient {
     /**
      * 上传一般文件
      *
-     * @param inputStream
-     * @param fileSize
-     * @param fileExtName
-     * @param metaDataSet
-     * @return
+     * @param inputStream 输入流
+     * @param fileSize 文件大小
+     * @param fileExtName 文件扩展名
+     * @param metaDataSet 元数据集合
+     * @return 存储路径
      */
     StorePath uploadFile(InputStream inputStream, long fileSize, String fileExtName, Set<MetaData> metaDataSet);
 
     /**
      * 上传图片并且生成缩略图
-     * <pre>
      * 支持的图片格式包括"JPG", "JPEG", "PNG", "GIF", "BMP", "WBMP"
      *
      * 缩略图为上传文件名+缩略图后缀 _150x150,如 xxx.jpg,缩略图为 xxx_150x150.jpg
@@ -38,20 +37,18 @@ public interface FastFileStorageClient extends GenerateStorageClient {
      *  原图   http://localhost:8098/M00/00/17/rBEAAl33pQaAWNQNAAHYvQQn-YE374.jpg
      *  缩略图 http://localhost:8098/M00/00/17/rBEAAl33pQaAWNQNAAHYvQQn-YE374_150x150.jpg
      *
-     * </pre>
      *
-     * @param inputStream
-     * @param fileSize
-     * @param fileExtName
-     * @param metaDataSet
-     * @return
+     * @param inputStream 输入流
+     * @param fileSize 文件大小
+     * @param fileExtName 文件扩展名
+     * @param metaDataSet 元数据集合
+     * @return 存储路径
      */
     StorePath uploadImageAndCrtThumbImage(InputStream inputStream, long fileSize, String fileExtName,
                                           Set<MetaData> metaDataSet);
 
     /**
      * 上传图片
-     * <pre>
      * 可通过fastImageFile对象配置
      * 1. 上传图像分组
      * 2. 上传元数据metaDataSet
@@ -59,23 +56,20 @@ public interface FastFileStorageClient extends GenerateStorageClient {
      *   3.1 根据默认配置生成缩略图
      *   3.2 根据指定尺寸生成缩略图
      *   3.3 根据指定比例生成缩略图
-     * <pre/>
      *
      * @param fastImageFile 上传文件配置
-     * @return
+     * @return 存储路径
      */
     StorePath uploadImage(FastImageFile fastImageFile);
 
 
     /**
      * 上传文件
-     * <pre>
      * 可通过fastFile对象配置
      * 1. 上传图像分组
      * 2. 上传元数据metaDataSet
-     * <pre/>
-     * @param fastFile
-     * @return
+     * @param fastFile 上传文件配置
+     * @return 存储路径
      */
     StorePath uploadFile(FastFile fastFile);
 

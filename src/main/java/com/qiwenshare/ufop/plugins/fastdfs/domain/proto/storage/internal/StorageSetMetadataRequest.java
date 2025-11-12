@@ -55,10 +55,10 @@ public class StorageSetMetadataRequest extends FdfsRequest {
     /**
      * 设置文件元数据
      *
-     * @param groupName
-     * @param path
-     * @param metaDataSet
-     * @param type
+     * @param groupName  组名
+     * @param path       文件路径
+     * @param metaDataSet 元数据集合
+     * @param type       标签设置方式
      */
     public StorageSetMetadataRequest(String groupName, String path, Set<MetaData> metaDataSet,
                                      StorageMetadataSetType type) {

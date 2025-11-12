@@ -24,9 +24,9 @@ public class StorageNode {
     /**
      * 存储节点
      *
-     * @param ip
-     * @param port
-     * @param storeIndex
+     * @param ip          IP地址
+     * @param port        端口号
+     * @param storeIndex  存储索引
      */
     public StorageNode(String ip, int port, byte storeIndex) {
         super();

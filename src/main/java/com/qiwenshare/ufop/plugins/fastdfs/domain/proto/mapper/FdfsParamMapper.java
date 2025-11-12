@@ -36,11 +36,11 @@ public class FdfsParamMapper {
     /**
      * 将byte解码为对象
      *
-     * @param content
-     * @param genericType
-     * @param charset
-     * @param <T>
-     * @return
+     * @param content  要映射的byte数组
+     * @param genericType   要映射的目标对象类型
+     * @param charset  字符集
+     * @param <T>  要映射的目标对象类型
+     * @return  映射后的对象
      */
     public static <T> T map(byte[] content, Class<T> genericType, Charset charset) {
         // 获取映射对象
@@ -65,9 +65,9 @@ public class FdfsParamMapper {
 
     /**
      * 获取对象映射定义
-     *
-     * @param genericType
-     * @return
+     * @param <T>  要映射的目标对象类型
+     * @param genericType  要映射的目标对象类型
+     * @return  映射对象定义
      */
     public static <T> ObjectMetaData getObjectMap(Class<T> genericType) {
         if (null == mapCache.get(genericType.getName())) {
@@ -80,13 +80,13 @@ public class FdfsParamMapper {
     /**
      * 按列顺序映射
      *
-     * @param content
-     * @param genericType
-     * @param objectMap
-     * @return
-     * @throws InstantiationException
-     * @throws IllegalAccessException
-     * @throws InvocationTargetException
+     * @param content  要映射的byte数组
+     * @param genericType  要映射的目标对象类型
+     * @param objectMap  映射对象定义
+     * @return  映射后的对象
+     * @throws InstantiationException  目标对象实例化异常
+     * @throws IllegalAccessException  目标对象属性访问异常
+     * @throws InvocationTargetException  目标对象属性设置异常
      */
     private static <T> T mapByIndex(byte[] content, Class<T> genericType, ObjectMetaData objectMap, Charset charset)
             throws InstantiationException, IllegalAccessException, InvocationTargetException {
@@ -111,9 +111,9 @@ public class FdfsParamMapper {
     /**
      * 序列化为Byte
      *
-     * @param object
-     * @param charset
-     * @return
+     * @param object  要序列化的对象
+     * @param charset  字符集
+     * @return  序列化后的byte数组
      */
     public static byte[] toByte(Object object, Charset charset) {
         ObjectMetaData objectMap = getObjectMap(object.getClass());
@@ -135,13 +135,13 @@ public class FdfsParamMapper {
     /**
      * 将属性转换为byte
      *
-     * @param objectMap
-     * @param object
-     * @param charset
-     * @return
-     * @throws IllegalAccessException
-     * @throws InvocationTargetException
-     * @throws NoSuchMethodException
+     * @param objectMap  映射对象定义
+     * @param object  要序列化的对象
+     * @param charset  字符集
+     * @return  序列化后的byte数组
+     * @throws IllegalAccessException  目标对象属性访问异常
+     * @throws InvocationTargetException  目标对象属性设置异常
+     * @throws NoSuchMethodException  目标对象属性获取异常
      */
     private static byte[] convertFieldToByte(ObjectMetaData objectMap, Object object, Charset charset)
             throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {

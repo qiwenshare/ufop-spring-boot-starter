@@ -47,7 +47,7 @@ public class FdfsInputStream extends InputStream {
     /**
      * 是否已完成读取
      *
-     * @return
+     * @return  是否已完成读取
      */
     public boolean isReadCompleted() {
         return remainByteSize == 0;

@@ -15,15 +15,15 @@ public class FdfsIOException extends FdfsException {
     private static final long serialVersionUID = 1L;
 
     /**
-     * @param cause
+     * @param cause 异常对象
      */
     public FdfsIOException(Throwable cause) {
         super("客户端连接服务端出现了io异常", cause);
     }
 
     /**
-     * @param message
-     * @param cause
+     * @param messge 异常信息
+     * @param cause 异常对象
      */
     public FdfsIOException(String messge, Throwable cause) {
         super("客户端连接服务端出现了io异常:" + messge, cause);

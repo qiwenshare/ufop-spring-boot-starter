@@ -21,9 +21,9 @@ public class MetadataMapper {
     /**
      * 将元数据映射为byte
      *
-     * @param metadataSet
-     * @param charset
-     * @return
+     * @param metadataSet  要映射的元数据集合
+     * @param charset  字符集
+     * @return  映射后的byte数组
      */
     public static byte[] toByte(Set<MetaData> metadataSet, Charset charset) {
         if (null == metadataSet || metadataSet.isEmpty()) {
@@ -42,9 +42,9 @@ public class MetadataMapper {
     /**
      * 将byte映射为对象
      *
-     * @param content
-     * @param charset
-     * @return
+     * @param content  要映射的byte数组
+     * @param charset  字符集
+     * @return  映射后的元数据集合
      */
     public static Set<MetaData> fromByte(byte[] content, Charset charset) {
         Set<MetaData> mdSet = new HashSet<MetaData>();

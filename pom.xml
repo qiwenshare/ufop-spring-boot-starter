@@ -4,19 +4,69 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.qiwenshare</groupId>
-        <artifactId>qiwenshare</artifactId>
-        <version>1.4.1</version>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.7.18</version>
         <relativePath/>
     </parent>
+    <groupId>com.qiwenshare</groupId>
     <artifactId>ufop-spring-boot-starter</artifactId>
-    <version>${project.parent.version}</version>
+    <version>1.4.1</version>
     <packaging>jar</packaging>
 
     <name>ufop-spring-boot-starter</name>
     <description>ufop-spring-boot-starter</description>
     <url>https://gitee.com/qiwen-cloud/ufop-spring-boot-starter</url>
+    <properties>
+        <qiwenshare.version>1.4.1</qiwenshare.version>
+        <java.version>1.8</java.version>
+        <spring-cloud.version>Hoxton.SR9</spring-cloud.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
 
+        <qiwenshare-common.version>${qiwenshare.version}</qiwenshare-common.version>
+        <ufop.version>${qiwenshare.version}</ufop.version>
+
+        <aliyun.sdk.oss.version>3.18.3</aliyun.sdk.oss.version>
+        <tencent.sdk.cos.version>5.6.247</tencent.sdk.cos.version>
+        <commons-fileupload.version>1.5</commons-fileupload.version>
+        <commons-io.version>2.15.0</commons-io.version>
+        <fastjson2.version>2.0.41</fastjson2.version>
+        <swagger-annotations.version>2.2.18</swagger-annotations.version>
+        <mybatis-plus.version>3.5.4</mybatis-plus.version>
+        <poi-version>5.4.1</poi-version>
+        <pdf-box-version>3.0.5</pdf-box-version>
+        <imaging.version>1.0.0-alpha6</imaging.version>
+        <javacv.version>1.5.9</javacv.version>
+        <minio.version>8.5.17</minio.version>
+        <qiniu.version>7.17.0</qiniu.version>
+        <hutool.version>5.8.22</hutool.version>
+        <springdoc-openapi.version>1.7.0</springdoc-openapi.version>
+        <okhttp.version>5.0.0-alpha.3</okhttp.version>
+        <jpinyin.version>1.1.8</jpinyin.version>
+        <jaudiotagger.version>2.0.3</jaudiotagger.version>
+        <htmlunit.version>2.70.0</htmlunit.version>
+        <oshi-core.version>6.4.7</oshi-core.version>
+    </properties>
+    <licenses>
+        <license>
+            <name>MIT</name>
+            <url>https://opensource.org/licenses/MIT</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <developers>
+        <developer>
+            <name>MAC</name>
+            <email>1162714483@qq.com</email>
+        </developer>
+    </developers>
+    <scm>
+        <tag>master</tag>
+        <connection>https://gitee.com/qiwen-cloud/qiwenshare.git</connection>
+        <developerConnection>https://gitee.com/qiwen-cloud</developerConnection>
+        <url>https://gitee.com/qiwen-cloud/qiwenshare.git</url>
+    </scm>
     <repositories>
         <repository>
             <id>public2</id>
@@ -190,5 +240,269 @@
 
     </dependencies>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
 
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-boot-starter</artifactId>
+                <version>${mybatis-plus.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.qiwenshare</groupId>
+                <artifactId>qiwenshare-common</artifactId>
+                <version>${qiwenshare-common.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.qiwenshare</groupId>
+                <artifactId>ufop-spring-boot-starter</artifactId>
+                <version>${ufop.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-fileupload</groupId>
+                <artifactId>commons-fileupload</artifactId>
+                <version>${commons-fileupload.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>${commons-io.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.swagger.core.v3</groupId>
+                <artifactId>swagger-annotations</artifactId>
+                <version>${swagger-annotations.version}</version>
+            </dependency>
+            <!-- fastjson  -->
+            <dependency>
+                <groupId>com.alibaba.fastjson2</groupId>
+                <artifactId>fastjson2</artifactId>
+                <version>${fastjson2.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.aliyun.oss</groupId>
+                <artifactId>aliyun-sdk-oss</artifactId>
+                <version>${aliyun.sdk.oss.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.qcloud</groupId>
+                <artifactId>cos_api</artifactId>
+                <version>${tencent.sdk.cos.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.poi</groupId>
+                <artifactId>poi-ooxml-full</artifactId>
+                <version>${poi-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.poi</groupId>
+                <artifactId>poi-ooxml</artifactId>
+                <version>${poi-version}</version> <!-- 建议使用最新版本 -->
+            </dependency>
+            <dependency>
+                <groupId>org.apache.poi</groupId>
+                <artifactId>poi-scratchpad</artifactId>
+                <version>${poi-version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.pdfbox</groupId>
+                <artifactId>pdfbox</artifactId>
+                <version>${pdf-box-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-imaging</artifactId>
+                <version>${imaging.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.bytedeco</groupId>
+                <artifactId>javacv-platform</artifactId>
+                <version>${javacv.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.minio</groupId>
+                <artifactId>minio</artifactId>
+                <version>${minio.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.qiniu</groupId>
+                <artifactId>qiniu-java-sdk</artifactId>
+                <version>${qiniu.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>cn.hutool</groupId>
+                <artifactId>hutool-bom</artifactId>
+                <version>${hutool.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-ui</artifactId>
+                <version>${springdoc-openapi.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.squareup.okhttp3</groupId>
+                <artifactId>okhttp</artifactId>
+                <version>${okhttp.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org</groupId>
+                <artifactId>jaudiotagger</artifactId>
+                <version>${jaudiotagger.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.stuxuhai</groupId>
+                <artifactId>jpinyin</artifactId>
+                <version>${jpinyin.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.sourceforge.htmlunit</groupId>
+                <artifactId>htmlunit</artifactId>
+                <version>${htmlunit.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.oshi</groupId>
+                <artifactId>oshi-core</artifactId>
+                <version>${oshi-core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>jakarta.json</groupId>
+                <artifactId>jakarta.json-api</artifactId>
+                <version>2.1.3</version>
+            </dependency>
+            <dependency>
+                <groupId>org.modelmapper</groupId>
+                <artifactId>modelmapper</artifactId>
+                <version>3.2.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.dom4j</groupId>
+                <artifactId>dom4j</artifactId>
+                <version>2.1.4</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jsoup</groupId>
+                <artifactId>jsoup</artifactId>
+                <version>1.16.2</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hankcs</groupId>
+                <artifactId>hanlp</artifactId>
+                <version>portable-1.8.4</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>3.2.2</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-assembly-plugin</artifactId>
+                    <version>3.3.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-antrun-plugin</artifactId>
+                    <version>3.0.0</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <!-- Source -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>2.2.1</version>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- Javadoc -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>2.9.1</version>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- GPG -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.5</version>
+                        <executions>
+                            <execution>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- 中央仓库发布插件 -->
+                    <plugin>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <version>0.8.0</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <publishingServerId>central</publishingServerId>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+            <!--            <distributionManagement>-->
+            <!--                <snapshotRepository>-->
+            <!--                    <id>sonatype</id>-->
+            <!--                    <url>-->
+            <!--                        https://oss.sonatype.org/content/repositories/snapshots/-->
+            <!--                    </url>-->
+            <!--                </snapshotRepository>-->
+            <!--                <repository>-->
+            <!--                    <id>sonatype</id>-->
+            <!--                    <url>-->
+            <!--                        https://oss.sonatype.org/service/local/staging/deploy/maven2/-->
+            <!--                    </url>-->
+            <!--                </repository>-->
+            <!--            </distributionManagement>-->
+        </profile>
+    </profiles>
 </project>

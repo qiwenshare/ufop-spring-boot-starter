@@ -19,8 +19,8 @@ public abstract class FdfsException extends RuntimeException {
     }
 
     /**
-     * @param message
-     * @param cause
+     * @param message 异常信息
+     * @param cause 异常对象
      */
     protected FdfsException(String message, Throwable cause) {
         super(message, cause);

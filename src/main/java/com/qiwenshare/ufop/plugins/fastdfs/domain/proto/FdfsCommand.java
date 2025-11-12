@@ -10,7 +10,10 @@ import com.qiwenshare.ufop.plugins.fastdfs.domain.conn.Connection;
 public interface FdfsCommand<T> {
 
     /**
-     * 执行交易
+     * 执行交易命令
+     *
+     * @param conn 连接对象
+     * @return 响应对象
      */
     public T execute(Connection conn);
 

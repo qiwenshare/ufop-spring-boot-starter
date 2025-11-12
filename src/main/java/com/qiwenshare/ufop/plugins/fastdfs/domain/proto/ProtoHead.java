@@ -9,10 +9,7 @@ import java.util.Arrays;
 
 /**
  * FDFS协议头定义
- * <p>
- * <pre>
  * FDFS协议头一共10位
- * </pre>
  *
  * @author tobato
  */
@@ -50,6 +47,7 @@ public class ProtoHead {
 
     /**
      * 请求报文构造函数
+     * @param cmd 报文类型
      */
     public ProtoHead(byte cmd) {
         super();
@@ -59,9 +57,9 @@ public class ProtoHead {
     /**
      * 返回报文构造函数
      *
-     * @param contentLength
-     * @param cmd
-     * @param status
+     * @param contentLength 报文内容长度
+     * @param cmd 报文类型
+     * @param status 处理状态
      */
     public ProtoHead(long contentLength, byte cmd, byte status) {
         super();
@@ -71,9 +69,9 @@ public class ProtoHead {
     }
 
     /**
-     * toByte
+     * 将报文头转换为字节数组
      *
-     * @return
+     * @return 报文头字节数组
      */
     public byte[] toByte() {
         byte[] header;
@@ -91,9 +89,9 @@ public class ProtoHead {
     /**
      * 读取输入流创建报文头
      *
-     * @param ins
-     * @return
-     * @throws IOException
+     * @param ins 输入流
+     * @return 报文头对象
+     * @throws IOException 读取异常
      */
     public static ProtoHead createFromInputStream(InputStream ins) throws IOException {
 
@@ -114,8 +112,8 @@ public class ProtoHead {
     /**
      * 验证服务端返回报文有效性
      *
-     * @return
-     * @throws IOException
+     * @return 是否有效
+     * @throws IOException 验证异常
      */
     public boolean validateResponseHead() throws IOException {
         // 检查是否是正确反馈报文

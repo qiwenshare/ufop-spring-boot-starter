@@ -20,10 +20,10 @@ public class StorageGetMetadataResponse extends FdfsResponse<Set<MetaData>> {
     /**
      * 解析反馈内容
      *
-     * @param in
-     * @param charset
-     * @return
-     * @throws IOException
+     * @param in       输入流
+     * @param charset  字符集
+     * @return  元数据集合
+     * @throws IOException  输入流异常
      */
     @Override
     public Set<MetaData> decodeContent(InputStream in, Charset charset) throws IOException {

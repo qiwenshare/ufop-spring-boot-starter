@@ -29,7 +29,7 @@ class CircularList<E> extends ArrayList<E> {
     /**
      * 下一个元素
      *
-     * @return
+     * @return 下一个元素
      */
     public E next() {
         check();
@@ -58,7 +58,7 @@ class CircularList<E> extends ArrayList<E> {
     /**
      * 上一个元素
      *
-     * @return
+     * @return 上一个元素
      */
     public E previous() {
         check();

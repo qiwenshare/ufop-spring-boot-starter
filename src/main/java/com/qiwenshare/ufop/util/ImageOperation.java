@@ -20,9 +20,10 @@ public class ImageOperation {
 
     /**
      * 根据比例生成缩略图
+     *
      * @param oriFile 原始图像文件
      * @param destFile 目标图像文件
-     * @param ratio 缩放比例 (0 < ratio <= 1)
+     * @param ratio 缩放比例 (0 - 1)
      * @return 图像信息
      */
     public static ImageInfo thumbnailsImageFile(File oriFile, File destFile, double ratio) {

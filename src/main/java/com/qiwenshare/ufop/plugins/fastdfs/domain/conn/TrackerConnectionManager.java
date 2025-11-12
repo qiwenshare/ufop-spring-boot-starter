@@ -40,6 +40,7 @@ public class TrackerConnectionManager extends FdfsConnectionManager {
 
     /**
      * 构造函数
+     * @param pool 连接池
      */
     public TrackerConnectionManager(FdfsConnectionPool pool) {
         super(pool);
@@ -56,9 +57,11 @@ public class TrackerConnectionManager extends FdfsConnectionManager {
 
     /**
      * 获取连接并执行交易
+     * 从连接池获取连接并执行交易
      *
-     * @param command
-     * @return
+     * @param <T>       返回结果类型
+     * @param command   交易命令
+     * @return          交易结果
      */
     public <T> T executeFdfsTrackerCmd(FdfsCommand<T> command) {
         Connection conn = null;

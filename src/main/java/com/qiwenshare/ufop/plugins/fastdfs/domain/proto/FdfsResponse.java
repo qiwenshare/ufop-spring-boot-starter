@@ -25,6 +25,7 @@ public abstract class FdfsResponse<T> {
 
     /**
      * 获取报文长度
+     * @return 报文长度
      */
     protected long getContentLength() {
         return head.getContentLength();
@@ -45,11 +46,11 @@ public abstract class FdfsResponse<T> {
     /**
      * 解析反馈结果,head已经被解析过
      *
-     * @param head
-     * @param in
-     * @param charset
-     * @return
-     * @throws IOException
+     * @param head 报文头
+     * @param in 输入流
+     * @param charset 字符集
+     * @return 响应对象
+     * @throws IOException 解析异常
      */
     public T decode(ProtoHead head, InputStream in, Charset charset) throws IOException {
         this.head = head;
@@ -59,10 +60,10 @@ public abstract class FdfsResponse<T> {
     /**
      * 解析反馈内容
      *
-     * @param in
-     * @param charset
-     * @return
-     * @throws IOException
+     * @param in 输入流
+     * @param charset 字符集
+     * @return 响应对象
+     * @throws IOException 解析异常
      */
     public T decodeContent(InputStream in, Charset charset) throws IOException {
         // 如果有内容

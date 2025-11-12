@@ -22,8 +22,8 @@ public class StorageNodeInfo {
     /**
      * 存储节点
      *
-     * @param ip
-     * @param port
+     * @param ip          IP地址
+     * @param port        端口号
      */
     public StorageNodeInfo(String ip, int port) {
         super();

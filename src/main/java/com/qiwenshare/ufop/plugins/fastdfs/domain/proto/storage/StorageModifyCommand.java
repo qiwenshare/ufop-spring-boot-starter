@@ -16,10 +16,10 @@ public class StorageModifyCommand extends AbstractFdfsCommand<Void> {
     /**
      * 文件修改命令
      *
-     * @param path
-     * @param inputStream
-     * @param fileSize
-     * @param fileOffset
+     * @param path      路径
+     * @param inputStream 输入流
+     * @param fileSize    文件大小
+     * @param fileOffset  开始位置
      */
     public StorageModifyCommand(String path, InputStream inputStream, long fileSize, long fileOffset) {
         super();
