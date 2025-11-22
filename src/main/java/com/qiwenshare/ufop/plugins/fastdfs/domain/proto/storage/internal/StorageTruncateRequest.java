@@ -20,7 +20,7 @@ public class StorageTruncateRequest extends FdfsRequest {
     /**
      * 文件路径长度
      */
-    @FdfsColumn(index = 0)
+    @FdfsColumn()
     private long pathSize;
     /**
      * 截取文件长度

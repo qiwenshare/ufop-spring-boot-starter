@@ -3,7 +3,6 @@ package com.qiwenshare.ufop.operation.delete;
 import com.qiwenshare.ufop.operation.delete.domain.DeleteFile;
 import com.qiwenshare.ufop.util.UFOPUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
 

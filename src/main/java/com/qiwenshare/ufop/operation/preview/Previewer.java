@@ -29,14 +29,9 @@ public abstract class Previewer {
     protected abstract InputStream getInputStream(PreviewFile previewFile);
 
     public void imageThumbnailPreview(HttpServletResponse httpServletResponse, PreviewFile previewFile) {
-//        String fileUrl = previewFile.getFileUrl();
 
 
-//        boolean isVideo = UFOPUtils.isVideoFile(FilenameUtils.getExtension(fileUrl));
         String thumbnailImgUrl = previewFile.getFileUrl();
-//        if (previewFile.isVideoFile()) {
-//            thumbnailImgUrl = fileUrl.replace("." + FilenameUtils.getExtension(fileUrl), ".jpg");
-//        }
 
 
         File cacheFile = UFOPUtils.getCacheFile(thumbnailImgUrl);
@@ -58,7 +53,6 @@ public abstract class Previewer {
 
         } else {
             OutputStream outputStream = null;
-            InputStream in = null;
             InputStream inputstream = null;
             try {
                 inputstream = getInputStream(previewFile);
@@ -91,7 +85,6 @@ public abstract class Previewer {
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
-                IOUtils.closeQuietly(in);
                 IOUtils.closeQuietly(inputstream);
                 IOUtils.closeQuietly(outputStream);
                 if (previewFile.getOssClient() != null) {

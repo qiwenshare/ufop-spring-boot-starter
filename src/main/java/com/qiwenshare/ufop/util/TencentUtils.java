@@ -7,9 +7,7 @@ import com.qcloud.cos.auth.BasicCOSCredentials;
 import com.qcloud.cos.auth.COSCredentials;
 import com.qcloud.cos.http.HttpProtocol;
 import com.qcloud.cos.region.Region;
-import com.qiwenshare.ufop.config.AliyunConfig;
 import com.qiwenshare.ufop.config.TencentConfig;
-import com.qiwenshare.ufop.domain.TencentCOS;
 
 public class TencentUtils {
 

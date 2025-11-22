@@ -35,7 +35,7 @@ public class DefaultGenerateStorageClient implements GenerateStorageClient {
     /**
      * 日志
      */
-    protected static Logger LOGGER = LoggerFactory.getLogger(DefaultGenerateStorageClient.class);
+    protected static final Logger LOGGER = LoggerFactory.getLogger(DefaultGenerateStorageClient.class);
 
     /**
      * 上传不支持断点续传的文件
@@ -129,7 +129,7 @@ public class DefaultGenerateStorageClient implements GenerateStorageClient {
     public <T> T downloadFile(String groupName, String path, long fileOffset, long fileSize,
                               DownloadCallback<T> callback) {
         StorageNodeInfo client = trackerClient.getFetchStorage(groupName, path);
-        StorageDownloadCommand<T> command = new StorageDownloadCommand<T>(groupName, path, fileOffset, fileSize, callback);
+        StorageDownloadCommand<T> command = new StorageDownloadCommand<>(groupName, path, fileOffset, fileSize, callback);
         return fdfsConnectionManager.executeFdfsCmd(client.getInetSocketAddress(), command);
     }
 

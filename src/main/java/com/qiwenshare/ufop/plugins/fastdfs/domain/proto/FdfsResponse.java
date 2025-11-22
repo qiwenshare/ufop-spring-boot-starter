@@ -38,9 +38,6 @@ public abstract class FdfsResponse<T> {
     public FdfsResponse() {
         super();
         this.genericType = (Class<T>) GenericTypeResolver.resolveTypeArgument(getClass(), FdfsResponse.class);
-        // Type theclass = this.getClass().getGenericSuperclass();
-        // this.genericType = ((ParameterizedType)
-        // theclass).getActualTypeArguments()[0];
     }
 
     /**

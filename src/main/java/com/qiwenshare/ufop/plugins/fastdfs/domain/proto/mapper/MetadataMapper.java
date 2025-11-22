@@ -47,15 +47,15 @@ public class MetadataMapper {
      * @return  映射后的元数据集合
      */
     public static Set<MetaData> fromByte(byte[] content, Charset charset) {
-        Set<MetaData> mdSet = new HashSet<MetaData>();
+        Set<MetaData> mdSet = new HashSet<>();
         if (null == content) {
             return mdSet;
         }
         String meta_buff = new String(content, charset);
         String[] rows = meta_buff.split(OtherConstants.FDFS_RECORD_SEPERATOR);
 
-        for (int i = 0; i < rows.length; i++) {
-            String[] cols = rows[i].split(OtherConstants.FDFS_FIELD_SEPERATOR, 2);
+        for (String row : rows) {
+            String[] cols = row.split(OtherConstants.FDFS_FIELD_SEPERATOR, 2);
             MetaData md = new MetaData(cols[0]);
             if (cols.length == 2) {
                 md.setValue(cols[1]);

@@ -19,7 +19,7 @@ public class TrackerGetStoreStorageWithGroupRequest extends FdfsRequest {
     /**
      * 分组定义
      */
-    @FdfsColumn(index = 0, max = OtherConstants.FDFS_GROUP_NAME_MAX_LEN)
+    @FdfsColumn(max = OtherConstants.FDFS_GROUP_NAME_MAX_LEN)
     private final String groupName;
 
     /**

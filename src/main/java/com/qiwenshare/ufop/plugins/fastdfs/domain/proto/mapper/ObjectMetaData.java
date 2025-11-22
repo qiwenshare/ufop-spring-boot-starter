@@ -21,22 +21,22 @@ public class ObjectMetaData {
     /**
      * 日志
      */
-    private static Logger LOGGER = LoggerFactory.getLogger(ObjectMetaData.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ObjectMetaData.class);
 
     /**
      * 映射对象类名
      */
-    private String className;
+    private final String className;
 
     /**
      * 映射列(全部)
      */
-    private List<FieldMetaData> fieldList = new ArrayList<FieldMetaData>();
+    private List<FieldMetaData> fieldList = new ArrayList<>();
 
     /**
      * 动态计算列(部分)fieldList包含dynamicFieldList
      */
-    private List<FieldMetaData> dynamicFieldList = new ArrayList<FieldMetaData>();
+    private final List<FieldMetaData> dynamicFieldList = new ArrayList<FieldMetaData>();
 
     /**
      * FieldsTotalSize
@@ -71,10 +71,10 @@ public class ObjectMetaData {
      */
     private <T> List<FieldMetaData> praseFieldList(Class<T> genericType) {
         Field[] fields = genericType.getDeclaredFields();
-        List<FieldMetaData> mapedFieldList = new ArrayList<FieldMetaData>();
-        for (int i = 0; i < fields.length; i++) {
-            if (fields[i].isAnnotationPresent(FdfsColumn.class)) {
-                FieldMetaData fieldMetaData = new FieldMetaData(fields[i], fieldsTotalSize);
+        List<FieldMetaData> mapedFieldList = new ArrayList<>();
+        for (Field field : fields) {
+            if (field.isAnnotationPresent(FdfsColumn.class)) {
+                FieldMetaData fieldMetaData = new FieldMetaData(field, fieldsTotalSize);
                 mapedFieldList.add(fieldMetaData);
                 // 计算偏移量
                 fieldsTotalSize += fieldMetaData.getRealeSize();

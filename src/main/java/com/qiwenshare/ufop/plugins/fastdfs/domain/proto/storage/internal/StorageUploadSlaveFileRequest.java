@@ -19,7 +19,7 @@ public class StorageUploadSlaveFileRequest extends FdfsRequest {
     /**
      * 主文件名长度
      */
-    @FdfsColumn(index = 0)
+    @FdfsColumn()
     private long masterFileNameSize;
     /**
      * 发送文件长度

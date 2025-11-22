@@ -21,13 +21,13 @@ public class TrackerGetFetchStorageRequest extends FdfsRequest {
     /**
      * 组名
      */
-    @FdfsColumn(index = 0, max = OtherConstants.FDFS_GROUP_NAME_MAX_LEN)
-    private String groupName;
+    @FdfsColumn(max = OtherConstants.FDFS_GROUP_NAME_MAX_LEN)
+    private final String groupName;
     /**
      * 路径名
      */
     @FdfsColumn(index = 1, dynamicField = DynamicFieldType.allRestByte)
-    private String path;
+    private final String path;
 
     /**
      * 获取文件源服务器

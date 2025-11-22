@@ -20,12 +20,12 @@ public class DownloadFileWriter implements DownloadCallback<String> {
     /**
      * 日志
      */
-    protected static Logger LOGGER = LoggerFactory.getLogger(DownloadFileWriter.class);
+    protected static final Logger LOGGER = LoggerFactory.getLogger(DownloadFileWriter.class);
 
     /**
      * 文件名称
      */
-    private String fileName;
+    private final String fileName;
 
     public DownloadFileWriter(String fileName) {
         this.fileName = fileName;
@@ -38,7 +38,7 @@ public class DownloadFileWriter implements DownloadCallback<String> {
      * @return 文件名称
      */
     @Override
-    public String recv(InputStream ins) throws IOException {
+    public String recv(InputStream ins) {
         FileOutputStream out = null;
         InputStream in = null;
         try {

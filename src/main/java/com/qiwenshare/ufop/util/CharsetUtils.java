@@ -1,7 +1,6 @@
 package com.qiwenshare.ufop.util;
 
 import com.qiwenshare.ufop.exception.UFOPException;
-import org.apache.commons.io.IOUtils;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -100,38 +99,6 @@ public class CharsetUtils {
 
     }
 
-//    public static void main(String[] args) {
-//        System.out.println(java.nio.charset.Charset.forName("GB2312").newEncoder().canEncode("ÎÄ¼þ¼ÐÑ¹Ëõ"));
-//        System.out.println(StandardCharsets.ISO_8859_1.newEncoder().canEncode("ÎÄ¼þ¼ÐÑ¹Ëõ"));
-//        System.out.println(StandardCharsets.UTF_8.newEncoder().canEncode("ÎÄ¼þ¼ÐÑ¹Ëõ"));
-//        System.out.println(StandardCharsets.US_ASCII.newEncoder().canEncode("ÎÄ¼þ¼ÐÑ¹Ëõ"));
-////        System.out.println(StandardCharsets.ISO_8859_1.newEncoder().canEncode("ÎÄ¼þ¼ÐÑ¹Ëõ"));
-//        byte[] e = "ÎÄ¼þ¼ÐÑ¹Ëõ".getBytes(StandardCharsets.ISO_8859_1);
-//        try {
-//            System.out.println(new String("ÎÄ¼þ¼ÐÑ¹Ëõ".getBytes("GBK"), "UTF-8"));
-//        } catch (UnsupportedEncodingException ex) {
-//            throw new RuntimeException(ex);
-//        }
-//
-//        System.out.println(getFileCharsetName(new ByteArrayInputStream("ÎÄ¼þ¼ÐÑ¹Ëõ".getBytes())));
-//
-//
-//    }
-
-    public static void main(String[] args) {
-        String str = "¾Ïæºµt (1)";
-//        String str = "郑爽";
-        String str1 = getFileCharsetName(new ByteArrayInputStream(str.getBytes()));
-        System.out.println(str1);
-//        try {
-//            System.out.println(IOUtils.toString(convertTxtCharsetToUTF8(str.getBytes(str1), "txt"), "UTF-8"));
-//        } catch (UnsupportedEncodingException e) {
-//            throw new RuntimeException(e);
-//        }
-        System.out.println(Charset.defaultCharset());
-        System.out.println(getEncoding(str));
-
-    }
     public static String getEncoding(String str) {
         String encode = "GB2312";
         try {

@@ -13,11 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Service
 public class CacheServiceJDKImpl implements CacheService {
 
-
-
-//    private static Map<String, Object> cacheMap = new ConcurrentHashMap<>();
     private static ConcurrentHashMap<String, Value<String, Object>> cache= new ConcurrentHashMap<>();
-    private int capacity=500000;
 
     private final Object lock = new Object();
     @Override
@@ -84,6 +80,7 @@ public class CacheServiceJDKImpl implements CacheService {
      * 1、如果初始的容量小于100
      */
     private void eliminate() {
+        int capacity = 500000;
         if (cache.size() >= capacity) {//如果当前容器中的数据量超过了规定的容量则进行数据淘汰
 
             synchronized (lock) {
@@ -127,12 +124,12 @@ public class CacheServiceJDKImpl implements CacheService {
      * @param <V>
      */
     private static class Value<K, V> {
-        private K key;//用户传入缓存的key
-        private V val; //用户缓存传入缓存的value
-        private long timestamp;//时间戳
-        private long timeout;//key的过期时间
-        private TimeUnit unit;//时间单位
-        private AtomicInteger count;//保存该条数据的访问量
+        private final K key;//用户传入缓存的key
+        private final V val; //用户缓存传入缓存的value
+        private final long timestamp;//时间戳
+        private final long timeout;//key的过期时间
+        private final TimeUnit unit;//时间单位
+        private final AtomicInteger count;//保存该条数据的访问量
 
         public Value(K key, V val, long timeout, TimeUnit unit) {
             this.key = key;

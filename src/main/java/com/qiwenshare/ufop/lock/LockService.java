@@ -4,6 +4,10 @@ import java.util.concurrent.TimeUnit;
 
 public interface LockService {
 
+    /**
+     * 阻塞式获取锁
+     * @param key 键
+     */
     void lock(final String key);
 
     /**
@@ -13,14 +17,14 @@ public interface LockService {
     void unlock(String key);
 
     /**
-     * 尝试获取锁，没有获取到，返回false。否则 返回true
+     * 非阻塞尝试获取锁
      * @param key 键
      * @return 返回是否获取成功
      */
     boolean tryLock(final String key);
 
     /**
-     * 获取锁，指定时间内没有获取到，返回false。否则 返回true
+     * 带超时尝试获取锁
      * @param key 键
      * @param time 获取锁等待时间
      * @param unit 时间单位

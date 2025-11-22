@@ -21,13 +21,13 @@ public class StorageUploadFileRequest extends FdfsRequest {
     /**
      * 存储节点index
      */
-    @FdfsColumn(index = 0)
+    @FdfsColumn()
     private byte storeIndex;
     /**
      * 发送文件长度
      */
     @FdfsColumn(index = 1)
-    private long fileSize;
+    private final long fileSize;
     /**
      * 文件扩展名
      */

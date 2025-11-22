@@ -19,23 +19,23 @@ public class StorageModifyRequest extends FdfsRequest {
     /**
      * 文件路径长度
      */
-    @FdfsColumn(index = 0)
+    @FdfsColumn()
     private long pathSize;
     /**
      * 开始位置
      */
     @FdfsColumn(index = 1)
-    private long fileOffset;
+    private final long fileOffset;
     /**
      * 发送文件长度
      */
     @FdfsColumn(index = 2)
-    private long fileSize;
+    private final long fileSize;
     /**
      * 文件路径
      */
     @FdfsColumn(index = 3, dynamicField = DynamicFieldType.allRestByte)
-    private String path;
+    private final String path;
 
     /**
      * 构造函数

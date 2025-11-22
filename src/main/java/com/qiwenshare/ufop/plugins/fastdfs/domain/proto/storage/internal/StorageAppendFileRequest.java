@@ -19,7 +19,7 @@ public class StorageAppendFileRequest extends FdfsRequest {
     /**
      * 文件路径长度
      */
-    @FdfsColumn(index = 0)
+    @FdfsColumn()
     private long pathSize;
     /**
      * 发送文件长度
