@@ -16,6 +16,8 @@ import com.qiwenshare.ufop.operation.download.Downloader;
 import com.qiwenshare.ufop.operation.download.product.*;
 import com.qiwenshare.ufop.operation.preview.Previewer;
 import com.qiwenshare.ufop.operation.preview.product.*;
+import com.qiwenshare.ufop.operation.query.Querier;
+import com.qiwenshare.ufop.operation.query.product.AliyunOSSQuerier;
 import com.qiwenshare.ufop.operation.read.Reader;
 import com.qiwenshare.ufop.operation.read.product.*;
 import com.qiwenshare.ufop.operation.upload.Uploader;
@@ -52,6 +54,8 @@ public class UFOPFactory {
     private FastDFSWriter fastDFSWriter;
     @Resource
     private AliyunOSSUploader aliyunOSSUploader;
+    @Resource
+    private AliyunOSSQuerier aliyunOSSQuerier;
     @Resource
     private MinioUploader minioUploader;
     @Resource
@@ -233,5 +237,27 @@ public class UFOPFactory {
             throw new CopyException("拷贝失败");
         }
         return copier;
+    }
+
+    public Querier getQuerier(int storageType) {
+        Querier querier = null;
+        if (StorageTypeEnum.LOCAL.getCode() == storageType) {
+//            previewer = localStoragePreviewer;
+        } else if (StorageTypeEnum.ALIYUN_OSS.getCode() == storageType) {
+            querier = new AliyunOSSQuerier(aliyunConfig);
+        } else if (StorageTypeEnum.FAST_DFS.getCode() == storageType) {
+//            previewer = fastDFSPreviewer;
+        } else if (StorageTypeEnum.MINIO.getCode() == storageType) {
+//            previewer = new MinioPreviewer(minioConfig, thumbImage);
+        } else if (StorageTypeEnum.QINIUYUN_KODO.getCode() == storageType) {
+//            previewer = new QiniuyunKodoPreviewer(qiniuyunConfig, thumbImage);
+        } else if (StorageTypeEnum.TENCENT_COS.getCode() == storageType) {
+//            previewer = new TencentCOSPreviewer(tencentConfig, thumbImage);
+        }
+        if (querier == null) {
+            log.error("预览失败，文件存储类型不支持预览，storageType:{}", storageType);
+            throw new PreviewException("预览失败");
+        }
+        return querier;
     }
 }

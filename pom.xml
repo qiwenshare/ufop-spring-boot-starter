@@ -11,7 +11,7 @@
     </parent>
     <groupId>com.qiwenshare</groupId>
     <artifactId>ufop-spring-boot-starter</artifactId>
-    <version>1.4.1</version>
+    <version>1.4.2</version>
     <packaging>jar</packaging>
 
     <name>ufop-spring-boot-starter</name>

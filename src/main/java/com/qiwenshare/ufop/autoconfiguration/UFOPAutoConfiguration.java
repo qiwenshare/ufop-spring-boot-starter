@@ -14,6 +14,7 @@ import com.qiwenshare.ufop.operation.download.product.FastDFSDownloader;
 import com.qiwenshare.ufop.operation.download.product.LocalStorageDownloader;
 import com.qiwenshare.ufop.operation.preview.product.FastDFSPreviewer;
 import com.qiwenshare.ufop.operation.preview.product.LocalStoragePreviewer;
+import com.qiwenshare.ufop.operation.query.product.AliyunOSSQuerier;
 import com.qiwenshare.ufop.operation.read.product.FastDFSReader;
 import com.qiwenshare.ufop.operation.read.product.LocalStorageReader;
 import com.qiwenshare.ufop.operation.upload.product.*;
@@ -148,6 +149,8 @@ public class UFOPAutoConfiguration {
     public TencentCOSUploader tencentCOSUploader() {
         return new TencentCOSUploader(ufopProperties.getTencent());
     }
-
-
+    @Bean
+    public AliyunOSSQuerier aliyunOSSQuerier() {
+        return new AliyunOSSQuerier(ufopProperties.getAliyun());
+    }
 }
