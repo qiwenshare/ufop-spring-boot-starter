@@ -14,7 +14,7 @@ public class GroupState {
     /**
      * name of this group
      */
-    @FdfsColumn(index = 0, max = OtherConstants.FDFS_GROUP_NAME_MAX_LEN + 1)
+    @FdfsColumn(max = OtherConstants.FDFS_GROUP_NAME_MAX_LEN + 1)
     String groupName;
     /**
      * total disk storage in MB

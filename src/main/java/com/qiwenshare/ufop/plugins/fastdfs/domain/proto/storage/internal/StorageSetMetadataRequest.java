@@ -24,7 +24,7 @@ public class StorageSetMetadataRequest extends FdfsRequest {
     /**
      * 文件名byte长度
      */
-    @FdfsColumn(index = 0)
+    @FdfsColumn()
     private int fileNameByteLengh;
     /**
      * 元数据byte长度
@@ -35,22 +35,22 @@ public class StorageSetMetadataRequest extends FdfsRequest {
      * 操作标记（重写/覆盖）
      */
     @FdfsColumn(index = 2)
-    private byte opFlag;
+    private final byte opFlag;
     /**
      * 组名
      */
     @FdfsColumn(index = 3, max = OtherConstants.FDFS_GROUP_NAME_MAX_LEN)
-    private String groupName;
+    private final String groupName;
     /**
      * 文件路径
      */
     @FdfsColumn(index = 4, dynamicField = DynamicFieldType.allRestByte)
-    private String path;
+    private final String path;
     /**
      * 元数据
      */
     @FdfsColumn(index = 5, dynamicField = DynamicFieldType.metadata)
-    private Set<MetaData> metaDataSet;
+    private final Set<MetaData> metaDataSet;
 
     /**
      * 设置文件元数据

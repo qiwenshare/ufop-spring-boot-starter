@@ -18,13 +18,6 @@ public class UFOPUtils {
     public static String ROOT_PATH;
 //"txt", "html", "java", "xml", "js", "css", "json", "sql"
     public static final String[] TXT_FILE = {"txt", "html", "java", "xml", "js", "css", "json", "sql"};
-//    public static final int IMAGE_TYPE = 1;
-//    public static final int DOC_TYPE = 2;
-//    public static final int VIDEO_TYPE = 3;
-//    public static final int MUSIC_TYPE = 4;
-//    public static final int OTHER_TYPE = 5;
-//    public static final int SHARE_FILE = 6;
-//    public static final int RECYCLE_FILE = 7;
 
 
     public static String pathSplitFormat(String filePath) {

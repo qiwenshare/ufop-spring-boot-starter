@@ -44,10 +44,6 @@ public class LockServiceRedisImpl implements LockService {
 
     private final ThreadLocal<Map<String, LockVO>> lockMap = new ThreadLocal<>();
 
-    /**
-     * 获取锁，没有获取到则一直等待
-     * @param key 键
-     */
     public void lock(final String key) {
 
         try {
@@ -57,10 +53,6 @@ public class LockServiceRedisImpl implements LockService {
         }
     }
 
-    /**
-     * 释放锁
-     * @param key 键
-     */
     public void unlock(String key) {
         try {
             release(key);
@@ -69,26 +61,16 @@ public class LockServiceRedisImpl implements LockService {
         }
     }
 
-    /**
-     * 尝试获取锁，指定时间内没有获取到，返回false。否则 返回true
-     * @param key 键
-     * @return 返回是否获取成功
-     */
+
     public boolean tryLock(final String key) {
         try {
-            return acquireLock(key, LOCK_EXPIRE_TIME, -1);
+            return acquireLock(key, LOCK_EXPIRE_TIME, 0);
         } catch (Exception e) {
             throw new RuntimeException("acquire lock exception", e);
         }
     }
 
-    /**
-     * 获取锁，指定时间内没有获取到，返回false。否则 返回true
-     * @param key 键
-     * @param time 获取锁等待时间
-     * @param unit 时间单位
-     * @return 返回是否获取成功
-     */
+
     public boolean tryLock(String key, long time, TimeUnit unit) {
         try {
             return acquireLock(key, LOCK_EXPIRE_TIME, unit.toSeconds(time));
@@ -197,15 +179,15 @@ public class LockServiceRedisImpl implements LockService {
         /**
          * 获取锁后，UUID生成的唯一ID
          */
-        private String lockId;
+        private final String lockId;
         /**
          * 获取锁之前的时间戳
          */
-        private long beforeExpireTime;
+        private final long beforeExpireTime;
         /**
          * 获取到锁的时间戳
          */
-        private long afterExpireTime;
+        private final long afterExpireTime;
 
         LockVO(int count, String lockId, long beforeExpireTime, long afterExpireTime) {
             this.count = count;

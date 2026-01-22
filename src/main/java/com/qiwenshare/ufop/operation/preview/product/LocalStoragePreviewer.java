@@ -6,7 +6,6 @@ import com.qiwenshare.ufop.operation.preview.Previewer;
 import com.qiwenshare.ufop.operation.preview.domain.PreviewFile;
 import com.qiwenshare.ufop.util.UFOPUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
 import java.io.*;

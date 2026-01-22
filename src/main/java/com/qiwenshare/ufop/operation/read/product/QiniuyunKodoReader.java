@@ -8,7 +8,6 @@ import com.qiwenshare.ufop.operation.read.domain.ReadFile;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 

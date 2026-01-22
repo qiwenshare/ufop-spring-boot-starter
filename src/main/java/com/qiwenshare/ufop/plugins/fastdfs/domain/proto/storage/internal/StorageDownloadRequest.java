@@ -17,23 +17,23 @@ public class StorageDownloadRequest extends FdfsRequest {
     /**
      * 开始位置
      */
-    @FdfsColumn(index = 0)
-    private long fileOffset;
+    @FdfsColumn()
+    private final long fileOffset;
     /**
      * 读取文件长度
      */
     @FdfsColumn(index = 1)
-    private long downloadBytes;
+    private final long downloadBytes;
     /**
      * 组名
      */
     @FdfsColumn(index = 2, max = OtherConstants.FDFS_GROUP_NAME_MAX_LEN)
-    private String groupName;
+    private final String groupName;
     /**
      * 文件路径
      */
     @FdfsColumn(index = 3, dynamicField = DynamicFieldType.allRestByte)
-    private String path;
+    private final String path;
 
     /**
      * 文件下载请求

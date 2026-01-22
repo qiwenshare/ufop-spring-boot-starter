@@ -18,7 +18,7 @@ public class TrackerListStoragesRequest extends FdfsRequest {
     /**
      * 组名
      */
-    @FdfsColumn(index = 0, max = OtherConstants.FDFS_GROUP_NAME_MAX_LEN)
+    @FdfsColumn(max = OtherConstants.FDFS_GROUP_NAME_MAX_LEN)
     private String groupName;
     /**
      * 存储服务器ip地址

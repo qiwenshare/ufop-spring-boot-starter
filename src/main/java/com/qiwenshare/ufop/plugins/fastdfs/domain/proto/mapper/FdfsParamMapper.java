@@ -1,5 +1,6 @@
 package com.qiwenshare.ufop.plugins.fastdfs.domain.proto.mapper;
 
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanWrapper;
@@ -16,6 +17,7 @@ import java.util.Map;
  *
  * @author tobato
  */
+@Slf4j
 public class FdfsParamMapper {
 
     private FdfsParamMapper() {
@@ -25,12 +27,7 @@ public class FdfsParamMapper {
     /**
      * 对象映射缓存
      */
-    private static Map<String, ObjectMetaData> mapCache = new HashMap<String, ObjectMetaData>();
-
-    /**
-     * 日志
-     */
-    private static Logger LOGGER = LoggerFactory.getLogger(FdfsParamMapper.class);
+    private static final Map<String, ObjectMetaData> mapCache = new HashMap<>();
 
 
     /**
@@ -45,21 +42,18 @@ public class FdfsParamMapper {
     public static <T> T map(byte[] content, Class<T> genericType, Charset charset) {
         // 获取映射对象
         ObjectMetaData objectMap = getObjectMap(genericType);
-        if (LOGGER.isDebugEnabled()) {
+        if (log.isDebugEnabled()) {
             objectMap.dumpObjectMetaData();
         }
 
         try {
             return mapByIndex(content, genericType, objectMap, charset);
         } catch (InstantiationException ie) {
-            LOGGER.debug("Cannot instantiate: ", ie);
+            log.debug("Cannot instantiate: ", ie);
             throw new FdfsColumnMapException(ie);
         } catch (IllegalAccessException iae) {
-            LOGGER.debug("Illegal access: ", iae);
+            log.debug("Illegal access: ", iae);
             throw new FdfsColumnMapException(iae);
-        } catch (InvocationTargetException ite) {
-            LOGGER.debug("Cannot invoke method: ", ite);
-            throw new FdfsColumnMapException(ite);
         }
     }
 
@@ -86,19 +80,17 @@ public class FdfsParamMapper {
      * @return  映射后的对象
      * @throws InstantiationException  目标对象实例化异常
      * @throws IllegalAccessException  目标对象属性访问异常
-     * @throws InvocationTargetException  目标对象属性设置异常
      */
     private static <T> T mapByIndex(byte[] content, Class<T> genericType, ObjectMetaData objectMap, Charset charset)
-            throws InstantiationException, IllegalAccessException, InvocationTargetException {
+            throws InstantiationException, IllegalAccessException {
 
         List<FieldMetaData> mappingFields = objectMap.getFieldList();
         T obj = genericType.newInstance();
 
         BeanWrapper wrapper = new BeanWrapperImpl(obj);
-        for (int i = 0; i < mappingFields.size(); i++) {
-            FieldMetaData field = mappingFields.get(i);
+        for (FieldMetaData field : mappingFields) {
             // 设置属性值
-            LOGGER.debug("设置值是 " + field + field.getValue(content, charset));
+            log.debug("设置值是 " + field + field.getValue(content, charset));
 //            BeanUtils.setProperty(obj, field.getFieldName(), field.getValue(content, charset));
 
             Object value = field.getValue(content, charset);
@@ -120,13 +112,13 @@ public class FdfsParamMapper {
         try {
             return convertFieldToByte(objectMap, object, charset);
         } catch (NoSuchMethodException ie) {
-            LOGGER.debug("Cannot invoke get methed: ", ie);
+            log.debug("Cannot invoke get methed: ", ie);
             throw new FdfsColumnMapException(ie);
         } catch (IllegalAccessException iae) {
-            LOGGER.debug("Illegal access: ", iae);
+            log.debug("Illegal access: ", iae);
             throw new FdfsColumnMapException(iae);
         } catch (InvocationTargetException ite) {
-            LOGGER.debug("Cannot invoke method: ", ite);
+            log.debug("Cannot invoke method: ", ite);
             throw new FdfsColumnMapException(ite);
         }
 
@@ -150,8 +142,7 @@ public class FdfsParamMapper {
         int size = objectMap.getFieldsSendTotalByteSize(object, charset);
         byte[] result = new byte[size];
         int offsize = 0;
-        for (int i = 0; i < mappingFields.size(); i++) {
-            FieldMetaData field = mappingFields.get(i);
+        for (FieldMetaData field : mappingFields) {
             byte[] fieldByte = field.toByte(object, charset);
             if (null != fieldByte) {
                 System.arraycopy(fieldByte, 0, result, offsize, fieldByte.length);

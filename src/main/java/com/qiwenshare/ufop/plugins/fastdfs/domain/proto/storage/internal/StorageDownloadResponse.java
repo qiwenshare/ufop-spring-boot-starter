@@ -16,7 +16,7 @@ import java.nio.charset.Charset;
  */
 public class StorageDownloadResponse<T> extends FdfsResponse<T> {
 
-    private DownloadCallback<T> callback;
+    private final DownloadCallback<T> callback;
 
     public StorageDownloadResponse(DownloadCallback<T> callback) {
         super();

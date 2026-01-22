@@ -16,9 +16,9 @@ public enum StorageMetadataSetType {
      */
     STORAGE_SET_METADATA_FLAG_MERGE((byte) 'M');
 
-    private byte type;
+    private final byte type;
 
-    private StorageMetadataSetType(byte type) {
+    StorageMetadataSetType(byte type) {
         this.type = type;
     }
 

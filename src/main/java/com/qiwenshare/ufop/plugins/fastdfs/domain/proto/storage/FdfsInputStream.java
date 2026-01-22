@@ -26,7 +26,7 @@ public class FdfsInputStream extends InputStream {
     }
 
     @Override
-    public int read(byte b[], int off, int len) throws IOException {
+    public int read(byte[] b, int off, int len) throws IOException {
         if (remainByteSize == 0) {
             return -1;
         }
@@ -40,7 +40,7 @@ public class FdfsInputStream extends InputStream {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         // do nothing
     }
 

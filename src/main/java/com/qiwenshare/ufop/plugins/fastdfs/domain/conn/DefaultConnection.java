@@ -26,12 +26,12 @@ public class DefaultConnection implements Connection {
     /**
      * 封装socket
      */
-    private Socket socket;
+    private final Socket socket;
 
     /**
      * 字符集
      */
-    private Charset charset;
+    private final Charset charset;
 
     /**
      * 日志

@@ -27,7 +27,7 @@ public class LockServiceJDKImpl implements LockService {
 
     @Override
     public void unlock(String key) {
-// 如果key为空，直接返回
+
         if (key == null) {
             throw new IllegalArgumentException("key 不能为空");
         }
@@ -42,7 +42,6 @@ public class LockServiceJDKImpl implements LockService {
         if (!lock.isHeldByCurrentThread()) {
             log.error("当前线程尚未持有，key:" + key + "的锁，不允许释放");
             return;
-//            throw new IllegalStateException("当前线程尚未持有，key:" + key + "的锁，不允许释放");
         }
 
         lock.unlock();
@@ -60,9 +59,7 @@ public class LockServiceJDKImpl implements LockService {
         if (lock == null) {
             throw new IllegalArgumentException("key " + key + "尚未加锁");
         }
-//        if (!lock.isHeldByCurrentThread()) {
-//            throw new IllegalStateException("当前线程尚未持有，key:" + key + "的锁，不允许释放");
-//        }
+
         return lock.tryLock();
     }
 
@@ -78,9 +75,7 @@ public class LockServiceJDKImpl implements LockService {
         if (lock == null) {
             throw new IllegalArgumentException("key " + key + "尚未加锁");
         }
-//        if (!lock.isHeldByCurrentThread()) {
-//            throw new IllegalStateException("当前线程尚未持有，key:" + key + "的锁，不允许释放");
-//        }
+
         try {
             return lock.tryLock( time, unit);
         } catch (InterruptedException e) {

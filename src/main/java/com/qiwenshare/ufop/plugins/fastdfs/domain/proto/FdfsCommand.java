@@ -15,6 +15,6 @@ public interface FdfsCommand<T> {
      * @param conn 连接对象
      * @return 响应对象
      */
-    public T execute(Connection conn);
+    T execute(Connection conn);
 
 }

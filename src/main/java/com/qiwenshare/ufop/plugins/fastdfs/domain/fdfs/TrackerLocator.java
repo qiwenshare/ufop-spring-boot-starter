@@ -27,12 +27,12 @@ public class TrackerLocator {
     /**
      * 目录服务地址-为了加速处理，增加了一个map
      */
-    private Map<InetSocketAddress, TrackerAddressHolder> trackerAddressMap = new HashMap<>();
+    private final Map<InetSocketAddress, TrackerAddressHolder> trackerAddressMap = new HashMap<>();
 
     /**
      * 轮询圈
      */
-    private CircularList<TrackerAddressHolder> trackerAddressCircular = new CircularList<>();
+    private final CircularList<TrackerAddressHolder> trackerAddressCircular = new CircularList<>();
 
     /**
      * 连接中断以后经过N秒重试
@@ -108,7 +108,7 @@ public class TrackerLocator {
      * @return trackerAddressConfig  Tracker服务器地址配置列表
      */
     private String getTrackerAddressConfigString() {
-        StringBuffer config = new StringBuffer();
+        StringBuilder config = new StringBuilder();
         for (int i = 0; i < trackerAddressCircular.size(); i++) {
             TrackerAddressHolder holder = trackerAddressCircular.next();
             InetSocketAddress address = holder.getAddress();

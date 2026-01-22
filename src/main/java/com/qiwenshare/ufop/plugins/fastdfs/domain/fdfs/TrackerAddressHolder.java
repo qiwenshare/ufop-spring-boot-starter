@@ -11,7 +11,7 @@ public class TrackerAddressHolder {
     /**
      * 连接地址
      */
-    private InetSocketAddress address;
+    private final InetSocketAddress address;
     /**
      * 当前是否有效
      */

@@ -30,7 +30,7 @@ public abstract class AbstractFastFileBuilder<T> {
     /**
      * 文件元数据
      */
-    protected Set<MetaData> metaDataSet = new HashSet<>();
+    protected final Set<MetaData> metaDataSet = new HashSet<>();
 
     /**
      * 上传文件分组

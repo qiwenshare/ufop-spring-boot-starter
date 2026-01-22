@@ -1,6 +1,5 @@
 package com.qiwenshare.ufop.plugins.fastdfs.domain.proto.mapper;
 
-import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 

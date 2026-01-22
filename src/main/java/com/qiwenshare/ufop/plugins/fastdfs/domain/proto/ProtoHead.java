@@ -27,7 +27,7 @@ public class ProtoHead {
     /**
      * 报文类型8位
      */
-    private byte cmd;
+    private final byte cmd;
     /**
      * 处理状态9位
      */

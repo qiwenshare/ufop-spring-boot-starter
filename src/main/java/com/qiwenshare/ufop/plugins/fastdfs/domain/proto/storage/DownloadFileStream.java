@@ -33,7 +33,7 @@ public class DownloadFileStream implements DownloadCallback<BufferedInputStream>
      * 输出流
      * HttpServletResponse对象response.getOutputStream()
      */
-    private OutputStream outputStream;
+    private final OutputStream outputStream;
 
     /**
      * 默认缓存长度

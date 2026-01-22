@@ -21,15 +21,15 @@ class FieldMetaData {
     /**
      * 列
      */
-    private Field field;
+    private final Field field;
     /**
      * 列索引
      */
-    private int index;
+    private final int index;
     /**
      * 单元最大长度
      */
-    private int max;
+    private final int max;
     /**
      * 单元长度
      */
@@ -37,11 +37,11 @@ class FieldMetaData {
     /**
      * 列偏移量
      */
-    private int offsize;
+    private final int offsize;
     /**
      * 动态属性类型
      */
-    DynamicFieldType dynamicFieldType;
+    final DynamicFieldType dynamicFieldType;
 
     /**
      * 构造函数
@@ -217,12 +217,8 @@ class FieldMetaData {
      *
      * @param bean  要获取值的对象
      * @return  单元对应值
-     * @throws IllegalAccessException  目标对象属性访问异常
-     * @throws InvocationTargetException  目标对象属性设置异常
-     * @throws NoSuchMethodException  目标对象属性获取异常
      */
-    private Object getFieldValue(Object bean)
-            throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+    private Object getFieldValue(Object bean) {
         BeanWrapper wrapper = new BeanWrapperImpl(bean);
         return wrapper.getPropertyValue(field.getName());
     }
@@ -233,13 +229,9 @@ class FieldMetaData {
      * @param bean  要获取动态属性长度的对象
      * @param charset  字符集
      * @return  动态属性长度
-     * @throws IllegalAccessException  目标对象属性访问异常
-     * @throws InvocationTargetException  目标对象属性设置异常
-     * @throws NoSuchMethodException  目标对象属性获取异常
      */
     @SuppressWarnings("unchecked")
-    public int getDynamicFieldByteSize(Object bean, Charset charset)
-            throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+    public int getDynamicFieldByteSize(Object bean, Charset charset) {
         BeanWrapper wrapper = new BeanWrapperImpl(bean);
         Object value = wrapper.getPropertyValue(field.getName());
         if (null == value) {

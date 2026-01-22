@@ -17,13 +17,13 @@ public class TrackerDeleteStorageRequest extends FdfsRequest {
     /**
      * 组名
      */
-    @FdfsColumn(index = 0, max = OtherConstants.FDFS_GROUP_NAME_MAX_LEN)
-    private String groupName;
+    @FdfsColumn(max = OtherConstants.FDFS_GROUP_NAME_MAX_LEN)
+    private final String groupName;
     /**
      * 存储ip
      */
     @FdfsColumn(index = 1, max = OtherConstants.FDFS_IPADDR_SIZE - 1)
-    private String storageIpAddr;
+    private final String storageIpAddr;
 
     /**
      * 获取文件源服务器

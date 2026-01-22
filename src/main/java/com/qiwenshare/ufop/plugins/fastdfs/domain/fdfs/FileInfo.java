@@ -14,7 +14,7 @@ public class FileInfo {
     /**
      * 长度
      */
-    @FdfsColumn(index = 0)
+    @FdfsColumn()
     private long fileSize;
     /**
      * 创建时间

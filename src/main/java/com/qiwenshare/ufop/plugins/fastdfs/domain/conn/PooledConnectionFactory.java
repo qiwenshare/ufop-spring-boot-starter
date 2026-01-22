@@ -45,7 +45,7 @@ public class PooledConnectionFactory extends BaseKeyedPooledObjectFactory<InetSo
      * 创建连接
      */
     @Override
-    public Connection create(InetSocketAddress address) throws Exception {
+    public Connection create(InetSocketAddress address) {
         // 初始化字符集
         if (null == charset) {
             charset = Charset.forName(charsetName);
@@ -86,10 +86,9 @@ public class PooledConnectionFactory extends BaseKeyedPooledObjectFactory<InetSo
      *
      * @param key   服务端地址
      * @param p     连接池对象
-     * @throws Exception    销毁连接错误
      */
     @Override
-    public void destroyObject(InetSocketAddress key, PooledObject<Connection> p) throws Exception {
+    public void destroyObject(InetSocketAddress key, PooledObject<Connection> p) {
         p.getObject().close();
     }
 

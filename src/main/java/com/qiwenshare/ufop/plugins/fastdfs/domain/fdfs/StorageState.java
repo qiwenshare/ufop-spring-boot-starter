@@ -15,7 +15,7 @@ public class StorageState {
     /**
      * 状态代码
      */
-    @FdfsColumn(index = 0)
+    @FdfsColumn()
     private byte status;
     /**
      * id
