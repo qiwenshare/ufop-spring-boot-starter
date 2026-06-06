@@ -3,22 +3,66 @@ package com.qiwenshare.ufop.util;
 import com.qiwenshare.ufop.exception.UFOPException;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.util.ResourceUtils;
+import org.springframework.core.io.DefaultResourceLoader;
+import org.springframework.core.io.Resource;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 public class UFOPUtils {
 
     public static String LOCAL_STORAGE_PATH;
+
     public static String ROOT_PATH;
-//"txt", "html", "java", "xml", "js", "css", "json", "sql"
     public static final String[] TXT_FILE = {"txt", "html", "java", "xml", "js", "css", "json", "sql"};
 
+    // ========== 全局路径缓存（只初始化一次，避免重复 new File / 路径解析）==========
+    private static String PROJECT_ROOT_PATH;
+    private static String DATA_ROOT_PATH;
+    private static String STATIC_ROOT_PATH;
+    private static String LOGS_ROOT_PATH;
+    private static String BUILD_ROOT_PATH;
+
+    // 线程安全日期格式化（替代非线程安全的 SimpleDateFormat）
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd");
+
+    static {
+
+        initAllFixedPath();
+    }
+
+    /**
+     * 初始化固定路径，全局只执行一次
+     */
+    private static void initAllFixedPath() {
+        // 静态块仅执行一次，全局初始化所有根路径
+        // 改用 DefaultResourceLoader，减少 jar URL 频繁解析
+        DefaultResourceLoader loader = new DefaultResourceLoader();
+        Resource resource = loader.getResource("classpath:");
+        String absolutePath;
+        try {
+            absolutePath = urlDecode(resource.getFile().getAbsolutePath()) + File.separator;
+        } catch (Exception e) {
+            throw new UFOPException("获取项目根路径失败", e);
+        }
+        // 清理 file: 前缀
+        int index = absolutePath.indexOf("file:");
+        if (index != -1) {
+            absolutePath = absolutePath.substring(0, index);
+        }
+        PROJECT_ROOT_PATH =  absolutePath;
+        if (StringUtils.isNotEmpty(LOCAL_STORAGE_PATH)) {
+            DATA_ROOT_PATH = new File(LOCAL_STORAGE_PATH).getPath() + File.separator;
+        } else {
+            DATA_ROOT_PATH = new File(PROJECT_ROOT_PATH, "data").getPath() + File.separator;
+        }
+        STATIC_ROOT_PATH = new File(PROJECT_ROOT_PATH, "static").getPath() + File.separator;
+        LOGS_ROOT_PATH = new File(PROJECT_ROOT_PATH, "logs").getPath() + File.separator;
+        BUILD_ROOT_PATH = new File(PROJECT_ROOT_PATH, "build").getPath() + File.separator;
+    }
 
     public static String pathSplitFormat(String filePath) {
         return filePath.replace("///", "/")
@@ -28,30 +72,24 @@ public class UFOPUtils {
     }
 
     public static File getLocalSaveFile(String fileUrl) {
-        String localSavePath = UFOPUtils.getDataPath() + fileUrl;
-        return new File(localSavePath);
+        return new File(getDataPath(), fileUrl);
     }
 
     public static File getCacheFile(String fileUrl) {
-        String cachePath = UFOPUtils.getDataPath() + "cache" + File.separator + fileUrl;
-
-        return new File(cachePath);
+        return new File(getDataPath(), "cache" + File.separator + fileUrl);
     }
 
     public static File getTempFile(String fileUrl) {
-        String tempPath = UFOPUtils.getDataPath() + "temp" + File.separator + fileUrl;
-        File tempFile = new File(tempPath);
+        File tempFile = new File(getDataPath(), "temp" + File.separator + fileUrl);
         File parentFile = tempFile.getParentFile();
         if (!parentFile.exists()) {
             parentFile.mkdirs();
         }
-
         return tempFile;
     }
 
     public static File getProcessFile(String fileUrl) {
-        String processPath = UFOPUtils.getDataPath() + "temp" + File.separator + "process" + File.separator + fileUrl;
-        File processFile = new File(processPath);
+        File processFile = new File(getDataPath(), "temp" + File.separator + "process" + File.separator + fileUrl);
         File parentFile = processFile.getParentFile();
         if (!parentFile.exists()) {
             parentFile.mkdirs();
@@ -60,128 +98,64 @@ public class UFOPUtils {
     }
 
     /**
-     * 获取项目所在的根目录路径 resources路径
-     * @return 结果
+     * 获取项目classpath根路径
+     * 【优化】弃用 ResourceUtils.getURL 减少 jar:// 协议触发，规避JAR缓存泄漏
      */
     public static String getProjectRootPath() {
-        String absolutePath;
-        try {
-            String url = ResourceUtils.getURL("classpath:").getPath();
-            absolutePath = urlDecode(new File(url).getAbsolutePath()) + File.separator;
-        } catch (FileNotFoundException e) {
-            throw new UFOPException(e);
-        }
-
-        int index = absolutePath.indexOf("file:");
-        if (index != -1) {
-            absolutePath = absolutePath.substring(0, index);
-        }
-
-        return absolutePath;
+        return PROJECT_ROOT_PATH;
     }
 
     /**
      * 路径解码
-     * @param url url
-     * @return 结果
      */
-    public static String urlDecode(String url){
-        String decodeUrl;
+    public static String urlDecode(String url) {
         try {
-            decodeUrl = URLDecoder.decode(url, "utf-8");
+            return URLDecoder.decode(url, "utf-8");
         } catch (UnsupportedEncodingException e) {
             throw new UFOPException("不支持的编码格式", e);
         }
-        return  decodeUrl;
     }
-
 
     public static String getDataPath() {
-        String localStoragePath = LOCAL_STORAGE_PATH;
-        if (StringUtils.isNotEmpty(localStoragePath)) {
-
-            return new File(localStoragePath).getPath() + File.separator;
-        }else {
-            String projectRootAbsolutePath = getProjectRootPath();
-
-            return new File(projectRootAbsolutePath + "data").getPath() + File.separator;
-        }
+        return DATA_ROOT_PATH;
     }
 
-    /**
-     * 得到static路径
-     *
-     * @return 结果
-     */
     public static String getStaticPath() {
-
-        String projectRootAbsolutePath = getProjectRootPath();
-
-        return new File(projectRootAbsolutePath + "static").getPath() + File.separator;
+        return STATIC_ROOT_PATH;
     }
 
-    /**
-     * 获取日志路径
-     *
-     * @return 结果
-     */
     public static String getLogsPath() {
-
-        String projectRootAbsolutePath = getProjectRootPath();
-
-        return new File(projectRootAbsolutePath + "logs").getPath() + File.separator;
+        return LOGS_ROOT_PATH;
     }
 
-
-    /**
-     * 得到build路径
-     *
-     * @return 结果
-     */
     public static String getBuildPath() {
-
-        String projectRootAbsolutePath = getProjectRootPath();
-
-        return new File(projectRootAbsolutePath + "build").getPath() + File.separator;
+        return BUILD_ROOT_PATH;
     }
 
-
     /**
-     * 获取上传文件路径
-     * 返回路径格式 “upload/yyyyMMdd/”
-     * @param identifier 文件名（一般传入md5或uuid,防止文件名重复）
-     * @param extendName 文件扩展名
-     * @return 返回上传文件路径
+     * 获取上传文件路径，使用线程安全日期类
      */
     public static String getUploadFileUrl(String identifier, String extendName) {
-
-        SimpleDateFormat formater = new SimpleDateFormat("yyyyMMdd");
-        String path = ROOT_PATH + "/" + formater.format(new Date()) + "/";
-
-        File dir = new File(UFOPUtils.getDataPath() + path);
-
+        String dateStr = LocalDate.now().format(DATE_FORMATTER);
+        String path = ROOT_PATH + "/" + dateStr + "/";
+        File dir = new File(getDataPath(), path);
         if (!dir.exists()) {
             dir.mkdirs();
         }
-
-        path = path + identifier + "." + extendName;
-
-        return path;
+        return path + identifier + "." + extendName;
     }
 
     public static String getAliyunObjectNameByFileUrl(String fileUrl) {
         return getObjectName(fileUrl);
     }
 
-
     public static String formatPath(String path) {
-        path = UFOPUtils.pathSplitFormat(path);
+        path = pathSplitFormat(path);
         if ("/".equals(path)) {
             return path;
         }
         if (path.endsWith("/")) {
-            int length = path.length();
-            return path.substring(0, length - 1);
+            return path.substring(0, path.length() - 1);
         }
         return path;
     }
