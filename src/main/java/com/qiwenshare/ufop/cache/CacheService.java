@@ -46,4 +46,10 @@ public interface CacheService {
      * @return 缓存统计信息，包含缓存大小、命中率等
      */
     CacheStats getCacheStats();
+
+    /**
+     * 获取所有缓存key的列表及相关信息
+     * @return 缓存key信息列表
+     */
+    java.util.List<CacheKeyInfo> getCacheKeyList();
 }

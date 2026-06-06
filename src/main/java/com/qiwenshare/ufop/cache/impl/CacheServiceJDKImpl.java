@@ -3,11 +3,16 @@ package com.qiwenshare.ufop.cache.impl;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.Expiry;
-
+import com.qiwenshare.ufop.cache.CacheKeyInfo;
 import com.qiwenshare.ufop.cache.CacheService;
 import com.qiwenshare.ufop.cache.CacheStats;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -19,6 +24,8 @@ public class CacheServiceJDKImpl implements CacheService {
             .expireAfter(new DynamicExpiry())
             .recordStats()
             .build();
+            
+    private static final Set<String> missedKeys = Collections.synchronizedSet(new HashSet<>());
 
     @Override
     public void set(String key, String value) {
@@ -29,8 +36,10 @@ public class CacheServiceJDKImpl implements CacheService {
     public String getObject(String key) {
         CacheValue value = cache.getIfPresent(key);
         if (value == null) {
+            missedKeys.add(key);
             return null;
         }
+        value.hitCount.incrementAndGet();
         return value.getValue();
     }
 
@@ -69,6 +78,36 @@ public class CacheServiceJDKImpl implements CacheService {
         return cacheStats;
     }
 
+    @Override
+    public List<CacheKeyInfo> getCacheKeyList() {
+        List<CacheKeyInfo> keyInfoList = new ArrayList<>();
+        long now = System.currentTimeMillis();
+        
+        cache.asMap().forEach((key, value) -> {
+            CacheKeyInfo info = new CacheKeyInfo();
+            info.setKey(key);
+            info.setCreatedAt(value.getCreatedAt());
+            info.setTtlSeconds(value.getTimeout());
+            info.setCachedDurationSeconds((now - value.getCreatedAt()) / 1000);
+            info.setHitCount(value.getHitCount());
+            keyInfoList.add(info);
+        });
+        
+        for (String key : missedKeys) {
+            if (!cache.asMap().containsKey(key)) {
+                CacheKeyInfo info = new CacheKeyInfo();
+                info.setKey(key);
+                info.setCreatedAt(0);
+                info.setTtlSeconds(0);
+                info.setCachedDurationSeconds(0);
+                info.setHitCount(0);
+                keyInfoList.add(info);
+            }
+        }
+        
+        return keyInfoList;
+    }
+
     private long parseLongValue(String value) {
         if (value == null) {
             return 0;
@@ -84,10 +123,13 @@ public class CacheServiceJDKImpl implements CacheService {
         private volatile String value;
         private volatile AtomicLong counter;
         private final long timeout;
+        private final long createdAt;
+        private final AtomicLong hitCount = new AtomicLong(0);
 
         public CacheValue(String value, long timeout) {
             this.value = value;
             this.timeout = timeout;
+            this.createdAt = System.currentTimeMillis();
         }
 
         public synchronized String getValue() {
@@ -99,6 +141,14 @@ public class CacheServiceJDKImpl implements CacheService {
 
         public long getTimeout() {
             return timeout;
+        }
+
+        public long getCreatedAt() {
+            return createdAt;
+        }
+
+        public long getHitCount() {
+            return hitCount.get();
         }
 
         public synchronized long incrementAndGet() {

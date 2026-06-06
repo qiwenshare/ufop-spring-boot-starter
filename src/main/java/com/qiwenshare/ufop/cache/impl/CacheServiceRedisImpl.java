@@ -1,13 +1,20 @@
 package com.qiwenshare.ufop.cache.impl;
 
 
+import com.qiwenshare.ufop.cache.CacheKeyInfo;
 import com.qiwenshare.ufop.cache.CacheService;
 import com.qiwenshare.ufop.cache.CacheStats;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.Cursor;
+import org.springframework.data.redis.core.RedisCallback;
+import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 
@@ -75,13 +82,86 @@ public class CacheServiceRedisImpl implements CacheService {
     @Override
     public CacheStats getCacheStats() {
         CacheStats stats = new CacheStats();
-        stats.setEstimatedSize(0);
-        stats.setHitCount(0);
-        stats.setMissCount(0);
-        stats.setLoadSuccessCount(0);
-        stats.setLoadFailureCount(0);
-        stats.setTotalLoadTime(0);
-        stats.setEvictionCount(0);
+        
+        try {
+            Map<String, String> info = stringRedisTemplate.execute((RedisCallback<Map<String, String>>) connection -> {
+                java.util.Properties props = connection.info("stats");
+                Map<String, String> result = new java.util.HashMap<>();
+                for (String key : props.stringPropertyNames()) {
+                    result.put(key, props.getProperty(key));
+                }
+                return result;
+            });
+            
+            if (info != null) {
+                stats.setHitCount(parseLong(info.get("keyspace_hits"), 0));
+                stats.setMissCount(parseLong(info.get("keyspace_misses"), 0));
+                stats.setEvictionCount(parseLong(info.get("evicted_keys"), 0));
+            }
+            
+            Long dbSize = stringRedisTemplate.execute((RedisCallback<Long>) connection -> connection.dbSize());
+            stats.setEstimatedSize(dbSize != null ? dbSize : 0);
+            
+            stats.setLoadSuccessCount(0);
+            stats.setLoadFailureCount(0);
+            stats.setTotalLoadTime(0);
+            
+        } catch (Exception e) {
+            log.error("获取Redis统计信息失败", e);
+            stats.setEstimatedSize(0);
+            stats.setHitCount(0);
+            stats.setMissCount(0);
+            stats.setLoadSuccessCount(0);
+            stats.setLoadFailureCount(0);
+            stats.setTotalLoadTime(0);
+            stats.setEvictionCount(0);
+        }
+        
         return stats;
+    }
+
+    @Override
+    public List<CacheKeyInfo> getCacheKeyList() {
+        List<CacheKeyInfo> keyInfoList = new ArrayList<>();
+        long now = System.currentTimeMillis();
+        
+        try {
+            Cursor<byte[]> cursor = stringRedisTemplate.executeWithStickyConnection((RedisCallback<Cursor<byte[]>>) connection -> 
+                connection.scan(ScanOptions.scanOptions().match("*").count(1000).build())
+            );
+            
+            if (cursor != null) {
+                while (cursor.hasNext()) {
+                    byte[] keyBytes = cursor.next();
+                    String key = new String(keyBytes);
+                    
+                    Long ttl = stringRedisTemplate.getExpire(key);
+                    
+                    CacheKeyInfo info = new CacheKeyInfo();
+                    info.setKey(key);
+                    info.setCreatedAt(now - (ttl != null && ttl > 0 ? ttl * 1000 : 0));
+                    info.setTtlSeconds(ttl != null ? ttl : 0);
+                    info.setCachedDurationSeconds(ttl != null && ttl > 0 ? 0 : 0);
+                    
+                    keyInfoList.add(info);
+                }
+                cursor.close();
+            }
+        } catch (Exception e) {
+            log.error("获取Redis key列表失败", e);
+        }
+        
+        return keyInfoList;
+    }
+
+    private long parseLong(String value, long defaultValue) {
+        if (value == null || value.isEmpty()) {
+            return defaultValue;
+        }
+        try {
+            return Long.parseLong(value);
+        } catch (NumberFormatException e) {
+            return defaultValue;
+        }
     }
 }
