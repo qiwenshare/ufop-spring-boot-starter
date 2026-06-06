@@ -28,15 +28,12 @@ public class CacheServiceJDKImpl implements CacheService {
         if (value == null) {
             return null;
         }
-        if (value.isCounter()) {
-            return String.valueOf(value.getCounter().get());
-        }
         return value.getValue();
     }
 
     @Override
-    public void set(String key, String value, long time) {
-        cache.put(key, new CacheValue(value, time));
+    public void set(String key, String value, long timeoutSeconds) {
+        cache.put(key, new CacheValue(value, timeoutSeconds));
     }
 
     @Override
@@ -52,13 +49,7 @@ public class CacheServiceJDKImpl implements CacheService {
     @Override
     public Long getIncr(String key) {
         CacheValue value = cache.get(key, k -> new CacheValue("0", 0));
-        
-        if (!value.isCounter()) {
-            long current = parseLongValue(value.getValue());
-            value.convertToCounter(current);
-        }
-        
-        return value.getCounter().incrementAndGet();
+        return value.incrementAndGet();
     }
 
     private long parseLongValue(String value) {
@@ -82,7 +73,10 @@ public class CacheServiceJDKImpl implements CacheService {
             this.timeout = timeout;
         }
 
-        public String getValue() {
+        public synchronized String getValue() {
+            if (counter != null) {
+                return String.valueOf(counter.get());
+            }
             return value;
         }
 
@@ -90,17 +84,24 @@ public class CacheServiceJDKImpl implements CacheService {
             return timeout;
         }
 
-        public boolean isCounter() {
-            return counter != null;
+        public synchronized long incrementAndGet() {
+            if (counter == null) {
+                long initial = parseLongValue(value);
+                counter = new AtomicLong(initial);
+                value = null;
+            }
+            return counter.incrementAndGet();
         }
 
-        public AtomicLong getCounter() {
-            return counter;
-        }
-
-        public void convertToCounter(long initialValue) {
-            this.counter = new AtomicLong(initialValue);
-            this.value = null;
+        private long parseLongValue(String val) {
+            if (val == null) {
+                return 0;
+            }
+            try {
+                return Long.parseLong(val);
+            } catch (NumberFormatException e) {
+                return 0;
+            }
         }
     }
 

@@ -18,12 +18,12 @@ public interface CacheService {
     String getObject(String key);
 
     /**
-     * 将值放入缓存并设置时间-秒
+     * 将值放入缓存并设置过期时间
      * @param key 键
      * @param value 值
-     * @param time 时间（单位：秒），如果值为负数，则永久
+     * @param timeoutSeconds 过期时间（单位：秒），如果值小于等于0，则永久有效
      */
-    void set(String key, String value, long time);
+    void set(String key, String value, long timeoutSeconds);
 
 
     boolean hasKey(String key);
