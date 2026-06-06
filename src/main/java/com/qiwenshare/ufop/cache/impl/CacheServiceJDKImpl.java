@@ -87,8 +87,10 @@ public class CacheServiceJDKImpl implements CacheService {
             CacheKeyInfo info = new CacheKeyInfo();
             info.setKey(key);
             info.setCreatedAt(value.getCreatedAt());
-            info.setTtlSeconds(value.getTimeout());
-            info.setCachedDurationSeconds((now - value.getCreatedAt()) / 1000);
+            long cachedDurationSeconds = (now - value.getCreatedAt()) / 1000;
+            long remainingTtl = value.getTimeout() > 0 ? value.getTimeout() - cachedDurationSeconds : 0;
+            info.setTtlSeconds(Math.max(0, remainingTtl));
+            info.setCachedDurationSeconds(cachedDurationSeconds);
             info.setHitCount(value.getHitCount());
             keyInfoList.add(info);
         });
