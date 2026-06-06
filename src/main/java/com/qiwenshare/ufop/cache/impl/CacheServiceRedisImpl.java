@@ -136,12 +136,15 @@ public class CacheServiceRedisImpl implements CacheService {
                     String key = new String(keyBytes);
                     
                     Long ttl = stringRedisTemplate.getExpire(key);
+                    Long memorySize = getMemoryUsage(key);
                     
                     CacheKeyInfo info = new CacheKeyInfo();
                     info.setKey(key);
                     info.setCreatedAt(now - (ttl != null && ttl > 0 ? ttl * 1000 : 0));
                     info.setTtlSeconds(ttl != null ? ttl : 0);
                     info.setCachedDurationSeconds(ttl != null && ttl > 0 ? 0 : 0);
+                    info.setHitCount(0);
+                    info.setMemorySizeBytes(memorySize != null ? memorySize : 0);
                     
                     keyInfoList.add(info);
                 }
@@ -152,6 +155,27 @@ public class CacheServiceRedisImpl implements CacheService {
         }
         
         return keyInfoList;
+    }
+    
+    private Long getMemoryUsage(String key) {
+        try {
+            return stringRedisTemplate.execute((RedisCallback<Long>) connection -> {
+                try {
+                    Object result = connection.execute("MEMORY", "USAGE".getBytes(), key.getBytes());
+                    if (result instanceof Long) {
+                        return (Long) result;
+                    }
+                    if (result instanceof byte[]) {
+                        return Long.parseLong(new String((byte[]) result));
+                    }
+                    return 0L;
+                } catch (Exception e) {
+                    return 0L;
+                }
+            });
+        } catch (Exception e) {
+            return 0L;
+        }
     }
 
     private long parseLong(String value, long defaultValue) {

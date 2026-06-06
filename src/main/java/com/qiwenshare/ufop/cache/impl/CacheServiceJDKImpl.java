@@ -92,6 +92,7 @@ public class CacheServiceJDKImpl implements CacheService {
             info.setTtlSeconds(Math.max(0, remainingTtl));
             info.setCachedDurationSeconds(cachedDurationSeconds);
             info.setHitCount(value.getHitCount());
+            info.setMemorySizeBytes(estimateMemorySize(key, value));
             keyInfoList.add(info);
         });
         
@@ -104,12 +105,38 @@ public class CacheServiceJDKImpl implements CacheService {
                     info.setTtlSeconds(0);
                     info.setCachedDurationSeconds(0);
                     info.setHitCount(0);
+                    info.setMemorySizeBytes(0);
                     keyInfoList.add(info);
                 }
             }
         }
         
         return keyInfoList;
+    }
+
+    private long estimateMemorySize(String key, CacheValue value) {
+        long size = 0;
+        
+        size += estimateStringSize(key);
+        
+        if (value.getValue() != null) {
+            size += estimateStringSize(value.getValue());
+        }
+        
+        size += 48;
+        
+        if (value.counter != null) {
+            size += 24;
+        }
+        
+        return size;
+    }
+    
+    private long estimateStringSize(String str) {
+        if (str == null) {
+            return 0;
+        }
+        return 40 + (long) str.length() * 2L;
     }
 
     private long parseLongValue(String value) {

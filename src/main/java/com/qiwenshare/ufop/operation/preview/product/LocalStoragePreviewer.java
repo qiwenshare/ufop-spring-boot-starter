@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 
 import java.io.*;
+import java.nio.file.Files;
 
 @Slf4j
 public class LocalStoragePreviewer extends Previewer {
@@ -27,20 +28,13 @@ public class LocalStoragePreviewer extends Previewer {
         if (!file.exists()) {
             throw new PreviewException("[UFOP] Failed to get the file stream because the file path does not exist! The file path is: "+ file.getAbsolutePath());
         }
-        InputStream inputStream = null;
-        byte[] bytes = new byte[0];
+
         try {
-            inputStream = new FileInputStream(file);
-            bytes = IOUtils.toByteArray(inputStream);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } finally {
-            IOUtils.closeQuietly(inputStream);
+            return Files.newInputStream(file.toPath());
+        }  catch (IOException e) {
+            throw new PreviewException("读取预览文件失败", e);
         }
 
-        return new ByteArrayInputStream(bytes);
 
     }
 }

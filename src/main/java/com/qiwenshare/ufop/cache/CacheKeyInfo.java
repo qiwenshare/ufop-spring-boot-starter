@@ -7,6 +7,7 @@ public class CacheKeyInfo {
     private long ttlSeconds;
     private long cachedDurationSeconds;
     private long hitCount;
+    private long memorySizeBytes;
 
     public CacheKeyInfo() {
     }
@@ -66,6 +67,14 @@ public class CacheKeyInfo {
     public void setHitCount(long hitCount) {
         this.hitCount = hitCount;
     }
+
+    public long getMemorySizeBytes() {
+        return memorySizeBytes;
+    }
+
+    public void setMemorySizeBytes(long memorySizeBytes) {
+        this.memorySizeBytes = memorySizeBytes;
+    }
     
     public String getCachedDurationFormatted() {
         long seconds = cachedDurationSeconds;
@@ -93,6 +102,18 @@ public class CacheKeyInfo {
             return (seconds / 3600) + "小时" + ((seconds % 3600) / 60) + "分";
         } else {
             return (seconds / 86400) + "天" + ((seconds % 86400) / 3600) + "小时";
+        }
+    }
+    
+    public String getMemorySizeFormatted() {
+        if (memorySizeBytes < 1024) {
+            return memorySizeBytes + " B";
+        } else if (memorySizeBytes < 1024 * 1024) {
+            return String.format("%.2f KB", memorySizeBytes / 1024.0);
+        } else if (memorySizeBytes < 1024 * 1024 * 1024) {
+            return String.format("%.2f MB", memorySizeBytes / (1024.0 * 1024));
+        } else {
+            return String.format("%.2f GB", memorySizeBytes / (1024.0 * 1024 * 1024));
         }
     }
 }
