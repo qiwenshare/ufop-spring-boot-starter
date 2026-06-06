@@ -121,7 +121,7 @@ public class CacheServiceRedisImpl implements CacheService {
     }
 
     @Override
-    public List<CacheKeyInfo> getCacheKeyList() {
+    public List<CacheKeyInfo> getCacheKeyList(boolean includeMissed) {
         List<CacheKeyInfo> keyInfoList = new ArrayList<>();
         long now = System.currentTimeMillis();
         

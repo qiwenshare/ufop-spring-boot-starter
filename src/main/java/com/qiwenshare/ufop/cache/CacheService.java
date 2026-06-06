@@ -49,7 +49,8 @@ public interface CacheService {
 
     /**
      * 获取所有缓存key的列表及相关信息
+     * @param includeMissed 是否包含未命中的key
      * @return 缓存key信息列表
      */
-    java.util.List<CacheKeyInfo> getCacheKeyList();
+    java.util.List<CacheKeyInfo> getCacheKeyList(boolean includeMissed);
 }

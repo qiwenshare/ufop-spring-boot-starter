@@ -79,7 +79,7 @@ public class CacheServiceJDKImpl implements CacheService {
     }
 
     @Override
-    public List<CacheKeyInfo> getCacheKeyList() {
+    public List<CacheKeyInfo> getCacheKeyList(boolean includeMissed) {
         List<CacheKeyInfo> keyInfoList = new ArrayList<>();
         long now = System.currentTimeMillis();
         
@@ -93,15 +93,17 @@ public class CacheServiceJDKImpl implements CacheService {
             keyInfoList.add(info);
         });
         
-        for (String key : missedKeys) {
-            if (!cache.asMap().containsKey(key)) {
-                CacheKeyInfo info = new CacheKeyInfo();
-                info.setKey(key);
-                info.setCreatedAt(0);
-                info.setTtlSeconds(0);
-                info.setCachedDurationSeconds(0);
-                info.setHitCount(0);
-                keyInfoList.add(info);
+        if (includeMissed) {
+            for (String key : missedKeys) {
+                if (!cache.asMap().containsKey(key)) {
+                    CacheKeyInfo info = new CacheKeyInfo();
+                    info.setKey(key);
+                    info.setCreatedAt(0);
+                    info.setTtlSeconds(0);
+                    info.setCachedDurationSeconds(0);
+                    info.setHitCount(0);
+                    keyInfoList.add(info);
+                }
             }
         }
         
