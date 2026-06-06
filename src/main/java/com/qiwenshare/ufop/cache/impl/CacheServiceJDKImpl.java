@@ -3,7 +3,9 @@ package com.qiwenshare.ufop.cache.impl;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.Expiry;
+
 import com.qiwenshare.ufop.cache.CacheService;
+import com.qiwenshare.ufop.cache.CacheStats;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.TimeUnit;
@@ -15,6 +17,7 @@ public class CacheServiceJDKImpl implements CacheService {
     private static final Cache<String, CacheValue> cache = Caffeine.newBuilder()
             .maximumSize(500000)
             .expireAfter(new DynamicExpiry())
+            .recordStats()
             .build();
 
     @Override
@@ -50,6 +53,20 @@ public class CacheServiceJDKImpl implements CacheService {
     public Long getIncr(String key) {
         CacheValue value = cache.get(key, k -> new CacheValue("0", 0));
         return value.incrementAndGet();
+    }
+
+    @Override
+    public CacheStats getCacheStats() {
+        com.github.benmanes.caffeine.cache.stats.CacheStats stats = cache.stats();
+        CacheStats cacheStats = new CacheStats();
+        cacheStats.setHitCount(stats.hitCount());
+        cacheStats.setMissCount(stats.missCount());
+        cacheStats.setLoadSuccessCount(stats.loadSuccessCount());
+        cacheStats.setLoadFailureCount(stats.loadFailureCount());
+        cacheStats.setTotalLoadTime(stats.totalLoadTime());
+        cacheStats.setEvictionCount(stats.evictionCount());
+        cacheStats.setEstimatedSize(cache.estimatedSize());
+        return cacheStats;
     }
 
     private long parseLongValue(String value) {

@@ -2,6 +2,7 @@ package com.qiwenshare.ufop.cache.impl;
 
 
 import com.qiwenshare.ufop.cache.CacheService;
+import com.qiwenshare.ufop.cache.CacheStats;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -69,5 +70,18 @@ public class CacheServiceRedisImpl implements CacheService {
      */
     public Long getIncr(String key) {
         return stringRedisTemplate.opsForValue().increment(key, 1);
+    }
+
+    @Override
+    public CacheStats getCacheStats() {
+        CacheStats stats = new CacheStats();
+        stats.setEstimatedSize(0);
+        stats.setHitCount(0);
+        stats.setMissCount(0);
+        stats.setLoadSuccessCount(0);
+        stats.setLoadFailureCount(0);
+        stats.setTotalLoadTime(0);
+        stats.setEvictionCount(0);
+        return stats;
     }
 }

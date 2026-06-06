@@ -40,4 +40,10 @@ public interface CacheService {
      * @return 返回增长之后的值
      */
     Long getIncr(String key);
+
+    /**
+     * 获取缓存统计信息
+     * @return 缓存统计信息，包含缓存大小、命中率等
+     */
+    CacheStats getCacheStats();
 }
