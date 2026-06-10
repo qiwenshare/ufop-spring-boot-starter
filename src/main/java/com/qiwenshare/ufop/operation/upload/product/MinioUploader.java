@@ -1,6 +1,6 @@
 package com.qiwenshare.ufop.operation.upload.product;
 
-import com.alibaba.fastjson2.JSON;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.qiwenshare.ufop.cache.CacheService;
@@ -36,6 +36,8 @@ public class MinioUploader extends Uploader {
     @Resource
     CacheService cacheService;
 
+    private static final ObjectMapper objectMapper = new ObjectMapper().disable(com.fasterxml.jackson.databind.SerializationFeature.FAIL_ON_EMPTY_BEANS);
+
     public MinioUploader(){
 
     }
@@ -57,7 +59,15 @@ public class MinioUploader extends Uploader {
                 .build());
         Multimap<String, String> headers = HashMultimap.create();
         try {
-            UploadFileInfo uploadFileInfo = JSON.parseObject(cacheService.getObject("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":uploadPartRequest"), UploadFileInfo.class);
+            UploadFileInfo uploadFileInfo = null;
+            String uploadPartRequestJson = cacheService.getObject("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":uploadPartRequest");
+            if (uploadPartRequestJson != null) {
+                try {
+                    uploadFileInfo = objectMapper.readValue(uploadPartRequestJson, UploadFileInfo.class);
+                } catch (Exception e) {
+                    log.error("Failed to parse UploadFileInfo", e);
+                }
+            }
             String fileUrl = qiwenMultipartFile.getFileUrl();
             if (uploadFileInfo == null) {
 
@@ -75,7 +85,11 @@ public class MinioUploader extends Uploader {
                 uploadFileInfo.setKey(fileUrl);
                 uploadFileInfo.setUploadId(response.result().uploadId());
 
-                cacheService.set("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":uploadPartRequest", JSON.toJSONString(uploadFileInfo));
+                try {
+                    cacheService.set("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":uploadPartRequest", objectMapper.writeValueAsString(uploadFileInfo));
+                } catch (Exception e) {
+                    log.error("Failed to serialize UploadFileInfo", e);
+                }
 
             }
 
@@ -92,7 +106,11 @@ public class MinioUploader extends Uploader {
                     null
             ).get();
 
-            log.debug("上传结果：" + JSON.toJSONString(response));
+            try {
+                log.debug("上传结果：" + objectMapper.writeValueAsString(response));
+            } catch (Exception e) {
+                log.error("Failed to serialize response", e);
+            }
 
 
         } catch (InsufficientDataException e) {
@@ -117,7 +135,12 @@ public class MinioUploader extends Uploader {
     @Override
     protected UploadFileResult organizationalResults(QiwenMultipartFile qiwenMultipartFile, UploadFile uploadFile) {
         UploadFileResult uploadFileResult = new UploadFileResult();
-        UploadFileInfo uploadFileInfo = JSON.parseObject(cacheService.getObject("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":uploadPartRequest"), UploadFileInfo.class);
+        UploadFileInfo uploadFileInfo = null;
+        try {
+            uploadFileInfo = objectMapper.readValue(cacheService.getObject("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":uploadPartRequest"), UploadFileInfo.class);
+        } catch (Exception e) {
+            log.error("Failed to parse UploadFileInfo", e);
+        }
 
         uploadFileResult.setFileUrl(uploadFileInfo.getKey());
         uploadFileResult.setFileName(qiwenMultipartFile.getFileName());
@@ -145,7 +168,12 @@ public class MinioUploader extends Uploader {
 
     private void completeMultipartUpload(UploadFile uploadFile) {
 
-        UploadFileInfo uploadFileInfo = JSON.parseObject(cacheService.getObject("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":uploadPartRequest"), UploadFileInfo.class);
+        UploadFileInfo uploadFileInfo = null;
+        try {
+            uploadFileInfo = objectMapper.readValue(cacheService.getObject("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":uploadPartRequest"), UploadFileInfo.class);
+        } catch (Exception e) {
+            log.error("Failed to parse UploadFileInfo", e);
+        }
 
         CustomMinioClient customMinioClient = new CustomMinioClient( MinioAsyncClient.builder()
                 .endpoint(minioConfig.getEndpoint())

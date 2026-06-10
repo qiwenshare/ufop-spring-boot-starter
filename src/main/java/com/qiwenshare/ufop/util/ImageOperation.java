@@ -1,6 +1,6 @@
 package com.qiwenshare.ufop.util;
 
-import com.alibaba.fastjson2.JSON;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.qiwenshare.ufop.result.ImageInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -17,6 +17,8 @@ import java.io.InputStream;
 
 @Slf4j
 public class ImageOperation {
+
+    private static final ObjectMapper objectMapper = new ObjectMapper().disable(com.fasterxml.jackson.databind.SerializationFeature.FAIL_ON_EMPTY_BEANS);
 
     /**
      * 根据比例生成缩略图
@@ -201,7 +203,11 @@ public class ImageOperation {
         } finally {
             closeMat(resizedImage);
         }
-        log.info("imageInfo : {}", JSON.toJSONString(imageInfo));
+        try {
+            log.info("imageInfo : {}", objectMapper.writeValueAsString(imageInfo));
+        } catch (Exception e) {
+            log.error("Failed to serialize imageInfo", e);
+        }
         return imageInfo;
     }
 

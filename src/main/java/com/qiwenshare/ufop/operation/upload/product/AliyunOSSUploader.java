@@ -1,7 +1,8 @@
 package com.qiwenshare.ufop.operation.upload.product;
 
 
-import com.alibaba.fastjson2.JSON;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.model.*;
 import com.qiwenshare.ufop.cache.CacheService;
@@ -12,6 +13,7 @@ import com.qiwenshare.ufop.operation.upload.Uploader;
 import com.qiwenshare.ufop.operation.upload.domain.UploadFile;
 import com.qiwenshare.ufop.operation.upload.domain.UploadFileInfo;
 import com.qiwenshare.ufop.operation.upload.domain.UploadFileResult;
+import com.qiwenshare.ufop.operation.upload.domain.PartETagDTO;
 import com.qiwenshare.ufop.operation.upload.request.QiwenMultipartFile;
 import com.qiwenshare.ufop.util.AliyunUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +34,8 @@ public class AliyunOSSUploader extends Uploader {
 
     private AliyunConfig aliyunConfig;
 
+    private static final ObjectMapper objectMapper = new ObjectMapper().disable(com.fasterxml.jackson.databind.SerializationFeature.FAIL_ON_EMPTY_BEANS);
+
     public AliyunOSSUploader(){
 
     }
@@ -45,7 +49,15 @@ public class AliyunOSSUploader extends Uploader {
 
         OSS ossClient = AliyunUtils.getOSSClient(aliyunConfig);
         try {
-            UploadFileInfo uploadFileInfo = JSON.parseObject(cacheService.getObject("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":uploadPartRequest"), UploadFileInfo.class);
+            UploadFileInfo uploadFileInfo = null;
+            String uploadPartRequestJson = cacheService.getObject("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":uploadPartRequest");
+            if (uploadPartRequestJson != null) {
+                try {
+                    uploadFileInfo = objectMapper.readValue(uploadPartRequestJson, UploadFileInfo.class);
+                } catch (Exception e) {
+                    log.error("Failed to parse UploadFileInfo", e);
+                }
+            }
             String fileUrl = qiwenMultipartFile.getFileUrl();
             if (uploadFileInfo == null) {
 
@@ -58,7 +70,11 @@ public class AliyunOSSUploader extends Uploader {
                 uploadFileInfo.setKey(fileUrl);
                 uploadFileInfo.setUploadId(uploadId);
 
-                cacheService.set("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":uploadPartRequest", JSON.toJSONString(uploadFileInfo));
+                try {
+                    cacheService.set("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":uploadPartRequest", objectMapper.writeValueAsString(uploadFileInfo));
+                } catch (Exception e) {
+                    log.error("Failed to serialize UploadFileInfo", e);
+                }
 
             }
 
@@ -69,20 +85,35 @@ public class AliyunOSSUploader extends Uploader {
             uploadPartRequest.setInputStream(qiwenMultipartFile.getUploadInputStream());
             uploadPartRequest.setPartSize(qiwenMultipartFile.getSize());
             uploadPartRequest.setPartNumber(uploadFile.getChunkNumber());
-            log.debug(JSON.toJSONString(uploadPartRequest));
+            try {
+                log.debug(objectMapper.writeValueAsString(uploadPartRequest));
+            } catch (Exception e) {
+                log.error("Failed to serialize uploadPartRequest", e);
+            }
 
             UploadPartResult uploadPartResult = ossClient.uploadPart(uploadPartRequest);
 
-            log.debug("上传结果：" + JSON.toJSONString(uploadPartResult));
+            try {
+                log.debug("上传结果：" + objectMapper.writeValueAsString(uploadPartResult));
+            } catch (Exception e) {
+                log.error("Failed to serialize uploadPartResult", e);
+            }
 
+            List<PartETagDTO> partETagDTOs = new ArrayList<>();
             if (cacheService.hasKey("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":partETags")) {
-                List<PartETag> partETags = JSON.parseArray(cacheService.getObject("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":partETags"), PartETag.class);
-                partETags.add(uploadPartResult.getPartETag());
-                cacheService.set("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":partETags", JSON.toJSONString(partETags));
-            } else {
-                List<PartETag> partETags = new ArrayList<>();
-                partETags.add(uploadPartResult.getPartETag());
-                cacheService.set("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":partETags", JSON.toJSONString(partETags));
+                try {
+                    partETagDTOs = objectMapper.readValue(cacheService.getObject("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":partETags"),
+                            new TypeReference<List<PartETagDTO>>() {});
+                } catch (Exception e) {
+                    log.error("Failed to parse partETags", e);
+                }
+            }
+            PartETag partETag = uploadPartResult.getPartETag();
+            partETagDTOs.add(new PartETagDTO(partETag.getPartNumber(), partETag.getPartSize(), partETag.getETag()));
+            try {
+                cacheService.set("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":partETags", objectMapper.writeValueAsString(partETagDTOs));
+            } catch (Exception e) {
+                log.error("Failed to serialize partETags", e);
             }
         } finally {
             ossClient.shutdown();
@@ -94,7 +125,12 @@ public class AliyunOSSUploader extends Uploader {
     @Override
     protected UploadFileResult organizationalResults(QiwenMultipartFile qiwenMultipartFile, UploadFile uploadFile) {
         UploadFileResult uploadFileResult = new UploadFileResult();
-        UploadFileInfo uploadFileInfo = JSON.parseObject(cacheService.getObject("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":uploadPartRequest"), UploadFileInfo.class);
+        UploadFileInfo uploadFileInfo = null;
+        try {
+            uploadFileInfo = objectMapper.readValue(cacheService.getObject("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":uploadPartRequest"), UploadFileInfo.class);
+        } catch (Exception e) {
+            log.error("Failed to parse UploadFileInfo", e);
+        }
 
         uploadFileResult.setFileUrl(uploadFileInfo.getKey());
         uploadFileResult.setFileName(qiwenMultipartFile.getFileName());
@@ -127,11 +163,28 @@ public class AliyunOSSUploader extends Uploader {
      */
     private void completeMultipartUpload(UploadFile uploadFile) {
 
-        List<PartETag> partETags = JSON.parseArray(cacheService.getObject("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":partETags"), PartETag.class);
+        List<PartETagDTO> partETagDTOs = new ArrayList<>();
+        try {
+            partETagDTOs = objectMapper.readValue(cacheService.getObject("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":partETags"),
+                    new TypeReference<List<PartETagDTO>>() {});
+        } catch (Exception e) {
+            log.error("Failed to parse partETags", e);
+        }
+
+        // 将 DTO 转换为 PartETag
+        List<PartETag> partETags = new ArrayList<>();
+        for (PartETagDTO dto : partETagDTOs) {
+            partETags.add(new PartETag(dto.getPartNumber(), dto.getETag()));
+        }
 
         partETags.sort(Comparator.comparingInt(PartETag::getPartNumber));
 
-        UploadFileInfo uploadFileInfo = JSON.parseObject(cacheService.getObject("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":uploadPartRequest"), UploadFileInfo.class);
+        UploadFileInfo uploadFileInfo = null;
+        try {
+            uploadFileInfo = objectMapper.readValue(cacheService.getObject("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":uploadPartRequest"), UploadFileInfo.class);
+        } catch (Exception e) {
+            log.error("Failed to parse UploadFileInfo", e);
+        }
 
         CompleteMultipartUploadRequest completeMultipartUploadRequest =
                 new CompleteMultipartUploadRequest(aliyunConfig.getOss().getBucketName(),
@@ -151,7 +204,12 @@ public class AliyunOSSUploader extends Uploader {
     @Override
     public void cancelUpload(UploadFile uploadFile) {
 
-        UploadFileInfo uploadFileInfo = JSON.parseObject(cacheService.getObject("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":uploadPartRequest"), UploadFileInfo.class);
+        UploadFileInfo uploadFileInfo = null;
+        try {
+            uploadFileInfo = objectMapper.readValue(cacheService.getObject("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":uploadPartRequest"), UploadFileInfo.class);
+        } catch (Exception e) {
+            log.error("Failed to parse UploadFileInfo", e);
+        }
 
         OSS ossClient = AliyunUtils.getOSSClient(aliyunConfig);
         AbortMultipartUploadRequest abortMultipartUploadRequest =

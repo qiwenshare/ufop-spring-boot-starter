@@ -31,7 +31,7 @@
         <tencent.sdk.cos.version>5.6.247</tencent.sdk.cos.version>
         <commons-fileupload.version>1.5</commons-fileupload.version>
         <commons-io.version>2.15.0</commons-io.version>
-        <fastjson2.version>2.0.41</fastjson2.version>
+        <fastjson2.version>2.0.41</fastjson2.version><fastjson2.version>2.0.41</fastjson2.version>
         <swagger-annotations.version>2.2.18</swagger-annotations.version>
         <mybatis-plus.version>3.5.4</mybatis-plus.version>
         <poi-version>5.4.1</poi-version>
@@ -123,10 +123,7 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-pool2</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.alibaba.fastjson2</groupId>
-            <artifactId>fastjson2</artifactId>
-        </dependency>
+
 
         <dependency>
             <groupId>com.aliyun.oss</groupId>
@@ -290,13 +287,6 @@
                 <artifactId>swagger-annotations</artifactId>
                 <version>${swagger-annotations.version}</version>
             </dependency>
-            <!-- fastjson  -->
-            <dependency>
-                <groupId>com.alibaba.fastjson2</groupId>
-                <artifactId>fastjson2</artifactId>
-                <version>${fastjson2.version}</version>
-            </dependency>
-
             <dependency>
                 <groupId>com.aliyun.oss</groupId>
                 <artifactId>aliyun-sdk-oss</artifactId>

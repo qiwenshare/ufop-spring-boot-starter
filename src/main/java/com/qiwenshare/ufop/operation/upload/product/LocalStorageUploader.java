@@ -1,7 +1,7 @@
 package com.qiwenshare.ufop.operation.upload.product;
 
 
-import com.alibaba.fastjson2.JSON;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.qiwenshare.ufop.cache.CacheService;
 import com.qiwenshare.ufop.constant.StorageTypeEnum;
 import com.qiwenshare.ufop.constant.UploadFileStatusEnum;
@@ -34,6 +34,7 @@ public class LocalStorageUploader extends Uploader {
     @Resource
     CacheService cacheService;
     private static final ConcurrentMap<String, String> FILE_URL_MAP = new ConcurrentHashMap<>();
+    private static final ObjectMapper objectMapper = new ObjectMapper().disable(com.fasterxml.jackson.databind.SerializationFeature.FAIL_ON_EMPTY_BEANS);
 
     private void completeUpload(File tempFile, File destFile) throws IOException {
         if (!tempFile.renameTo(destFile)) {
@@ -62,13 +63,25 @@ public class LocalStorageUploader extends Uploader {
 
         try {
 
-            UploadFileInfo uploadFileInfo = JSON.parseObject(cacheService.getObject("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":uploadPartRequest"), UploadFileInfo.class);
+            UploadFileInfo uploadFileInfo = null;
+            String uploadPartRequestJson = cacheService.getObject("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":uploadPartRequest");
+            if (uploadPartRequestJson != null) {
+                try {
+                    uploadFileInfo = objectMapper.readValue(uploadPartRequestJson, UploadFileInfo.class);
+                } catch (Exception e) {
+                    log.error("Failed to parse UploadFileInfo", e);
+                }
+            }
 
             if (uploadFileInfo == null) {
                 String fileUrl = qiwenMultipartFile.getFileUrl();
                 uploadFileInfo = new UploadFileInfo();
                 uploadFileInfo.setKey(fileUrl);
-                cacheService.set("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":uploadPartRequest", JSON.toJSONString(uploadFileInfo));
+                try {
+                    cacheService.set("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":uploadPartRequest", objectMapper.writeValueAsString(uploadFileInfo));
+                } catch (Exception e) {
+                    log.error("Failed to serialize UploadFileInfo", e);
+                }
             }
 
 
@@ -102,7 +115,12 @@ public class LocalStorageUploader extends Uploader {
     @Override
     protected UploadFileResult organizationalResults(QiwenMultipartFile qiwenMultipartFile, UploadFile uploadFile) {
         UploadFileResult uploadFileResult = new UploadFileResult();
-        UploadFileInfo uploadFileInfo = JSON.parseObject(cacheService.getObject("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":uploadPartRequest"), UploadFileInfo.class);
+        UploadFileInfo uploadFileInfo = null;
+        try {
+            uploadFileInfo = objectMapper.readValue(cacheService.getObject("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":uploadPartRequest"), UploadFileInfo.class);
+        } catch (Exception e) {
+            log.error("Failed to parse UploadFileInfo", e);
+        }
 
         uploadFileResult.setFileUrl(uploadFileInfo.getKey());
         uploadFileResult.setFileName(qiwenMultipartFile.getFileName());
