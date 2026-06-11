@@ -17,7 +17,7 @@ public class UFOPProperties {
     private MinioConfig minio = new MinioConfig();
     private QiniuyunConfig qiniuyun = new QiniuyunConfig();
     private CacheConfig cache;
-    private TencentConfig tencent = new TencentConfig();
+
 
 
 }

@@ -146,10 +146,6 @@ public class UFOPAutoConfiguration {
     }
 
     @Bean
-    public TencentCOSUploader tencentCOSUploader() {
-        return new TencentCOSUploader(ufopProperties.getTencent());
-    }
-    @Bean
     public AliyunOSSQuerier aliyunOSSQuerier() {
         return new AliyunOSSQuerier(ufopProperties.getAliyun());
     }
