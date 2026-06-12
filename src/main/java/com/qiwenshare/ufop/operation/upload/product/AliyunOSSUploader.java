@@ -31,10 +31,10 @@ public class AliyunOSSUploader extends Uploader {
 
     @Resource
     CacheService cacheService;
+    @Resource
+    private ObjectMapper objectMapper;
 
     private AliyunConfig aliyunConfig;
-
-    private static final ObjectMapper objectMapper = new ObjectMapper().disable(com.fasterxml.jackson.databind.SerializationFeature.FAIL_ON_EMPTY_BEANS);
 
     public AliyunOSSUploader(){
 
