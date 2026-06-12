@@ -25,15 +25,12 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 @Slf4j
 @Component
 public class LocalStorageUploader extends Uploader {
     @Resource
     CacheService cacheService;
-    private static final ConcurrentMap<String, String> FILE_URL_MAP = new ConcurrentHashMap<>();
     private static final ObjectMapper objectMapper = new ObjectMapper().disable(com.fasterxml.jackson.databind.SerializationFeature.FAIL_ON_EMPTY_BEANS);
 
     private void completeUpload(File tempFile, File destFile) throws IOException {
@@ -45,7 +42,19 @@ public class LocalStorageUploader extends Uploader {
 
     @Override
     public void cancelUpload(UploadFile uploadFile) {
-        String fileUrl = FILE_URL_MAP.get(uploadFile.getIdentifier());
+        String uploadPartRequestJson = cacheService.getObject("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":uploadPartRequest");
+        if (uploadPartRequestJson == null) {
+            return;
+        }
+        UploadFileInfo uploadFileInfo;
+        try {
+            uploadFileInfo = objectMapper.readValue(uploadPartRequestJson, UploadFileInfo.class);
+        } catch (Exception e) {
+            log.error("Failed to parse UploadFileInfo", e);
+            return;
+        }
+        
+        String fileUrl = uploadFileInfo.getKey();
         String tempFileUrl = fileUrl + "_tmp";
         String confFileUrl = fileUrl.replace("." + FilenameUtils.getExtension(fileUrl), ".conf");
         File tempFile = new File(tempFileUrl);
@@ -56,6 +65,7 @@ public class LocalStorageUploader extends Uploader {
         if (confFile.exists()) {
             confFile.delete();
         }
+        cacheService.deleteKey("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":uploadPartRequest");
     }
 
     @Override
