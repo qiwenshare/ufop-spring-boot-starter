@@ -48,6 +48,7 @@ public class LockServiceRedisImpl implements LockService {
         try {
             acquireLock(key, LOCK_EXPIRE_TIME, -1);
         } catch (Exception e) {
+            cleanThreadLocalIfNeeded();
             throw new RuntimeException("acquire lock exception", e);
         }
     }
@@ -67,6 +68,7 @@ public class LockServiceRedisImpl implements LockService {
         try {
             return acquireLock(key, LOCK_EXPIRE_TIME, 0);
         } catch (Exception e) {
+            cleanThreadLocalIfNeeded();
             throw new RuntimeException("acquire lock exception", e);
         }
     }
@@ -75,6 +77,7 @@ public class LockServiceRedisImpl implements LockService {
         try {
             return acquireLock(key, LOCK_EXPIRE_TIME, unit.toSeconds(time));
         } catch (Exception e) {
+            cleanThreadLocalIfNeeded();
             throw new RuntimeException("acquire lock exception", e);
         }
     }

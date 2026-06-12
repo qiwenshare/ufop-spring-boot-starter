@@ -9,10 +9,7 @@ import com.qiwenshare.ufop.cache.CacheStats;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -25,7 +22,10 @@ public class CacheServiceJDKImpl implements CacheService {
             .recordStats()
             .build();
             
-    private static final Set<String> missedKeys = Collections.synchronizedSet(new HashSet<>());
+    private static final Cache<String, Boolean> missedKeys = Caffeine.newBuilder()
+            .maximumSize(10000)
+            .expireAfterWrite(10, TimeUnit.MINUTES)
+            .build();
 
     @Override
     public void set(String key, String value) {
@@ -36,7 +36,7 @@ public class CacheServiceJDKImpl implements CacheService {
     public String getObject(String key) {
         CacheValue value = cache.getIfPresent(key);
         if (value == null) {
-            missedKeys.add(key);
+            missedKeys.put(key, true);
             return null;
         }
         value.hitCount.incrementAndGet();
@@ -97,7 +97,7 @@ public class CacheServiceJDKImpl implements CacheService {
         });
         
         if (includeMissed) {
-            for (String key : missedKeys) {
+            missedKeys.asMap().forEach((key, value) -> {
                 if (!cache.asMap().containsKey(key)) {
                     CacheKeyInfo info = new CacheKeyInfo();
                     info.setKey(key);
@@ -108,7 +108,7 @@ public class CacheServiceJDKImpl implements CacheService {
                     info.setMemorySizeBytes(0);
                     keyInfoList.add(info);
                 }
-            }
+            });
         }
         
         return keyInfoList;
