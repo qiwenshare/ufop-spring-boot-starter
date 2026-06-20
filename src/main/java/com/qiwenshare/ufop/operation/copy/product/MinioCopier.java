@@ -33,10 +33,6 @@ public class MinioCopier extends Copier {
         String fileUrl = UFOPUtils.getUploadFileUrl(uuid, copyFile.getExtendName());
 
         try {
-            if (minioClient == null) {
-                minioClient = MinioClient.builder().endpoint(minioConfig.getEndpoint())
-                        .credentials(minioConfig.getAccessKey(), minioConfig.getSecretKey()).build();
-            }
             // 检查存储桶是否已经存在
             boolean isExist = minioClient.bucketExists(BucketExistsArgs.builder().bucket(minioConfig.getBucketName()).build());
             if(!isExist) {

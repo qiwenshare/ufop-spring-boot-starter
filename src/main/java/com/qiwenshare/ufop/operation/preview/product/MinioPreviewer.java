@@ -32,14 +32,7 @@ public class MinioPreviewer extends Previewer {
     protected InputStream getInputStream(PreviewFile previewFile) {
         InputStream inputStream = null;
         try {
-            if (minioClient == null) {
-                minioClient = MinioClient.builder().endpoint(minioConfig.getEndpoint())
-                        .credentials(minioConfig.getAccessKey(), minioConfig.getSecretKey()).build();
-            }
-
             inputStream = minioClient.getObject(GetObjectArgs.builder().bucket(minioConfig.getBucketName()).object(previewFile.getFileUrl()).build());
-
-
         } catch (MinioException e) {
             System.out.println("Error occurred: " + e);
         } catch (IOException | NoSuchAlgorithmException | InvalidKeyException e) {

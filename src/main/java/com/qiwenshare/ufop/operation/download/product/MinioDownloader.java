@@ -28,11 +28,6 @@ public class MinioDownloader extends Downloader {
     public InputStream getInputStream(DownloadFile downloadFile) {
         InputStream inputStream = null;
         try {
-            if (minioClient == null) {
-                minioClient = MinioClient.builder().endpoint(minioConfig.getEndpoint())
-                        .credentials(minioConfig.getAccessKey(), minioConfig.getSecretKey()).build();
-            }
-
             if (downloadFile.getRange() != null) {
                 inputStream = minioClient.getObject(GetObjectArgs.builder()
                         .bucket(minioConfig.getBucketName())

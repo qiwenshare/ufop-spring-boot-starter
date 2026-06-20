@@ -28,10 +28,6 @@ public class MinioDeleter extends Deleter {
     public void delete(DeleteFile deleteFile) {
 
         try {
-            if (minioClient == null) {
-                minioClient = MinioClient.builder().endpoint(minioConfig.getEndpoint())
-                        .credentials(minioConfig.getAccessKey(), minioConfig.getSecretKey()).build();
-            }
             // 从mybucket中删除myobject。
             minioClient.removeObject(RemoveObjectArgs.builder().bucket(minioConfig.getBucketName()).object(deleteFile.getFileUrl()).build());
             log.info("successfully removed mybucket/myobject");

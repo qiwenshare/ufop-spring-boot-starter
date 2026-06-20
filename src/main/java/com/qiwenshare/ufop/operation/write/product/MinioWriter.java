@@ -28,10 +28,6 @@ public class MinioWriter extends Writer {
     @Override
     public void write(InputStream inputStream, WriteFile writeFile) {
         try {
-            if (minioClient == null) {
-                minioClient = MinioClient.builder().endpoint(minioConfig.getEndpoint())
-                        .credentials(minioConfig.getAccessKey(), minioConfig.getSecretKey()).build();
-            }
             // 检查存储桶是否已经存在
             boolean isExist = minioClient.bucketExists(BucketExistsArgs.builder().bucket(minioConfig.getBucketName()).build());
             if(!isExist) {
