@@ -87,9 +87,6 @@ public abstract class Previewer {
             } finally {
                 IOUtils.closeQuietly(inputstream);
                 IOUtils.closeQuietly(outputStream);
-                if (previewFile.getOssClient() != null) {
-                    previewFile.getOssClient().shutdown();
-                }
             }
 
 
@@ -119,9 +116,6 @@ public abstract class Previewer {
         } finally {
             IOUtils.closeQuietly(inputStream);
             IOUtils.closeQuietly(outputStream);
-            if (previewFile.getOssClient() != null) {
-                previewFile.getOssClient().shutdown();
-            }
         }
     }
 

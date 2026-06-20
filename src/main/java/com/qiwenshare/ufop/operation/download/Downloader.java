@@ -1,6 +1,5 @@
 package com.qiwenshare.ufop.operation.download;
 
-import com.aliyun.oss.OSS;
 import com.qiwenshare.ufop.operation.download.domain.DownloadFile;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -29,10 +28,6 @@ public abstract class Downloader {
         } finally {
             IOUtils.closeQuietly(inputStream);
             IOUtils.closeQuietly(outputStream);
-            OSS ossClient = downloadFile.getOssClient();
-            if (ossClient != null) {
-                ossClient.shutdown();
-            }
         }
 
     }

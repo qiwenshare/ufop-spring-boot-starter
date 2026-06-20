@@ -5,6 +5,7 @@ import com.qiwenshare.ufop.config.AliyunConfig;
 import com.qiwenshare.ufop.operation.write.Writer;
 import com.qiwenshare.ufop.operation.write.domain.WriteFile;
 import com.qiwenshare.ufop.util.UFOPUtils;
+import org.apache.commons.io.IOUtils;
 
 import java.io.InputStream;
 
@@ -24,7 +25,11 @@ public class AliyunOSSWriter extends Writer {
 
     @Override
     public void write(InputStream inputStream, WriteFile writeFile) {
-        ossClient.putObject(aliyunConfig.getOss().getBucketName(), UFOPUtils.getAliyunObjectNameByFileUrl(writeFile.getFileUrl()), inputStream);
+        try {
+            ossClient.putObject(aliyunConfig.getOss().getBucketName(), UFOPUtils.getAliyunObjectNameByFileUrl(writeFile.getFileUrl()), inputStream);
+        } finally {
+            IOUtils.closeQuietly(inputStream);
+        }
     }
 
 }

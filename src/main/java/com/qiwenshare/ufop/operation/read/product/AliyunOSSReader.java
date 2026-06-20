@@ -38,6 +38,8 @@ public class AliyunOSSReader extends Reader {
             return IOUtils.toString(inputStream);
         } catch (IOException e) {
             throw new ReadException("读取文件失败", e);
+        } finally {
+            IOUtils.closeQuietly(inputStream);
         }
     }
 

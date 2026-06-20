@@ -28,8 +28,11 @@ public class AliyunOSSCopier extends Copier {
     public String copy(InputStream inputStream, CopyFile copyFile) {
         String uuid = UUID.randomUUID().toString();
         String fileUrl = UFOPUtils.getUploadFileUrl(uuid, copyFile.getExtendName());
-        ossClient.putObject(aliyunConfig.getOss().getBucketName(), fileUrl, inputStream);
-        IOUtils.closeQuietly(inputStream);
+        try {
+            ossClient.putObject(aliyunConfig.getOss().getBucketName(), fileUrl, inputStream);
+        } finally {
+            IOUtils.closeQuietly(inputStream);
+        }
         return fileUrl;
     }
 
