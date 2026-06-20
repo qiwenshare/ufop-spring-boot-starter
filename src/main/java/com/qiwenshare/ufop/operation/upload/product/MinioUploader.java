@@ -15,6 +15,7 @@ import com.qiwenshare.ufop.operation.upload.request.QiwenMultipartFile;
 import io.minio.CreateMultipartUploadResponse;
 import io.minio.ListPartsResponse;
 import io.minio.MinioAsyncClient;
+import io.minio.MinioClient;
 import io.minio.UploadPartResponse;
 import io.minio.errors.InsufficientDataException;
 import io.minio.errors.InternalException;
@@ -32,6 +33,7 @@ import java.util.concurrent.ExecutionException;
 public class MinioUploader extends Uploader {
 
     private MinioConfig minioConfig;
+    private MinioClient minioClient;
 
     @Resource
     CacheService cacheService;
@@ -44,6 +46,11 @@ public class MinioUploader extends Uploader {
 
     public MinioUploader(MinioConfig minioConfig){
         this.minioConfig = minioConfig;
+    }
+
+    public MinioUploader(MinioConfig minioConfig, MinioClient minioClient) {
+        this.minioConfig = minioConfig;
+        this.minioClient = minioClient;
     }
 
     @Override

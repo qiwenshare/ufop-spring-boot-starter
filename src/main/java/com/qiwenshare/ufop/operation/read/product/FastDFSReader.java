@@ -29,9 +29,10 @@ public class FastDFSReader extends Reader {
         InputStream inputStream = getInputStream(readFile.getFileUrl());
         try {
             return IOUtils.toString(inputStream);
-//            return ReadFileUtils.getContentByInputStream(fileType, getInputStream(readFile.getFileUrl()));
         } catch (IOException e) {
             throw new ReadException("读取文件失败", e);
+        } finally {
+            IOUtils.closeQuietly(inputStream);
         }
     }
 

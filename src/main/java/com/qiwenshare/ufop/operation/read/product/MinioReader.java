@@ -20,6 +20,7 @@ import java.security.NoSuchAlgorithmException;
 public class MinioReader extends Reader {
 
     private MinioConfig minioConfig;
+    private MinioClient minioClient;
 
     public MinioReader(){
 
@@ -29,37 +30,35 @@ public class MinioReader extends Reader {
         this.minioConfig = minioConfig;
     }
 
+    public MinioReader(MinioConfig minioConfig, MinioClient minioClient) {
+        this.minioConfig = minioConfig;
+        this.minioClient = minioClient;
+    }
+
     @Override
     public String read(ReadFile readFile) {
         String fileUrl = readFile.getFileUrl();
         String fileType = FilenameUtils.getExtension(fileUrl);
+        InputStream inputStream = null;
         try {
-            return IOUtils.toString(getInputStream(readFile.getFileUrl()));
-//            return ReadFileUtils.getContentByInputStream(fileType, getInputStream(readFile.getFileUrl()));
+            inputStream = getInputStream(readFile.getFileUrl());
+            return IOUtils.toString(inputStream);
         } catch (IOException e) {
             throw new ReadException("读取文件失败", e);
+        } finally {
+            IOUtils.closeQuietly(inputStream);
         }
     }
 
     protected InputStream getInputStream(String fileUrl) {
-        InputStream inputStream = null;
         try {
-
-            MinioClient minioClient =
-                    MinioClient.builder().endpoint(minioConfig.getEndpoint())
-                            .credentials(minioConfig.getAccessKey(), minioConfig.getSecretKey()).build();
-
-            inputStream = minioClient.getObject(GetObjectArgs.builder().bucket(minioConfig.getBucketName()).object(fileUrl).build());
-
-
+            return minioClient.getObject(GetObjectArgs.builder().bucket(minioConfig.getBucketName()).object(fileUrl).build());
         } catch (MinioException e) {
-            System.out.println("Error occurred: " + e);
+            log.error("Minio error: " + e);
         } catch (IOException | NoSuchAlgorithmException | InvalidKeyException e) {
             log.error(e.getMessage());
         }
-
-
-        return inputStream;
+        return null;
     }
 
 

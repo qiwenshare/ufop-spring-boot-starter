@@ -2,6 +2,7 @@ package com.qiwenshare.ufop.factory;
 
 import com.aliyun.oss.OSS;
 import com.qiwenshare.ufop.autoconfiguration.UFOPProperties;
+import io.minio.MinioClient;
 import com.qiwenshare.ufop.config.AliyunConfig;
 import com.qiwenshare.ufop.config.MinioConfig;
 import com.qiwenshare.ufop.config.QiniuyunConfig;
@@ -65,6 +66,8 @@ public class UFOPFactory {
 
     @Resource
     private OSS ossClient;
+    @Resource
+    private MinioClient minioClient;
     @Resource
     private LocalStorageDownloader localStorageDownloader;
     @Resource
@@ -153,7 +156,7 @@ public class UFOPFactory {
         } else if (StorageTypeEnum.FAST_DFS.getCode() == storageType) {
             reader = fastDFSReader;
         } else if (StorageTypeEnum.MINIO.getCode() == storageType) {
-            reader = new MinioReader(minioConfig);
+            reader = new MinioReader(minioConfig, minioClient);
         } else if (StorageTypeEnum.QINIUYUN_KODO.getCode() == storageType) {
             reader = new QiniuyunKodoReader(qiniuyunConfig);
         }

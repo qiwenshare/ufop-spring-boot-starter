@@ -27,11 +27,14 @@ public class QiniuyunKodoReader extends Reader {
     public String read(ReadFile readFile) {
         String fileUrl = readFile.getFileUrl();
         String fileType = FilenameUtils.getExtension(fileUrl);
+        InputStream inputStream = null;
         try {
-           return IOUtils.toString(getInputStream(readFile.getFileUrl()));
-//            return ReadFileUtils.getContentByInputStream(fileType, getInputStream(readFile.getFileUrl()));
+           inputStream = getInputStream(readFile.getFileUrl());
+           return IOUtils.toString(inputStream);
         } catch (IOException e) {
             throw new ReadException("读取文件失败", e);
+        } finally {
+            IOUtils.closeQuietly(inputStream);
         }
     }
 

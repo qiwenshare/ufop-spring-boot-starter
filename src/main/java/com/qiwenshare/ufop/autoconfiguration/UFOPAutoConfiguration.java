@@ -17,7 +17,9 @@ import com.qiwenshare.ufop.operation.preview.product.LocalStoragePreviewer;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
 import com.qiwenshare.ufop.config.AliyunConfig;
+import com.qiwenshare.ufop.config.MinioConfig;
 import com.qiwenshare.ufop.operation.query.product.AliyunOSSQuerier;
+import io.minio.MinioClient;
 import com.qiwenshare.ufop.operation.read.product.FastDFSReader;
 import com.qiwenshare.ufop.operation.read.product.LocalStorageReader;
 import com.qiwenshare.ufop.operation.upload.product.*;
@@ -96,7 +98,19 @@ public class UFOPAutoConfiguration {
     }
     @Bean
     public MinioUploader minioUploader() {
-        return new MinioUploader(ufopProperties.getMinio());
+        return new MinioUploader(ufopProperties.getMinio(), minioClient());
+    }
+
+    @Bean
+    public MinioClient minioClient() {
+        MinioConfig minio = ufopProperties.getMinio();
+        if (minio != null) {
+            return MinioClient.builder()
+                    .endpoint(minio.getEndpoint())
+                    .credentials(minio.getAccessKey(), minio.getSecretKey())
+                    .build();
+        }
+        return null;
     }
     @Bean
     public LocalStorageDownloader localStorageDownloader() {
