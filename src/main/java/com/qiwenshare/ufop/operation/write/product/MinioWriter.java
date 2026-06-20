@@ -18,23 +18,20 @@ import java.security.NoSuchAlgorithmException;
 public class MinioWriter extends Writer {
 
     private MinioConfig minioConfig;
+    private MinioClient minioClient;
 
-    public MinioWriter(){
-
-    }
-
-    public MinioWriter(MinioConfig minioConfig) {
+    public MinioWriter(MinioConfig minioConfig, MinioClient minioClient) {
         this.minioConfig = minioConfig;
+        this.minioClient = minioClient;
     }
 
     @Override
     public void write(InputStream inputStream, WriteFile writeFile) {
-
-
         try {
-            MinioClient minioClient =
-                    MinioClient.builder().endpoint(minioConfig.getEndpoint())
-                            .credentials(minioConfig.getAccessKey(), minioConfig.getSecretKey()).build();
+            if (minioClient == null) {
+                minioClient = MinioClient.builder().endpoint(minioConfig.getEndpoint())
+                        .credentials(minioConfig.getAccessKey(), minioConfig.getSecretKey()).build();
+            }
             // 检查存储桶是否已经存在
             boolean isExist = minioClient.bucketExists(BucketExistsArgs.builder().bucket(minioConfig.getBucketName()).build());
             if(!isExist) {
@@ -44,11 +41,16 @@ public class MinioWriter extends Writer {
             minioClient.putObject(
                     PutObjectArgs.builder().bucket(minioConfig.getBucketName()).object(UFOPUtils.getAliyunObjectNameByFileUrl(writeFile.getFileUrl())).stream(
                                     inputStream, inputStream.available(), -1)
-//                            .contentType("video/mp4")
                             .build());
 
         } catch (MinioException | InvalidKeyException | NoSuchAlgorithmException | IOException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                inputStream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 

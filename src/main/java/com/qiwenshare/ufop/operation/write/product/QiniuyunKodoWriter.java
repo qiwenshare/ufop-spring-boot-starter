@@ -56,6 +56,12 @@ public class QiniuyunKodoWriter extends Writer {
             log.info(putRet.hash);
         } catch (IOException ex) {
             throw new WriteException("七牛云写文件失败！", ex);
+        } finally {
+            try {
+                inputStream.close();
+            } catch (IOException e) {
+                log.error("关闭输入流失败", e);
+            }
         }
 
 

@@ -17,23 +17,21 @@ import java.security.NoSuchAlgorithmException;
 public class MinioDownloader extends Downloader {
 
     private MinioConfig minioConfig;
+    private MinioClient minioClient;
 
-    public MinioDownloader(){
-
-    }
-
-    public MinioDownloader(MinioConfig minioConfig) {
+    public MinioDownloader(MinioConfig minioConfig, MinioClient minioClient) {
         this.minioConfig = minioConfig;
+        this.minioClient = minioClient;
     }
 
     @Override
     public InputStream getInputStream(DownloadFile downloadFile) {
         InputStream inputStream = null;
         try {
-
-            MinioClient minioClient =
-                    MinioClient.builder().endpoint(minioConfig.getEndpoint())
-                            .credentials(minioConfig.getAccessKey(), minioConfig.getSecretKey()).build();
+            if (minioClient == null) {
+                minioClient = MinioClient.builder().endpoint(minioConfig.getEndpoint())
+                        .credentials(minioConfig.getAccessKey(), minioConfig.getSecretKey()).build();
+            }
 
             if (downloadFile.getRange() != null) {
                 inputStream = minioClient.getObject(GetObjectArgs.builder()

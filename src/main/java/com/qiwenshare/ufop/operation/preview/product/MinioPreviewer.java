@@ -20,13 +20,11 @@ import java.security.NoSuchAlgorithmException;
 @Slf4j
 public class MinioPreviewer extends Previewer {
     private MinioConfig minioConfig;
+    private MinioClient minioClient;
 
-    public MinioPreviewer(){
-
-    }
-
-    public MinioPreviewer(MinioConfig minioConfig, ThumbImage thumbImage) {
+    public MinioPreviewer(MinioConfig minioConfig, MinioClient minioClient, ThumbImage thumbImage) {
         setMinioConfig(minioConfig);
+        this.minioClient = minioClient;
         setThumbImage(thumbImage);
     }
 
@@ -34,10 +32,10 @@ public class MinioPreviewer extends Previewer {
     protected InputStream getInputStream(PreviewFile previewFile) {
         InputStream inputStream = null;
         try {
-
-            MinioClient minioClient =
-                    MinioClient.builder().endpoint(minioConfig.getEndpoint())
-                            .credentials(minioConfig.getAccessKey(), minioConfig.getSecretKey()).build();
+            if (minioClient == null) {
+                minioClient = MinioClient.builder().endpoint(minioConfig.getEndpoint())
+                        .credentials(minioConfig.getAccessKey(), minioConfig.getSecretKey()).build();
+            }
 
             inputStream = minioClient.getObject(GetObjectArgs.builder().bucket(minioConfig.getBucketName()).object(previewFile.getFileUrl()).build());
 

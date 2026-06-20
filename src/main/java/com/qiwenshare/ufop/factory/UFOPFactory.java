@@ -115,7 +115,7 @@ public class UFOPFactory {
         } else if (StorageTypeEnum.FAST_DFS.getCode() == storageType) {
             downloader = fastDFSDownloader;
         } else if (StorageTypeEnum.MINIO.getCode() == storageType) {
-            downloader = new MinioDownloader(minioConfig);
+            downloader = new MinioDownloader(minioConfig, minioClient);
         } else if (StorageTypeEnum.QINIUYUN_KODO.getCode() == storageType) {
             downloader = new QiniuyunKodoDownloader(qiniuyunConfig);
         }
@@ -136,7 +136,7 @@ public class UFOPFactory {
         } else if (StorageTypeEnum.FAST_DFS.getCode() == storageType) {
             deleter = fastDFSDeleter;
         } else if (StorageTypeEnum.MINIO.getCode() == storageType) {
-            deleter = new MinioDeleter(minioConfig);
+            deleter = new MinioDeleter(minioConfig, minioClient);
         } else if (StorageTypeEnum.QINIUYUN_KODO.getCode() == storageType) {
             deleter = new QiniuyunKodoDeleter(qiniuyunConfig);
         }
@@ -176,7 +176,7 @@ public class UFOPFactory {
         } else if (StorageTypeEnum.FAST_DFS.getCode() == storageType) {
             writer = fastDFSWriter;
         } else if (StorageTypeEnum.MINIO.getCode() == storageType) {
-            writer = new MinioWriter(minioConfig);
+            writer = new MinioWriter(minioConfig, minioClient);
         } else if (StorageTypeEnum.QINIUYUN_KODO.getCode() == storageType) {
             writer = new QiniuyunKodoWriter(qiniuyunConfig);
         }
@@ -196,7 +196,7 @@ public class UFOPFactory {
         } else if (StorageTypeEnum.FAST_DFS.getCode() == storageType) {
             previewer = fastDFSPreviewer;
         } else if (StorageTypeEnum.MINIO.getCode() == storageType) {
-            previewer = new MinioPreviewer(minioConfig, thumbImage);
+            previewer = new MinioPreviewer(minioConfig, minioClient, thumbImage);
         } else if (StorageTypeEnum.QINIUYUN_KODO.getCode() == storageType) {
             previewer = new QiniuyunKodoPreviewer(qiniuyunConfig, thumbImage);
         }
@@ -217,7 +217,7 @@ public class UFOPFactory {
         } else if (StorageTypeEnum.FAST_DFS.getCode() == type) {
             copier = fastDFSCopier;
         } else if (StorageTypeEnum.MINIO.getCode() == type) {
-            copier = new MinioCopier(minioConfig);
+            copier = new MinioCopier(minioConfig, minioClient);
         } else if (StorageTypeEnum.QINIUYUN_KODO.getCode() == type) {
             copier = new QiniuyunKodoCopier(qiniuyunConfig);
         }

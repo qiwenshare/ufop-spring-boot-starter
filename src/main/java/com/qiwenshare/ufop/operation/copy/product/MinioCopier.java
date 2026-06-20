@@ -20,26 +20,23 @@ import java.util.UUID;
 public class MinioCopier extends Copier {
 
     private MinioConfig minioConfig;
+    private MinioClient minioClient;
 
-    public MinioCopier(){
-
-    }
-
-    public MinioCopier(MinioConfig minioConfig) {
+    public MinioCopier(MinioConfig minioConfig, MinioClient minioClient) {
         this.minioConfig = minioConfig;
+        this.minioClient = minioClient;
     }
+
     @Override
     public String copy(InputStream inputStream, CopyFile copyFile) {
         String uuid = UUID.randomUUID().toString();
         String fileUrl = UFOPUtils.getUploadFileUrl(uuid, copyFile.getExtendName());
 
-
-
-        MinioClient minioClient;
         try {
-            minioClient =
-                    MinioClient.builder().endpoint(minioConfig.getEndpoint())
-                            .credentials(minioConfig.getAccessKey(), minioConfig.getSecretKey()).build();
+            if (minioClient == null) {
+                minioClient = MinioClient.builder().endpoint(minioConfig.getEndpoint())
+                        .credentials(minioConfig.getAccessKey(), minioConfig.getSecretKey()).build();
+            }
             // 检查存储桶是否已经存在
             boolean isExist = minioClient.bucketExists(BucketExistsArgs.builder().bucket(minioConfig.getBucketName()).build());
             if(!isExist) {
@@ -49,7 +46,6 @@ public class MinioCopier extends Copier {
             minioClient.putObject(
                     PutObjectArgs.builder().bucket(minioConfig.getBucketName()).object(fileUrl).stream(
                                     inputStream, inputStream.available(), 1024 * 1024 * 5)
-//                            .contentType("video/mp4")
                             .build());
 
         } catch (MinioException | InvalidKeyException | NoSuchAlgorithmException | IOException e) {

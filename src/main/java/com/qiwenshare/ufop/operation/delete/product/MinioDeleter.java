@@ -17,21 +17,21 @@ import java.security.NoSuchAlgorithmException;
 @Slf4j
 public class MinioDeleter extends Deleter {
     private MinioConfig minioConfig;
+    private MinioClient minioClient;
 
-    public MinioDeleter(){
-
-    }
-
-    public MinioDeleter(MinioConfig minioConfig) {
+    public MinioDeleter(MinioConfig minioConfig, MinioClient minioClient) {
         this.minioConfig = minioConfig;
+        this.minioClient = minioClient;
     }
+
     @Override
     public void delete(DeleteFile deleteFile) {
 
         try {
-            MinioClient minioClient =
-                    MinioClient.builder().endpoint(minioConfig.getEndpoint())
-                            .credentials(minioConfig.getAccessKey(), minioConfig.getSecretKey()).build();
+            if (minioClient == null) {
+                minioClient = MinioClient.builder().endpoint(minioConfig.getEndpoint())
+                        .credentials(minioConfig.getAccessKey(), minioConfig.getSecretKey()).build();
+            }
             // 从mybucket中删除myobject。
             minioClient.removeObject(RemoveObjectArgs.builder().bucket(minioConfig.getBucketName()).object(deleteFile.getFileUrl()).build());
             log.info("successfully removed mybucket/myobject");
