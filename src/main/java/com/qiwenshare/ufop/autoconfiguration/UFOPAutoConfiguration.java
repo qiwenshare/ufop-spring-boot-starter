@@ -30,6 +30,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.EnableMBeanExport;
@@ -60,48 +62,47 @@ public class UFOPAutoConfiguration {
         }
         return new UFOPFactory(ufopProperties);
     }
+
+    // ==================== FastDFS 相关 (storage-type=2) ====================
     @Bean
+    @ConditionalOnProperty(name = "ufop.storage-type", havingValue = "2")
     public FastDFSCopier fastDFSCreater() {
         return new FastDFSCopier();
     }
     @Bean
+    @ConditionalOnProperty(name = "ufop.storage-type", havingValue = "2")
     public FastDFSUploader fastDFSUploader() {
         return new FastDFSUploader();
     }
     @Bean
+    @ConditionalOnProperty(name = "ufop.storage-type", havingValue = "2")
     public FastDFSDownloader fastDFSDownloader() {
         return new FastDFSDownloader();
     }
     @Bean
+    @ConditionalOnProperty(name = "ufop.storage-type", havingValue = "2")
     public FastDFSDeleter fastDFSDeleter() {
         return new FastDFSDeleter();
     }
     @Bean
+    @ConditionalOnProperty(name = "ufop.storage-type", havingValue = "2")
     public FastDFSReader fastDFSReader() {
         return new FastDFSReader();
     }
     @Bean
+    @ConditionalOnProperty(name = "ufop.storage-type", havingValue = "2")
     public FastDFSWriter fastDFSWriter() {
         return new FastDFSWriter();
     }
     @Bean
-    public LocalStoragePreviewer localStoragePreviewer() {
-        return new LocalStoragePreviewer(ufopProperties.getThumbImage());
-    }
-    @Bean
+    @ConditionalOnProperty(name = "ufop.storage-type", havingValue = "2")
     public FastDFSPreviewer fastDFSPreviewer() {
         return new FastDFSPreviewer(ufopProperties.getThumbImage());
     }
-    @Bean
-    public AliyunOSSUploader aliyunOSSUploader() {
-        return new AliyunOSSUploader(ufopProperties.getAliyun(), ossClient());
-    }
-    @Bean
-    public MinioUploader minioUploader() {
-        return new MinioUploader(ufopProperties.getMinio(), minioClient());
-    }
 
+    // ==================== MinIO 相关 (storage-type=3) ====================
     @Bean
+    @ConditionalOnProperty(name = "ufop.storage-type", havingValue = "3")
     public MinioClient minioClient() {
         MinioConfig minio = ufopProperties.getMinio();
         if (minio != null) {
@@ -113,61 +114,14 @@ public class UFOPAutoConfiguration {
         return null;
     }
     @Bean
-    public LocalStorageDownloader localStorageDownloader() {
-        return new LocalStorageDownloader();
-    }
-    @Bean
-    public LocalStorageReader localStorageReader() {
-        return new LocalStorageReader();
-    }
-    @Bean
-    public QiniuyunKodoUploader qiniuyunKodoUploader() {
-        return new QiniuyunKodoUploader(ufopProperties.getQiniuyun());
-    }
-    @Bean
-    private LocalStorageUploader localStorageUploader() {
-        return new LocalStorageUploader();
+    @ConditionalOnBean(MinioClient.class)
+    public MinioUploader minioUploader(MinioClient minioClient) {
+        return new MinioUploader(ufopProperties.getMinio(), minioClient);
     }
 
-
+    // ==================== 阿里云 OSS 相关 (storage-type=1) ====================
     @Bean
-    public CacheService cacheService() {
-        CacheConfig cache = ufopProperties.getCache();
-        if (cache != null) {
-            String type = cache.getType();
-            if ("redis".equals(type)) {
-                return new CacheServiceRedisImpl();
-            } else {
-                return new CacheServiceJDKImpl();
-            }
-        } else {
-            return new CacheServiceJDKImpl();
-        }
-
-    }
-
-    @Bean
-    public LockService lockService() {
-        CacheConfig cache = ufopProperties.getCache();
-        if (cache != null) {
-            String type = cache.getType();
-            if ("redis".equals(type)) {
-                return new LockServiceRedisImpl();
-            } else {
-                return new LockServiceJDKImpl();
-            }
-        } else {
-            return new LockServiceJDKImpl();
-        }
-
-    }
-
-    @Bean
-    public AliyunOSSQuerier aliyunOSSQuerier() {
-        return new AliyunOSSQuerier(ufopProperties.getAliyun(), ossClient());
-    }
-
-    @Bean
+    @ConditionalOnProperty(name = "ufop.storage-type", havingValue = "1")
     public OSS ossClient() {
         AliyunConfig aliyun = ufopProperties.getAliyun();
         if (aliyun != null && aliyun.getOss() != null) {
@@ -178,5 +132,61 @@ public class UFOPAutoConfiguration {
             );
         }
         return null;
+    }
+    @Bean
+    @ConditionalOnBean(OSS.class)
+    public AliyunOSSQuerier aliyunOSSQuerier(OSS ossClient) {
+        return new AliyunOSSQuerier(ufopProperties.getAliyun(), ossClient);
+    }
+    @Bean
+    @ConditionalOnBean(OSS.class)
+    public AliyunOSSUploader aliyunOSSUploader(OSS ossClient) {
+        return new AliyunOSSUploader(ufopProperties.getAliyun(), ossClient);
+    }
+
+    // ==================== 七牛云 相关 (storage-type=4) ====================
+    @Bean
+    @ConditionalOnProperty(name = "ufop.storage-type", havingValue = "4")
+    public QiniuyunKodoUploader qiniuyunKodoUploader() {
+        return new QiniuyunKodoUploader(ufopProperties.getQiniuyun());
+    }
+
+    // ==================== 本地存储 (默认) ====================
+    @Bean
+    public LocalStoragePreviewer localStoragePreviewer() {
+        return new LocalStoragePreviewer(ufopProperties.getThumbImage());
+    }
+    @Bean
+    public LocalStorageDownloader localStorageDownloader() {
+        return new LocalStorageDownloader();
+    }
+    @Bean
+    public LocalStorageReader localStorageReader() {
+        return new LocalStorageReader();
+    }
+    @Bean
+    private LocalStorageUploader localStorageUploader() {
+        return new LocalStorageUploader();
+    }
+
+    // ==================== 缓存服务 ====================
+    @Bean
+    @ConditionalOnProperty(name = "ufop.cache.type", havingValue = "redis", matchIfMissing = true)
+    public CacheService cacheService() {
+        CacheConfig cache = ufopProperties.getCache();
+        if (cache != null && "redis".equals(cache.getType())) {
+            return new CacheServiceRedisImpl();
+        }
+        return new CacheServiceJDKImpl();
+    }
+
+    @Bean
+    @ConditionalOnProperty(name = "ufop.cache.type", havingValue = "redis", matchIfMissing = true)
+    public LockService lockService() {
+        CacheConfig cache = ufopProperties.getCache();
+        if (cache != null && "redis".equals(cache.getType())) {
+            return new LockServiceRedisImpl();
+        }
+        return new LockServiceJDKImpl();
     }
 }
