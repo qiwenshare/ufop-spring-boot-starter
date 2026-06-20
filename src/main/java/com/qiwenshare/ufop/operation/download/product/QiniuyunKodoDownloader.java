@@ -31,23 +31,20 @@ public class QiniuyunKodoDownloader extends Downloader {
 
         String urlString = auth.privateDownloadUrl(qiniuyunConfig.getKodo().getDomain() + "/" + downloadFile.getFileUrl());
 
-        InputStream inputStream = null;
-        try {
-            inputStream = this.downloadAsStream(urlString);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        try {
+        try (InputStream inputStream = this.downloadAsStream(urlString)) {
             if (downloadFile.getRange() != null) {
                 inputStream.skip(downloadFile.getRange().getStart());
                 byte[] bytes = new byte[downloadFile.getRange().getLength()];
                 IOUtils.read(inputStream, bytes);
-                inputStream = new ByteArrayInputStream(bytes);
+                return new ByteArrayInputStream(bytes);
             }
+            // 非 range 请求：需要保留流，由调用者关闭，所以不能使用 try-with-resources
+            // 这里复制一份返回
+            byte[] bytes = IOUtils.toByteArray(inputStream);
+            return new ByteArrayInputStream(bytes);
         } catch (IOException e) {
-            log.error(e.getMessage());
+            throw new RuntimeException(e);
         }
-        return inputStream;
     }
 
 }
