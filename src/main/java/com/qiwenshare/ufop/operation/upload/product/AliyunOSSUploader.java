@@ -35,21 +35,21 @@ public class AliyunOSSUploader extends Uploader {
     private ObjectMapper objectMapper;
 
     private AliyunConfig aliyunConfig;
+    private OSS ossClient;
 
-    public AliyunOSSUploader(){
+    public AliyunOSSUploader() {
 
     }
 
-    public AliyunOSSUploader(AliyunConfig aliyunConfig) {
+    public AliyunOSSUploader(AliyunConfig aliyunConfig, OSS ossClient) {
         this.aliyunConfig = aliyunConfig;
+        this.ossClient = ossClient;
     }
 
     @Override
     protected void doUploadFileChunk(QiwenMultipartFile qiwenMultipartFile, UploadFile uploadFile) throws IOException {
 
-        OSS ossClient = AliyunUtils.getOSSClient(aliyunConfig);
-        try {
-            UploadFileInfo uploadFileInfo = null;
+        UploadFileInfo uploadFileInfo = null;
             String uploadPartRequestJson = cacheService.getObject("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":uploadPartRequest");
             if (uploadPartRequestJson != null) {
                 try {
@@ -115,11 +115,6 @@ public class AliyunOSSUploader extends Uploader {
             } catch (Exception e) {
                 log.error("Failed to serialize partETags", e);
             }
-        } finally {
-            ossClient.shutdown();
-        }
-
-
     }
 
     @Override
@@ -191,10 +186,8 @@ public class AliyunOSSUploader extends Uploader {
                         uploadFileInfo.getKey(),
                         uploadFileInfo.getUploadId(),
                         partETags);
-        OSS ossClient = AliyunUtils.getOSSClient(aliyunConfig);
         // 完成上传。
         ossClient.completeMultipartUpload(completeMultipartUploadRequest);
-        ossClient.shutdown();
 
     }
 
@@ -211,13 +204,11 @@ public class AliyunOSSUploader extends Uploader {
             log.error("Failed to parse UploadFileInfo", e);
         }
 
-        OSS ossClient = AliyunUtils.getOSSClient(aliyunConfig);
         AbortMultipartUploadRequest abortMultipartUploadRequest =
                 new AbortMultipartUploadRequest(aliyunConfig.getOss().getBucketName(),
                         uploadFileInfo.getKey(),
                         uploadFileInfo.getUploadId());
         ossClient.abortMultipartUpload(abortMultipartUploadRequest);
-        ossClient.shutdown();
     }
 
 

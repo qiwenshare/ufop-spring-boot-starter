@@ -14,6 +14,9 @@ import com.qiwenshare.ufop.operation.download.product.FastDFSDownloader;
 import com.qiwenshare.ufop.operation.download.product.LocalStorageDownloader;
 import com.qiwenshare.ufop.operation.preview.product.FastDFSPreviewer;
 import com.qiwenshare.ufop.operation.preview.product.LocalStoragePreviewer;
+import com.aliyun.oss.OSS;
+import com.aliyun.oss.OSSClientBuilder;
+import com.qiwenshare.ufop.config.AliyunConfig;
 import com.qiwenshare.ufop.operation.query.product.AliyunOSSQuerier;
 import com.qiwenshare.ufop.operation.read.product.FastDFSReader;
 import com.qiwenshare.ufop.operation.read.product.LocalStorageReader;
@@ -89,7 +92,7 @@ public class UFOPAutoConfiguration {
     }
     @Bean
     public AliyunOSSUploader aliyunOSSUploader() {
-        return new AliyunOSSUploader(ufopProperties.getAliyun());
+        return new AliyunOSSUploader(ufopProperties.getAliyun(), ossClient());
     }
     @Bean
     public MinioUploader minioUploader() {
@@ -147,6 +150,19 @@ public class UFOPAutoConfiguration {
 
     @Bean
     public AliyunOSSQuerier aliyunOSSQuerier() {
-        return new AliyunOSSQuerier(ufopProperties.getAliyun());
+        return new AliyunOSSQuerier(ufopProperties.getAliyun(), ossClient());
+    }
+
+    @Bean
+    public OSS ossClient() {
+        AliyunConfig aliyun = ufopProperties.getAliyun();
+        if (aliyun != null && aliyun.getOss() != null) {
+            return new OSSClientBuilder().build(
+                    aliyun.getOss().getEndpoint(),
+                    aliyun.getOss().getAccessKeyId(),
+                    aliyun.getOss().getAccessKeySecret()
+            );
+        }
+        return null;
     }
 }

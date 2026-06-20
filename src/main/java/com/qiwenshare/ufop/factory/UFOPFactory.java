@@ -1,5 +1,6 @@
 package com.qiwenshare.ufop.factory;
 
+import com.aliyun.oss.OSS;
 import com.qiwenshare.ufop.autoconfiguration.UFOPProperties;
 import com.qiwenshare.ufop.config.AliyunConfig;
 import com.qiwenshare.ufop.config.MinioConfig;
@@ -61,6 +62,9 @@ public class UFOPFactory {
 
     @Resource
     private LocalStorageUploader localStorageUploader;
+
+    @Resource
+    private OSS ossClient;
     @Resource
     private LocalStorageDownloader localStorageDownloader;
     @Resource
@@ -104,7 +108,7 @@ public class UFOPFactory {
         if (StorageTypeEnum.LOCAL.getCode() == storageType) {
             downloader = localStorageDownloader;
         } else if (StorageTypeEnum.ALIYUN_OSS.getCode() == storageType) {
-            downloader = new AliyunOSSDownloader(aliyunConfig);
+            downloader = new AliyunOSSDownloader(aliyunConfig, ossClient);
         } else if (StorageTypeEnum.FAST_DFS.getCode() == storageType) {
             downloader = fastDFSDownloader;
         } else if (StorageTypeEnum.MINIO.getCode() == storageType) {
@@ -125,7 +129,7 @@ public class UFOPFactory {
         if (StorageTypeEnum.LOCAL.getCode() == storageType) {
             deleter = new LocalStorageDeleter();
         } else if (StorageTypeEnum.ALIYUN_OSS.getCode() == storageType) {
-            deleter = new AliyunOSSDeleter(aliyunConfig);
+            deleter = new AliyunOSSDeleter(aliyunConfig, ossClient);
         } else if (StorageTypeEnum.FAST_DFS.getCode() == storageType) {
             deleter = fastDFSDeleter;
         } else if (StorageTypeEnum.MINIO.getCode() == storageType) {
@@ -145,7 +149,7 @@ public class UFOPFactory {
         if (StorageTypeEnum.LOCAL.getCode() == storageType) {
             reader = localStorageReader;
         } else if (StorageTypeEnum.ALIYUN_OSS.getCode() == storageType) {
-            reader = new AliyunOSSReader(aliyunConfig);
+            reader = new AliyunOSSReader(aliyunConfig, ossClient);
         } else if (StorageTypeEnum.FAST_DFS.getCode() == storageType) {
             reader = fastDFSReader;
         } else if (StorageTypeEnum.MINIO.getCode() == storageType) {
@@ -165,7 +169,7 @@ public class UFOPFactory {
         if (StorageTypeEnum.LOCAL.getCode() == storageType) {
             writer = new LocalStorageWriter();
         } else if (StorageTypeEnum.ALIYUN_OSS.getCode() == storageType) {
-            writer = new AliyunOSSWriter(aliyunConfig);
+            writer = new AliyunOSSWriter(aliyunConfig, ossClient);
         } else if (StorageTypeEnum.FAST_DFS.getCode() == storageType) {
             writer = fastDFSWriter;
         } else if (StorageTypeEnum.MINIO.getCode() == storageType) {
@@ -185,7 +189,7 @@ public class UFOPFactory {
         if (StorageTypeEnum.LOCAL.getCode() == storageType) {
             previewer = localStoragePreviewer;
         } else if (StorageTypeEnum.ALIYUN_OSS.getCode() == storageType) {
-            previewer = new AliyunOSSPreviewer(aliyunConfig, thumbImage);
+            previewer = new AliyunOSSPreviewer(aliyunConfig, thumbImage, ossClient);
         } else if (StorageTypeEnum.FAST_DFS.getCode() == storageType) {
             previewer = fastDFSPreviewer;
         } else if (StorageTypeEnum.MINIO.getCode() == storageType) {
@@ -206,7 +210,7 @@ public class UFOPFactory {
         if (StorageTypeEnum.LOCAL.getCode() == type) {
             copier = new LocalStorageCopier();
         } else if (StorageTypeEnum.ALIYUN_OSS.getCode() == type) {
-            copier = new AliyunOSSCopier(aliyunConfig);
+            copier = new AliyunOSSCopier(aliyunConfig, ossClient);
         } else if (StorageTypeEnum.FAST_DFS.getCode() == type) {
             copier = fastDFSCopier;
         } else if (StorageTypeEnum.MINIO.getCode() == type) {
@@ -226,7 +230,7 @@ public class UFOPFactory {
         if (StorageTypeEnum.LOCAL.getCode() == storageType) {
 //            previewer = localStoragePreviewer;
         } else if (StorageTypeEnum.ALIYUN_OSS.getCode() == storageType) {
-            querier = new AliyunOSSQuerier(aliyunConfig);
+            querier = new AliyunOSSQuerier(aliyunConfig, ossClient);
         } else if (StorageTypeEnum.FAST_DFS.getCode() == storageType) {
 //            previewer = fastDFSPreviewer;
         } else if (StorageTypeEnum.MINIO.getCode() == storageType) {
