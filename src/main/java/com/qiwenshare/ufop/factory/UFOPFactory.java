@@ -29,6 +29,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Resource;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 @Slf4j
 public class UFOPFactory {
     private String storageType;
@@ -36,42 +38,50 @@ public class UFOPFactory {
     private ThumbImage thumbImage;
     private MinioConfig minioConfig;
     private QiniuyunConfig qiniuyunConfig;
-    @Resource
+
+    // FastDFS 相关 (可选)
+    @Autowired(required = false)
     private FastDFSCopier fastDFSCopier;
-    @Resource
+    @Autowired(required = false)
     private FastDFSUploader fastDFSUploader;
-    @Resource
+    @Autowired(required = false)
     private FastDFSDownloader fastDFSDownloader;
-    @Resource
-    private  FastDFSDeleter fastDFSDeleter;
-    @Resource
+    @Autowired(required = false)
+    private FastDFSDeleter fastDFSDeleter;
+    @Autowired(required = false)
     private FastDFSReader fastDFSReader;
-    @Resource
+    @Autowired(required = false)
     private FastDFSPreviewer fastDFSPreviewer;
+    @Autowired(required = false)
+    private FastDFSWriter fastDFSWriter;
+
+    // 本地存储 (必需)
     @Resource
     private LocalStoragePreviewer localStoragePreviewer;
     @Resource
-    private FastDFSWriter fastDFSWriter;
-    @Resource
-    private AliyunOSSUploader aliyunOSSUploader;
-    @Resource
-    private AliyunOSSQuerier aliyunOSSQuerier;
-    @Resource
-    private MinioUploader minioUploader;
-    @Resource
-    private QiniuyunKodoUploader qiniuyunKodoUploader;
-
-    @Resource
     private LocalStorageUploader localStorageUploader;
-
-    @Resource
-    private OSS ossClient;
-    @Resource
-    private MinioClient minioClient;
     @Resource
     private LocalStorageDownloader localStorageDownloader;
     @Resource
     private LocalStorageReader localStorageReader;
+
+    // 阿里云 OSS 相关 (可选)
+    @Autowired(required = false)
+    private AliyunOSSUploader aliyunOSSUploader;
+    @Autowired(required = false)
+    private AliyunOSSQuerier aliyunOSSQuerier;
+    @Autowired(required = false)
+    private OSS ossClient;
+
+    // MinIO 相关 (可选)
+    @Autowired(required = false)
+    private MinioUploader minioUploader;
+    @Autowired(required = false)
+    private MinioClient minioClient;
+
+    // 七牛云相关 (可选)
+    @Autowired(required = false)
+    private QiniuyunKodoUploader qiniuyunKodoUploader;
     public UFOPFactory() {
     }
 

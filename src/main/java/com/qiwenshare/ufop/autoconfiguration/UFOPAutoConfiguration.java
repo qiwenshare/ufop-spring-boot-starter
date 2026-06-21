@@ -169,9 +169,8 @@ public class UFOPAutoConfiguration {
         return new LocalStorageUploader();
     }
 
-    // ==================== 缓存服务 ====================
+    // ==================== 缓存服务 (必需) ====================
     @Bean
-    @ConditionalOnProperty(name = "ufop.cache.type", havingValue = "redis", matchIfMissing = true)
     public CacheService cacheService() {
         CacheConfig cache = ufopProperties.getCache();
         if (cache != null && "redis".equals(cache.getType())) {
@@ -181,7 +180,6 @@ public class UFOPAutoConfiguration {
     }
 
     @Bean
-    @ConditionalOnProperty(name = "ufop.cache.type", havingValue = "redis", matchIfMissing = true)
     public LockService lockService() {
         CacheConfig cache = ufopProperties.getCache();
         if (cache != null && "redis".equals(cache.getType())) {
