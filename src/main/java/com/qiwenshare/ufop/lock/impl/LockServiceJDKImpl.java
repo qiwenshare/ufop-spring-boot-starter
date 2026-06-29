@@ -26,7 +26,6 @@ public class LockServiceJDKImpl implements LockService {
 
     // 监控统计
     private final AtomicLong totalLockCount = new AtomicLong(0);
-    private final AtomicLong currentActiveLocks = new AtomicLong(0);
 
     @Override
     public void lock(String key) {
@@ -56,9 +55,9 @@ public class LockServiceJDKImpl implements LockService {
         try {
             lock.unlock();
             log.debug("释放锁成功，key:{}, 线程:{}", key, Thread.currentThread().getName());
-        } finally {
-            // 原子安全清理，彻底解决内存泄漏
-            cleanupLock(key, lock);
+        } catch (Exception e) {
+            log.error("释放锁异常，key:{}, 线程:{}", key, Thread.currentThread().getName(), e);
+            throw e;
         }
     }
 
@@ -126,23 +125,7 @@ public class LockServiceJDKImpl implements LockService {
         return lock;
     }
 
-    /**
-     * 清理指定的锁（在unlock后调用）
-     */
-    private void cleanupLock(String key, ReentrantLock lock) {
-        try {
-            // JDK 8 兼容的清理方式
-            ReentrantLock currentLock = lockMap.get(key);
-            if (currentLock == lock && !currentLock.isLocked()) {
-                if (lockMap.remove(key, lock)) {
-                    log.debug("清理未使用的锁对象，key:{}", key);
-                    currentActiveLocks.decrementAndGet();
-                }
-            }
-        } catch (Exception e) {
-            log.error("清理锁对象异常，key:{}", key, e);
-        }
-    }
+   
 
     /**
      * 清理未使用的锁对象（在tryLock失败时调用）
