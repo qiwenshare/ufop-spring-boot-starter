@@ -45,10 +45,10 @@ public class LockServiceRedisImpl implements LockService {
     private final ThreadLocal<Map<String, LockVO>> lockMap = new ThreadLocal<>();
 
     public void lock(final String key) {
+
         try {
             acquireLock(key, LOCK_EXPIRE_TIME, -1);
         } catch (Exception e) {
-            cleanThreadLocalIfNeeded();
             throw new RuntimeException("acquire lock exception", e);
         }
     }
@@ -58,26 +58,23 @@ public class LockServiceRedisImpl implements LockService {
             release(key);
         } catch (Exception e) {
             throw new RuntimeException("release lock exception", e);
-        } finally {
-            // 确保清理ThreadLocal，防止内存泄漏
-            cleanThreadLocalIfNeeded();
         }
     }
+
 
     public boolean tryLock(final String key) {
         try {
             return acquireLock(key, LOCK_EXPIRE_TIME, 0);
         } catch (Exception e) {
-            cleanThreadLocalIfNeeded();
             throw new RuntimeException("acquire lock exception", e);
         }
     }
+
 
     public boolean tryLock(String key, long time, TimeUnit unit) {
         try {
             return acquireLock(key, LOCK_EXPIRE_TIME, unit.toSeconds(time));
         } catch (Exception e) {
-            cleanThreadLocalIfNeeded();
             throw new RuntimeException("acquire lock exception", e);
         }
     }
@@ -173,38 +170,6 @@ public class LockServiceRedisImpl implements LockService {
         return false;
     }
 
-    /**
-     * 清理ThreadLocal，防止内存泄漏
-     */
-    private void cleanThreadLocalIfNeeded() {
-        Map<String, LockVO> map = lockMap.get();
-        if (map == null || map.isEmpty()) {
-            lockMap.remove();
-        }
-    }
-
-
-    /**
-     * 获取已持有的锁（会修改重入次数）
-     * @param key 锁的key
-     * @return 是否成功获取
-     */
-    private boolean acquired(String key) {
-        Map<String, LockVO> map = lockMap.get();
-        if (map == null || map.size() == 0 || !map.containsKey(key)) {
-            return false;
-        }
-
-        LockVO vo = map.get(key);
-        if (vo.beforeExpireTime < System.currentTimeMillis()) {
-            log.debug("lock {} maybe release, because timeout ", key);
-            return false;
-        }
-        int after = ++vo.count;
-        log.debug("acquire lock {} {} ", key, after);
-        return true;
-    }
-
     private static class LockVO {
         /**
          * 锁重入的次数
@@ -230,5 +195,21 @@ public class LockServiceRedisImpl implements LockService {
             this.beforeExpireTime = beforeExpireTime;
             this.afterExpireTime = afterExpireTime;
         }
+    }
+
+    private boolean acquired(String key) {
+        Map<String, LockVO> map = lockMap.get();
+        if (map == null || map.size() == 0 || !map.containsKey(key)) {
+            return false;
+        }
+
+        LockVO vo = map.get(key);
+        if (vo.beforeExpireTime < System.currentTimeMillis()) {
+            log.debug("lock {} maybe release, because timeout ", key);
+            return false;
+        }
+        int after = ++vo.count;
+        log.debug("acquire lock {} {} ", key, after);
+        return true;
     }
 }
