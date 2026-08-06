@@ -115,6 +115,27 @@ public class UFOPFactory {
         return uploader;
     }
 
+    public Uploader getUploader(int storageType) {
+
+        Uploader uploader = null;
+        if (StorageTypeEnum.LOCAL.getCode() == storageType) {
+            uploader = localStorageUploader;
+        } else if (StorageTypeEnum.ALIYUN_OSS.getCode() == storageType) {
+            uploader = aliyunOSSUploader;
+        } else if (StorageTypeEnum.FAST_DFS.getCode() == storageType) {
+            uploader = fastDFSUploader;
+        } else if (StorageTypeEnum.MINIO.getCode() == storageType) {
+            uploader = minioUploader;
+        } else if (StorageTypeEnum.QINIUYUN_KODO.getCode() == storageType) {
+            uploader = qiniuyunKodoUploader;
+        }
+        if (uploader == null) {
+            log.error("上传失败，文件存储类型不支持预览，storageType:{}", storageType);
+            throw new UploadException("上传失败");
+        }
+        return uploader;
+    }
+
 
     public Downloader getDownloader(int storageType) {
         Downloader downloader = null;

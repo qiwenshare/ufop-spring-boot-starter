@@ -16,7 +16,7 @@ public class UFOPUtils {
 
     public static String LOCAL_STORAGE_PATH;
 
-    public static String ROOT_PATH;
+    public static String BUCKET_NAME;
     public static final String[] TXT_FILE = {"txt", "html", "java", "xml", "js", "css", "json", "sql"};
 
     // ========== 全局路径缓存（只初始化一次，避免重复 new File / 路径解析）==========
@@ -135,9 +135,9 @@ public class UFOPUtils {
     /**
      * 获取上传文件路径，使用线程安全日期类
      */
-    public static String getUploadFileUrl(String identifier, String extendName) {
+    public static String getUploadFileUrl(String bucketName, String identifier, String extendName) {
         String dateStr = LocalDate.now().format(DATE_FORMATTER);
-        String path = ROOT_PATH + "/" + dateStr + "/";
+        String path = StringUtils.isEmpty(bucketName) ? BUCKET_NAME : bucketName + "/" + dateStr + "/";
         File dir = new File(getDataPath(), path);
         if (!dir.exists()) {
             dir.mkdirs();

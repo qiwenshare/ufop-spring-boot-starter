@@ -58,7 +58,7 @@ public class AliyunOSSUploader extends Uploader {
                     log.error("Failed to parse UploadFileInfo", e);
                 }
             }
-            String fileUrl = qiwenMultipartFile.getFileUrl();
+            String fileUrl = qiwenMultipartFile.getFileUrl(null);
             if (uploadFileInfo == null) {
 
                 InitiateMultipartUploadRequest request = new InitiateMultipartUploadRequest(aliyunConfig.getOss().getBucketName(), fileUrl);

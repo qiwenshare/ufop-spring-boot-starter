@@ -12,6 +12,7 @@ public class UploadFile {
     private String identifier;
     private long totalSize;
     private long currentChunkSize;
+    private String bucketName;
 
 
 }

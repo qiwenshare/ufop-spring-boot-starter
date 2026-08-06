@@ -75,7 +75,7 @@ public class MinioUploader extends Uploader {
                     log.error("Failed to parse UploadFileInfo", e);
                 }
             }
-            String fileUrl = qiwenMultipartFile.getFileUrl();
+            String fileUrl = qiwenMultipartFile.getFileUrl(null);
             if (uploadFileInfo == null) {
 
 

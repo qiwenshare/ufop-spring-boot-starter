@@ -60,7 +60,7 @@ public class QiniuyunKodoUploader extends Uploader {
         UploadFileResult uploadFileResult = new UploadFileResult();
         try {
             qiwenMultipartFile.getFileUrl(uploadFile.getIdentifier());
-            String fileUrl = UFOPUtils.getUploadFileUrl(uploadFile.getIdentifier(), qiwenMultipartFile.getExtendName());
+            String fileUrl = UFOPUtils.getUploadFileUrl(null, uploadFile.getIdentifier(), qiwenMultipartFile.getExtendName());
 
             File tempFile =  UFOPUtils.getTempFile(fileUrl);
             File processFile = UFOPUtils.getProcessFile(fileUrl);

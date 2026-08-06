@@ -56,9 +56,9 @@ public class UFOPAutoConfiguration {
         UFOPUtils.LOCAL_STORAGE_PATH = ufopProperties.getLocalStoragePath();
         String bucketName = ufopProperties.getBucketName();
         if (StringUtils.isNotEmpty(bucketName)) {
-            UFOPUtils.ROOT_PATH = ufopProperties.getBucketName();
+            UFOPUtils.BUCKET_NAME = ufopProperties.getBucketName();
         } else {
-            UFOPUtils.ROOT_PATH = "upload";
+            UFOPUtils.BUCKET_NAME = "upload";
         }
         return new UFOPFactory(ufopProperties);
     }

@@ -84,7 +84,7 @@ public class LocalStorageUploader extends Uploader {
             }
 
             if (uploadFileInfo == null) {
-                String fileUrl = qiwenMultipartFile.getFileUrl();
+                String fileUrl = qiwenMultipartFile.getFileUrl(uploadFile.getBucketName());
                 uploadFileInfo = new UploadFileInfo();
                 uploadFileInfo.setKey(fileUrl);
                 try {

@@ -35,7 +35,7 @@ public class QiniuyunKodoCopier extends Copier {
     @Override
     public String copy(InputStream inputStream, CopyFile copyFile) {
         String uuid = UUID.randomUUID().toString();
-        String fileUrl = UFOPUtils.getUploadFileUrl(uuid, copyFile.getExtendName());
+        String fileUrl = UFOPUtils.getUploadFileUrl(null, uuid, copyFile.getExtendName());
 
         qiniuUpload(fileUrl, inputStream);
 

@@ -32,13 +32,13 @@ public class QiwenMultipartFile {
         return FilenameUtils.getExtension(originalName);
     }
 
-    public String getFileUrl() {
+    public String getFileUrl(String bucketName) {
         String uuid = UUID.randomUUID().toString();
-        return UFOPUtils.getUploadFileUrl(uuid, getExtendName());
+        return UFOPUtils.getUploadFileUrl(bucketName, uuid, getExtendName());
     }
 
-    public String getFileUrl(String identify) {
-        return UFOPUtils.getUploadFileUrl(identify, getExtendName());
+    public String getFileUrl(String bucketName, String identify) {
+        return UFOPUtils.getUploadFileUrl(bucketName, identify, getExtendName());
     }
 
     public InputStream getUploadInputStream() throws IOException {
