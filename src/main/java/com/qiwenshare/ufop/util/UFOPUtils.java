@@ -137,7 +137,7 @@ public class UFOPUtils {
      */
     public static String getUploadFileUrl(String bucketName, String identifier, String extendName) {
         String dateStr = LocalDate.now().format(DATE_FORMATTER);
-        String path = StringUtils.isEmpty(bucketName) ? BUCKET_NAME : bucketName + "/" + dateStr + "/";
+        String path = (StringUtils.isEmpty(bucketName) ? BUCKET_NAME : bucketName) + "/" + dateStr + "/";
         File dir = new File(getDataPath(), path);
         if (!dir.exists()) {
             dir.mkdirs();

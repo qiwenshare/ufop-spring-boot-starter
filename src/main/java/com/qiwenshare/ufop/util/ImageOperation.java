@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.qiwenshare.ufop.result.ImageInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
-import org.bytedeco.javacpp.BytePointer;
 import org.bytedeco.opencv.global.opencv_core;
 import org.bytedeco.opencv.global.opencv_imgcodecs;
 import org.bytedeco.opencv.global.opencv_imgproc;
@@ -15,7 +14,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
 
 @Slf4j
 public class ImageOperation {
@@ -214,161 +212,6 @@ public class ImageOperation {
     }
 
 
-    /**
-     * Unicode 安全版本的缩略图生成。
-     * <p>
-     * 与 {@link #thumbnailsImageFile(File, File, int, int)} 逻辑完全一致，唯一区别是
-     * 使用 {@link #imreadUnicode} / {@link #imwriteUnicode} 替代 OpenCV 的 imread / imwrite，
-     * 解决 Windows 上非 ASCII 路径（如中文路径）无法读写图片的问题。
-     * </p>
-     */
-    public static ImageInfo thumbnailsImageFileUnicode(File oriFile, File destFile, int destWidth, int destHeight) {
-
-        Mat mat = null;
-        try {
-            mat = imreadUnicode(oriFile, opencv_imgcodecs.IMREAD_UNCHANGED);
-        } catch (Exception e) {
-            log.error("imreadUnicode exception ", e);
-        }
-
-        ImageInfo imageInfo = new ImageInfo();
-        if (mat == null || mat.empty()) {
-            log.error("Failed to read image: " + oriFile.getAbsolutePath());
-            return imageInfo;
-        }
-        int resizeWidth = mat.cols();
-        int resizeHeight = mat.rows();
-        if (resizeWidth <= 0 || resizeHeight <= 0) {
-            log.error("Invalid image dimensions: width={}, height={}", resizeWidth, resizeHeight);
-            closeMat(mat);
-
-            return imageInfo;
-        }
-        imageInfo.setImageHeight(resizeHeight);
-        imageInfo.setImageWidth(resizeWidth);
-        int channels = mat.channels();
-        int type = mat.type();
-        imageInfo.setChannels(channels);
-        imageInfo.setType(type);
-
-        // 计算像素深度
-        int depth = opencv_core.CV_MAT_DEPTH(mat.type());
-        int bitsPerChannel = parseBitsPerChannel(depth);
-        imageInfo.setBitsPerPixel(bitsPerChannel * mat.channels());
-
-        // 推断格式和 MIME 类型
-        inferFormatAndMimeType(oriFile, imageInfo);
-
-        // 设置默认 DPI（示例值）
-        imageInfo.setPhysicalWidthDpi(72);
-        imageInfo.setPhysicalHeightDpi(72);
-
-
-        if (resizeWidth > resizeHeight) {
-
-
-            if ((long) resizeWidth / (long) resizeHeight > 1.83) {
-                if (resizeHeight < destHeight) {
-                    closeMat(mat);
-                    try {
-                        if (!oriFile.getCanonicalPath().equals(destFile.getCanonicalPath())) {
-                            FileUtils.copyFile(oriFile, destFile);
-                        } else {
-                            log.warn("跳过拷贝，源文件和目标文件路径相同: {}", oriFile.getPath());
-                        }
-                    } catch (IOException e) {
-                        log.error("生成缩略图失败：", e);
-                    }
-                    return imageInfo;
-                }
-
-                resizeWidth = (int) (destHeight / ((double) resizeHeight / (double) resizeWidth));
-                resizeHeight = destHeight;
-            } else {
-                if (resizeWidth < destWidth) {
-                    closeMat(mat);
-                    try {
-                        if (!oriFile.getCanonicalPath().equals(destFile.getCanonicalPath())) {
-                            FileUtils.copyFile(oriFile, destFile);
-                        } else {
-                            log.warn("跳过拷贝，源文件和目标文件路径相同: {}", oriFile.getPath());
-                        }
-                    } catch (IOException e) {
-                        log.error("生成缩略图失败：", e);
-                    }
-                    return imageInfo;
-                }
-
-                resizeHeight = (int) ((double) resizeHeight / (double) resizeWidth * destWidth);
-                resizeWidth = destWidth;
-            }
-        } else {
-            int tmp = resizeHeight;
-            resizeHeight = resizeWidth;
-            resizeWidth = tmp;
-
-            if ((long) resizeWidth / (long) resizeHeight > 1.83) {
-                if (resizeHeight < destHeight) {
-                    closeMat(mat);
-                    try {
-                        if (!oriFile.getCanonicalPath().equals(destFile.getCanonicalPath())) {
-                            FileUtils.copyFile(oriFile, destFile);
-                        } else {
-                            log.warn("跳过拷贝，源文件和目标文件路径相同: {}", oriFile.getPath());
-                        }
-                    } catch (IOException e) {
-                        log.error("生成缩略图失败：", e);
-                    }
-                    return imageInfo;
-                }
-
-                resizeWidth = (int) (destHeight / ((double) resizeHeight / (double) resizeWidth));
-                resizeHeight = destHeight;
-            } else {
-                if (resizeWidth < destWidth) {
-                    closeMat(mat);
-                    try {
-                        if (!oriFile.getCanonicalPath().equals(destFile.getCanonicalPath())) {
-                            FileUtils.copyFile(oriFile, destFile);
-                        } else {
-                            log.warn("跳过拷贝，源文件和目标文件路径相同: {}", oriFile.getPath());
-                        }
-                    } catch (IOException e) {
-                        log.error("生成缩略图失败：", e);
-                    }
-                    return imageInfo;
-                }
-
-                resizeHeight = (int) ((double) resizeHeight / (double) resizeWidth * destWidth);
-                resizeWidth = destWidth;
-            }
-
-            int tmp1 = resizeHeight;
-            resizeHeight = resizeWidth;
-            resizeWidth = tmp1;
-        }
-
-        Size size = new Size(resizeWidth, resizeHeight);
-        Mat resizedImage = new Mat();
-        try {
-            opencv_imgproc.resize(mat, resizedImage, size);
-        } finally {
-            closeMat(mat);
-        }
-        try {
-            imwriteUnicode(destFile, resizedImage);
-        } finally {
-            closeMat(resizedImage);
-        }
-        try {
-            log.info("imageInfo : {}", objectMapper.writeValueAsString(imageInfo));
-        } catch (Exception e) {
-            log.error("Failed to serialize imageInfo", e);
-        }
-        return imageInfo;
-    }
-
-
     public static ImageInfo thumbnailsImageFileToOneK(File oriFile, File destFile) {
         return thumbnailsImageFile(oriFile, destFile, 1920, 1080);
     }
@@ -387,76 +230,6 @@ public class ImageOperation {
 
             mat.close();
         } catch (Exception e2) {
-        }
-    }
-
-
-    /**
-     * 以 Unicode 安全方式读取图片为 Mat。
-     * <p>
-     * OpenCV 的 imread 在 Windows 上通过 C 运行时 fopen 访问文件，不支持非 ASCII 路径
-     * （如 D:\个人\QQ图片.jpg）。此方法通过 Java 文件 IO 读取字节再用 imdecode 解码，
-     * 绕过 OpenCV 的路径处理，天然支持任意 Unicode 路径。
-     * </p>
-     *
-     * @param file  图片文件
-     * @param flags 解码标志，如 {@link opencv_imgcodecs#IMREAD_UNCHANGED}
-     * @return 解码后的 Mat；失败返回 null
-     */
-    private static Mat imreadUnicode(File file, int flags) {
-        try {
-            byte[] data = Files.readAllBytes(file.toPath());
-            Mat buf = new Mat(1, data.length, opencv_core.CV_8UC1, new BytePointer(data));
-            Mat mat = opencv_imgcodecs.imdecode(buf, flags);
-            buf.release();
-            return mat;
-        } catch (Exception e) {
-            log.error("imreadUnicode 读取图片失败: {}", file.getAbsolutePath(), e);
-            return null;
-        }
-    }
-
-    /**
-     * 以 Unicode 安全方式将 Mat 写入图片文件。
-     * <p>
-     * OpenCV 的 imwrite 在 Windows 上同样不支持非 ASCII 路径。此方法用 imencode
-     * 编码到内存再用 Java 文件 IO 写入，绕过 OpenCV 的路径处理。
-     * </p>
-     *
-     * @param file 目标文件
-     * @param mat  要写入的 Mat
-     * @return 成功返回 true
-     */
-    private static boolean imwriteUnicode(File file, Mat mat) {
-        String name = file.getName().toLowerCase();
-        String ext = ".jpg";
-        if (name.endsWith(".png")) {
-            ext = ".png";
-        } else if (name.endsWith(".bmp")) {
-            ext = ".bmp";
-        } else if (name.endsWith(".jpeg")) {
-            ext = ".jpeg";
-        }
-
-        BytePointer buf = new BytePointer();
-        try {
-            if (!opencv_imgcodecs.imencode(ext, mat, buf)) {
-                log.error("imwriteUnicode 编码失败: {}", file.getAbsolutePath());
-                return false;
-            }
-            long size = buf.limit();
-            if (size <= 0) {
-                size = buf.capacity();
-            }
-            byte[] data = new byte[(int) size];
-            buf.get(data);
-            Files.write(file.toPath(), data);
-            return true;
-        } catch (Exception e) {
-            log.error("imwriteUnicode 写入图片失败: {}", file.getAbsolutePath(), e);
-            return false;
-        } finally {
-            buf.close();
         }
     }
 
