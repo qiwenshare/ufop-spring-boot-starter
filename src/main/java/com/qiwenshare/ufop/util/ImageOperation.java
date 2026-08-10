@@ -191,6 +191,8 @@ public class ImageOperation {
             resizeWidth = tmp1;
         }
 
+        log.info("resizeWidth={}, resizeHeight={}", resizeWidth, resizeHeight);
+
         Size size = new Size(resizeWidth, resizeHeight);
         Mat resizedImage = new Mat();
         try {
