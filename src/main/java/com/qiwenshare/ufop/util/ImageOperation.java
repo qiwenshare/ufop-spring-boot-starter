@@ -10,10 +10,14 @@ import org.bytedeco.opencv.global.opencv_imgproc;
 import org.bytedeco.opencv.opencv_core.Mat;
 import org.bytedeco.opencv.opencv_core.Size;
 
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Iterator;
 
 @Slf4j
 public class ImageOperation {
@@ -177,15 +181,59 @@ public class ImageOperation {
     }
 
     /**
-     * 临时灰度读取获取原图真实宽高，用完立即释放Mat
+     * 获取图片原始宽高
+     * 优先JDK ImageReader：仅解析图片文件头部，不解码像素，内存开销极小；
+     * 注意：返回的是文件存储像素尺寸，手机拍摄带EXIF旋转的图片宽高不会自动交换；
+     * 解析失败自动降级OpenCV IMREAD_GRAYSCALE读取。
      *
-     * @return [width,height]，失败返回[0,0]
+     * @param oriFile 图片文件
+     * @return int[]{width, height}, 解析失败返回 [0,0]
      */
     private static int[] getImageRealSize(File oriFile) {
+        if (oriFile == null || !oriFile.exists() || !oriFile.isFile()) {
+            log.warn("getImageRealSize file not exist");
+            return new int[]{0, 0};
+        }
+
+        ImageInputStream iis = null;
+        ImageReader reader = null;
+        try {
+            iis = ImageIO.createImageInputStream(oriFile);
+            Iterator<ImageReader> readers = ImageIO.getImageReaders(iis);
+            if (readers.hasNext()) {
+                reader = readers.next();
+                reader.setInput(iis, true, true);
+                int w = reader.getWidth(0);
+                int h = reader.getHeight(0);
+                if (w > 0 && h > 0) {
+                    return new int[]{w, h};
+                } else {
+                    log.warn("ImageReader get invalid size w={},h={}, file={}", w, h, oriFile.getAbsolutePath());
+                }
+            }
+        } catch (Exception e) {
+            log.warn("ImageReader parse meta failed, file={}, fallback opencv imread", oriFile.getAbsolutePath(), e);
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.dispose();
+                } catch (Exception ignore) {
+                }
+            }
+            if (iis != null) {
+                try {
+                    iis.close();
+                } catch (Exception ignore) {
+                }
+            }
+        }
+
+        // ---------------- 降级：OpenCV灰度读取兜底 ----------------
         Mat tempGrayMat = null;
         try {
             tempGrayMat = opencv_imgcodecs.imread(oriFile.getAbsolutePath(), opencv_imgcodecs.IMREAD_GRAYSCALE);
             if (tempGrayMat == null || tempGrayMat.empty()) {
+                log.warn("opencv fallback read empty, file={}", oriFile.getAbsolutePath());
                 return new int[]{0, 0};
             }
             return new int[]{tempGrayMat.cols(), tempGrayMat.rows()};
