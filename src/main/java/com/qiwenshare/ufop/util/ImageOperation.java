@@ -27,6 +27,7 @@ public class ImageOperation {
     static {
         objectMapper = new ObjectMapper();
         objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+        log.info("ImageOperation static init finished");
     }
 
     // 缩略图输出最大目标分辨率 1080P
@@ -42,7 +43,9 @@ public class ImageOperation {
      * @return ImageInfo
      */
     public static ImageInfo thumbnailsImageFile(File oriFile, File destFile, double ratio) {
+        log.info("[thumbnailsImageFile-ratio] enter, oriFile:{}, destFile:{}, ratio:{}", oriFile.getAbsolutePath(), destFile.getAbsolutePath(), ratio);
         if (ratio <= 0 || ratio > 1) {
+            log.info("[thumbnailsImageFile-ratio] illegal ratio, throw exception");
             throw new IllegalArgumentException("ratio must between (0,1]");
         }
 
@@ -50,19 +53,21 @@ public class ImageOperation {
         int originalWidth;
         int originalHeight;
         try {
+            log.info("[thumbnailsImageFile-ratio] start imread IMREAD_GRAYSCALE get origin size");
             tempGrayMat = opencv_imgcodecs.imread(oriFile.getAbsolutePath(), opencv_imgcodecs.IMREAD_GRAYSCALE);
             if (tempGrayMat == null || tempGrayMat.empty()) {
-                log.error("read temp gray mat failed, file:{}", oriFile.getAbsolutePath());
+                log.error("[thumbnailsImageFile-ratio] read temp gray mat failed, file:{}", oriFile.getAbsolutePath());
                 return new ImageInfo();
             }
             originalWidth = tempGrayMat.cols();
             originalHeight = tempGrayMat.rows();
+            log.info("[thumbnailsImageFile-ratio] origin image size w:{}, h:{}", originalWidth, originalHeight);
         } finally {
             closeMat(tempGrayMat);
         }
 
         if (originalWidth <= 0 || originalHeight <= 0) {
-            log.error("parse image size fail {}", oriFile);
+            log.error("[thumbnailsImageFile-ratio] parse image size fail {}", oriFile);
             return new ImageInfo();
         }
 
@@ -70,6 +75,7 @@ public class ImageOperation {
         int destH = (int) Math.round(originalHeight * ratio);
         destW = Math.max(1, destW);
         destH = Math.max(1, destH);
+        log.info("[thumbnailsImageFile-ratio] calculate destW:{}, destH:{}", destW, destH);
 
         return thumbnailsImageFile(oriFile, destFile, destW, destH);
     }
@@ -85,16 +91,22 @@ public class ImageOperation {
      * @return ImageInfo
      */
     public static ImageInfo thumbnailsImageFile(File oriFile, File destFile, int destWidth, int destHeight) {
+        log.info("[thumbnailsImageFile-w-h] enter, oriFile:{}, destFile:{}, destWidth:{}, destHeight:{}",
+                oriFile.getAbsolutePath(), destFile.getAbsolutePath(), destWidth, destHeight);
         Mat mat = null;
         try {
+            log.info("[thumbnailsImageFile-w-h] call readMatWithReduceSampling");
             mat = readMatWithReduceSampling(oriFile);
             if (mat == null || mat.empty()) {
-                log.error("read image failed:{}", oriFile.getAbsolutePath());
+                log.error("[thumbnailsImageFile-w-h] read image failed:{}", oriFile.getAbsolutePath());
                 return new ImageInfo();
             }
+            log.info("[thumbnailsImageFile-w-h] mat read success");
 
             int srcW = mat.cols();
             int srcH = mat.rows();
+            log.info("[thumbnailsImageFile-w-h] mat srcW:{}, srcH:{}, channels:{}, depth:{}",
+                    srcW, srcH, mat.channels(), mat.depth());
 
             ImageInfo imageInfo = new ImageInfo();
             imageInfo.setImageWidth(srcW);
@@ -105,19 +117,29 @@ public class ImageOperation {
             int depth = mat.depth();
             int bitsPerChannel = parseBitsPerChannel(depth);
             imageInfo.setBitsPerPixel(bitsPerChannel * mat.channels());
+            log.info("[thumbnailsImageFile-w-h] bitsPerChannel:{}, bitsPerPixel:{}", bitsPerChannel, imageInfo.getBitsPerPixel());
+
             // 推断格式和 MIME 类型
             inferFormatAndMimeType(oriFile, imageInfo);
+            log.info("[thumbnailsImageFile-w-h] infer format:{}, mimeType:{}", imageInfo.getFormat(), imageInfo.getMimeType());
+
             Size targetSize = calcKeepAspectSize(srcW, srcH, destWidth, destHeight);
+            log.info("[thumbnailsImageFile-w-h] calcKeepAspectSize result w:{},h:{}", targetSize.width(), targetSize.height());
+
             Mat resizedMat = new Mat();
             try {
+                log.info("[thumbnailsImageFile-w-h] start opencv resize");
                 opencv_imgproc.resize(mat, resizedMat, targetSize, 0, 0, opencv_imgproc.INTER_AREA);
-                opencv_imgcodecs.imwrite(destFile.getAbsolutePath(), resizedMat);
+                log.info("[thumbnailsImageFile-w-h] resize finished, start imwrite to {}", destFile.getAbsolutePath());
+                boolean writeOk = opencv_imgcodecs.imwrite(destFile.getAbsolutePath(), resizedMat);
+                log.info("[thumbnailsImageFile-w-h] imwrite result:{}", writeOk);
             } finally {
                 closeMat(resizedMat);
             }
+            log.info("[thumbnailsImageFile-w-h] process complete, return imageInfo");
             return imageInfo;
         } catch (Exception e) {
-            log.error("thumbnailsImageFile error", e);
+            log.error("[thumbnailsImageFile-w-h] thumbnailsImageFile error", e);
             return new ImageInfo();
         } finally {
             closeMat(mat);
@@ -128,6 +150,7 @@ public class ImageOperation {
      * 快捷生成1080P上限缩略图
      */
     public static ImageInfo thumbnailsImageFileToOneK(File oriFile, File destFile) {
+        log.info("[thumbnailsImageFileToOneK] enter, oriFile:{}, destFile:{}", oriFile.getAbsolutePath(), destFile.getAbsolutePath());
         return thumbnailsImageFile(oriFile, destFile, MAX_TARGET_W, MAX_TARGET_H);
     }
 
@@ -137,17 +160,21 @@ public class ImageOperation {
      * 自动选择 scale(1/2/4/8)，保证解码输出 >= MAX_TARGET_W/H，后续只做缩小resize，禁止放大
      */
     private static Mat readMatWithReduceSampling(File oriFile) {
+        log.info("[readMatWithReduceSampling] enter file:{}", oriFile.getAbsolutePath());
         int[] realSize = getImageRealSize(oriFile);
         int w = realSize[0];
         int h = realSize[1];
+        log.info("[readMatWithReduceSampling] getImageRealSize w:{},h:{}", w, h);
         if (w <= 0 || h <= 0) {
-            log.warn("parse image meta fail, fallback full read {}", oriFile);
+            log.info("[readMatWithReduceSampling] parse image meta fail, fallback full read {}", oriFile);
             return opencv_imgcodecs.imread(oriFile.getAbsolutePath(), opencv_imgcodecs.IMREAD_UNCHANGED);
         }
 
         String ext = getFileExtendName(oriFile.getName()).toLowerCase();
+        log.info("[readMatWithReduceSampling] file ext:{}", ext);
         // PNG不支持REDUCED，直接完整读取
         if ("png".equals(ext)) {
+            log.info("[readMatWithReduceSampling] is png, full read IMREAD_UNCHANGED");
             return opencv_imgcodecs.imread(oriFile.getAbsolutePath(), opencv_imgcodecs.IMREAD_UNCHANGED);
         }
 
@@ -161,23 +188,30 @@ public class ImageOperation {
         if ((w / 8 > MAX_TARGET_W) || (h / 8 > MAX_TARGET_H)) {
             scale = 8;
         }
+        log.info("[readMatWithReduceSampling] computed scale:{}", scale);
 
         int readFlag;
         switch (scale) {
             case 8:
                 readFlag = opencv_imgcodecs.IMREAD_REDUCED_COLOR_8;
+                log.info("[readMatWithReduceSampling] use IMREAD_REDUCED_COLOR_8");
                 break;
             case 4:
                 readFlag = opencv_imgcodecs.IMREAD_REDUCED_COLOR_4;
+                log.info("[readMatWithReduceSampling] use IMREAD_REDUCED_COLOR_4");
                 break;
             case 2:
                 readFlag = opencv_imgcodecs.IMREAD_REDUCED_COLOR_2;
+                log.info("[readMatWithReduceSampling] use IMREAD_REDUCED_COLOR_2");
                 break;
             default:
                 readFlag = opencv_imgcodecs.IMREAD_UNCHANGED;
+                log.info("[readMatWithReduceSampling] use IMREAD_UNCHANGED");
                 break;
         }
-        return opencv_imgcodecs.imread(oriFile.getAbsolutePath(), readFlag);
+        Mat mat = opencv_imgcodecs.imread(oriFile.getAbsolutePath(), readFlag);
+        log.info("[readMatWithReduceSampling] imread return mat is null? {}", mat == null);
+        return mat;
     }
 
     /**
@@ -190,8 +224,9 @@ public class ImageOperation {
      * @return int[]{width, height}, 解析失败返回 [0,0]
      */
     private static int[] getImageRealSize(File oriFile) {
+        log.info("[getImageRealSize] enter file:{}", oriFile.getAbsolutePath());
         if (oriFile == null || !oriFile.exists() || !oriFile.isFile()) {
-            log.warn("getImageRealSize file not exist");
+            log.info("[getImageRealSize] file not exist");
             return new int[]{0, 0};
         }
 
@@ -202,17 +237,21 @@ public class ImageOperation {
             Iterator<ImageReader> readers = ImageIO.getImageReaders(iis);
             if (readers.hasNext()) {
                 reader = readers.next();
+                log.info("[getImageRealSize] found ImageReader:{}", reader.getClass().getSimpleName());
                 reader.setInput(iis, true, true);
                 int w = reader.getWidth(0);
                 int h = reader.getHeight(0);
+                log.info("[getImageRealSize] ImageReader read w:{},h:{}", w, h);
                 if (w > 0 && h > 0) {
                     return new int[]{w, h};
                 } else {
-                    log.warn("ImageReader get invalid size w={},h={}, file={}", w, h, oriFile.getAbsolutePath());
+                    log.info("[getImageRealSize] ImageReader get invalid size w={},h={}, file={}", w, h, oriFile.getAbsolutePath());
                 }
+            }else{
+                log.info("[getImageRealSize] no ImageReader found");
             }
         } catch (Exception e) {
-            log.warn("ImageReader parse meta failed, file={}, fallback opencv imread", oriFile.getAbsolutePath(), e);
+            log.info("[getImageRealSize] ImageReader parse meta failed, will fallback opencv, file={}", oriFile.getAbsolutePath(), e);
         } finally {
             if (reader != null) {
                 try {
@@ -229,14 +268,18 @@ public class ImageOperation {
         }
 
         // ---------------- 降级：OpenCV灰度读取兜底 ----------------
+        log.info("[getImageRealSize] enter opencv fallback read");
         Mat tempGrayMat = null;
         try {
             tempGrayMat = opencv_imgcodecs.imread(oriFile.getAbsolutePath(), opencv_imgcodecs.IMREAD_GRAYSCALE);
             if (tempGrayMat == null || tempGrayMat.empty()) {
-                log.warn("opencv fallback read empty, file={}", oriFile.getAbsolutePath());
+                log.info("[getImageRealSize] opencv fallback read empty, file={}", oriFile.getAbsolutePath());
                 return new int[]{0, 0};
             }
-            return new int[]{tempGrayMat.cols(), tempGrayMat.rows()};
+            int w = tempGrayMat.cols();
+            int h = tempGrayMat.rows();
+            log.info("[getImageRealSize] opencv fallback get w:{},h:{}",w,h);
+            return new int[]{w, h};
         } finally {
             closeMat(tempGrayMat);
         }
@@ -248,6 +291,7 @@ public class ImageOperation {
      * @return bit per channel
      */
     private static int parseBitsPerChannel(int depth) {
+        log.info("[parseBitsPerChannel] depth:{}", depth);
         switch (depth) {
             case opencv_core.CV_8U:
             case opencv_core.CV_8S:
@@ -261,6 +305,7 @@ public class ImageOperation {
             case opencv_core.CV_64F:
                 return 64;
             default:
+                log.info("[parseBitsPerChannel] unknown depth={}",depth);
                 return 0;
         }
     }
@@ -276,6 +321,8 @@ public class ImageOperation {
         int outH = (int) Math.round(srcH * scale);
         outW = Math.max(1, outW);
         outH = Math.max(1, outH);
+        log.info("[calcKeepAspectSize] srcW:{},srcH:{},dstW:{},dstH:{},scaleW:{},scaleH:{},scale:{},outW:{},outH:{}",
+                srcW,srcH,dstW,dstH,scaleW,scaleH,scale,outW,outH);
         return new Size(outW, outH);
     }
 
@@ -301,6 +348,7 @@ public class ImageOperation {
     private static void inferFormatAndMimeType(File file, ImageInfo imageInfo) {
         String fileName = file.getName().toLowerCase();
         String ext = getFileExtendName(fileName);
+        log.info("[inferFormatAndMimeType] fileName:{},ext:{}", fileName, ext);
         if ("jpg".equals(ext) || "jpeg".equals(ext)) {
             imageInfo.setFormat("jpg");
             imageInfo.setFormatName("JPEG");
@@ -330,6 +378,7 @@ public class ImageOperation {
             imageInfo.setFormatName("unknown");
             imageInfo.setMimeType("application/octet‑stream");
         }
+        log.info("[inferFormatAndMimeType] result format:{},mime:{}",imageInfo.getFormat(),imageInfo.getMimeType());
     }
 
 
@@ -355,7 +404,7 @@ public class ImageOperation {
             baos.flush();
             return baos;
         } catch (IOException e) {
-            e.printStackTrace();
+            log.info("[cloneInputStream] error",e);
             return null;
         }
     }
